@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Homiee.Tests/Homiee.Tests.csproj" Id="161ea730-de4f-45bc-8085-e5c3a49e007f" />
+  <Project Path="Homiee/Homiee.csproj" />
+</Solution>

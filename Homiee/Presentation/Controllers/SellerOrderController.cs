@@ -1,0 +1,47 @@
+﻿using Homiee.Application.Interfaces.IServices;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Homiee.Application.DTOs;
+
+
+namespace Homiee.Presentation.Controllers
+{
+    [Route("api/seller/orders")]
+    [ApiController]
+    [Authorize(Roles = "Seller")]
+    public class SellerOrderController : ControllerBase
+    {
+        private readonly ISellerOrderService _service;
+
+        public SellerOrderController(ISellerOrderService service)
+        {
+            _service = service;
+        }
+
+        private int GetUserId()
+        {
+            return int.Parse(User.FindFirst("userId")!.Value);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrders([FromQuery] OrderQueryDto query)
+        {
+            var result = await _service.GetOrders(GetUserId(), query);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("order/{id}")]
+        public async Task<IActionResult> GetOrder(int id)
+        {
+            int userId = int.Parse(User.FindFirst("id")!.Value);
+
+            var result = await _service.GetOrderById(id, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDto dto)
+        {
+            var result = await _service.UpdateStatus(id, GetUserId(), dto.Status);
+            return StatusCode(result.StatusCode, result);
+        }
+    }
+}
