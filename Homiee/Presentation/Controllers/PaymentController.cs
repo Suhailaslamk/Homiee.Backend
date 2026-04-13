@@ -54,11 +54,11 @@ namespace Homiee.Presentation.Controllers
             var signature = Request.Headers["X-Razorpay-Signature"].FirstOrDefault();
             var secret = _config["Razorpay:WebhookSecret"];
 
-            if (string.IsNullOrEmpty(signature))
-                return Unauthorized("Missing signature");
+            //if (string.IsNullOrEmpty(signature))
+            //    return Unauthorized("Missing signature");
 
-            if (!VerifySignature(json, signature, secret))
-                return Unauthorized("Invalid signature");
+            //if (!VerifySignature(json, signature, secret))
+            //    return Unauthorized("Invalid signature");
 
             await _paymentService.HandleWebhook(json);
 

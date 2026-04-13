@@ -1,6 +1,7 @@
-﻿using System.Net;
+﻿using Homiee.Application.Interfaces.IServices;
+using Homiee.Presentation.Controllers;
+using System.Net;
 using System.Net.Mail;
-using Homiee.Application.Interfaces.IServices;
 
 
 
@@ -9,14 +10,17 @@ namespace Homiee.Application.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _config;
+        ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration config)
+        public EmailService(IConfiguration config, ILogger<EmailService> logger)
         {
             _config = config;
+            _logger = logger;
         }
 
         public async Task SendAsync(string to,string subject,string body)
         {
+            _logger.LogInformation("SMTP HOST: {host}", _config["Smtp:Host"]);
             var smtp = new SmtpClient(_config["Smtp:Host"])
             {
                 Port = int.Parse(_config["Smtp:Port"]),

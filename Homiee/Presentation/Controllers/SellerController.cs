@@ -12,10 +12,10 @@ namespace Homiee.Presentation.Controllers
     [Authorize(Roles = "Seller")]
     public class SellerController : ControllerBase
     {
-        private readonly ISellerProfileService _profileService;
+        private readonly IProfileService _profileService;
         private readonly ISellerOnboardingService _onboardingService;
 
-        public SellerController(ISellerProfileService profileService,
+        public SellerController(IProfileService profileService,
        ISellerOnboardingService onboardingService)
         {
             _profileService = profileService;
@@ -40,15 +40,22 @@ namespace Homiee.Presentation.Controllers
 
             return StatusCode(result.StatusCode, result);
         }
-
-
-        [HttpGet("profile")]
-        public async Task<ActionResult> GetProfile()
+        [HttpGet("rejection-reason")]
+        public async Task<IActionResult> GetRejectionReason()
         {
             var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
 
-            var result = await _profileService.GetSellerProfile(userId);
+            var result = await _onboardingService.GetRejectionReason(userId);
             return StatusCode(result.StatusCode, result);
         }
+
+        //[HttpGet("profile")]
+        //public async Task<ActionResult> GetProfile()
+        //{
+        //    var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+
+        //    var result = await _profileService.GetSellerProfile(userId);
+        //    return StatusCode(result.StatusCode, result);
+        //}
     }
 }

@@ -57,5 +57,11 @@ namespace Homiee.Presentation.Controllers
             var result = await _adminSellerService.GetSellers(query);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPost("suspend/{userId}")]
+        public async Task<IActionResult> Suspend(int userId, [FromBody] string reason)
+        {
+            return Ok(await _adminSellerService.SuspendSeller(userId, reason));
+        }
     }
 }

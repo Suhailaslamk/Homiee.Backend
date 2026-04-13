@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Homiee.Presentation.Controllers
 {
+    //[Authorize(Roles = "Customer")]
     [Authorize]
     [ApiController]
     [Route("api/address")]

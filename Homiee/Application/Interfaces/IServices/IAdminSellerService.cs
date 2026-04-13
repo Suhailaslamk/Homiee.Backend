@@ -9,5 +9,6 @@ namespace Homiee.Application.Interfaces.IServices
         Task<ApiResponse<object>> GetSellerDetails(int userId);
         Task<ApiResponse<string>> ApproveSeller(int userId);
         Task<ApiResponse<string>> RejectSeller(int userId, string reason);
+        Task<ApiResponse<string>> SuspendSeller(int userId, string reason);
     }
 }

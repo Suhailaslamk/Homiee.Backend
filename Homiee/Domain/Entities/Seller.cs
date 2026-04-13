@@ -12,7 +12,7 @@ namespace Homiee.Domain.Entities
         
         public string BusinessName { get; set; } = null!;
         public string Address { get; set; } = null!;
-        public bool IsApproved { get; set; } = false;
+        //public bool IsApproved { get; set; } = false;
 
         public string? PhoneNumber { get; set; } 
 
@@ -45,6 +45,15 @@ namespace Homiee.Domain.Entities
 
             Status = ApprovalStatus.Rejected;
             RejectionReason = reason;
+            ReviewedAt = DateTime.UtcNow;
+        }
+        public void Suspend(string reason)
+        {
+            if (Status != ApprovalStatus.Approved)
+                throw new InvalidOperationException("Only approved sellers can be suspended");
+
+            Status = ApprovalStatus.Suspended;
+            RejectionReason = reason; // or SuspensionReason (better naming)
             ReviewedAt = DateTime.UtcNow;
         }
     }

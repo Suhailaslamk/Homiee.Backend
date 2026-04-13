@@ -1,8 +1,11 @@
-﻿using Homiee.Application.DTOs;
+﻿using Castle.Core.Logging;
+using Homiee.Application.DTOs;
 using Homiee.Application.DTOs.Auth;
 using Homiee.Application.Interfaces.IServices;
+using Homiee.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Homiee.Presentation.Controllers
 {
@@ -11,9 +14,11 @@ namespace Homiee.Presentation.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+
+        public AuthController(IAuthService authService )
         {
             _authService = authService;
+           
         }
         [HttpPost("register/customer")]
         public async Task<ActionResult> RegisterCustomer([FromBody] UserRegisterDto dto)
@@ -32,6 +37,7 @@ namespace Homiee.Presentation.Controllers
         [HttpPost("register/delivery")]
         public async Task<ActionResult> RegisterDelivery([FromBody] RegisterDeliveryDto dto)
         {
+
             var result = await _authService.RegisterDelivery(dto);
             return StatusCode(result.StatusCode, result);
         }
@@ -56,14 +62,14 @@ namespace Homiee.Presentation.Controllers
             var result = await _authService.Login(loginDto);
             return StatusCode(result.StatusCode, result);
         }
-        [Authorize]
-        [HttpGet("me")]
+        //[Authorize]
+        //[HttpGet("me")]
 
-        public async Task<ActionResult> GetCurrentUser()
-        {
-            var result = await _authService.GetUserProfile(User);
-            return StatusCode(result.StatusCode, result);
-        }
+        //public async Task<ActionResult> GetCurrentUser()
+        //{
+        //    var result = await _authService.GetUserProfile(User);
+        //    return StatusCode(result.StatusCode, result);
+        //}
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenDto dto)
@@ -87,5 +93,6 @@ namespace Homiee.Presentation.Controllers
             var result = await _authService.Logout(userId, accessToken);
             return StatusCode(result.StatusCode, result);
         }
+        
     }
 }

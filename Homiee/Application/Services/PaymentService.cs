@@ -72,48 +72,104 @@ namespace Homiee.Application.Services
             }
 
             // Create Pending Order
+            //            var pending = new PendingOrder
+            //            {
+            //                UserId = userId,
+            //                AddressId = addressId,
+            //                TotalAmount = total,
+            //                CartSnapshot = JsonConvert.SerializeObject(cartItems)
+            //            };
+
+            //            var client = new RazorpayClient(
+            //    _config["Razorpay:Key"],
+            //    _config["Razorpay:Secret"]
+            //);
+
+            //            var options = new Dictionary<string, object>
+            //{
+            //    { "amount", (int)Math.Round(total * 100) },
+            //    { "currency", "INR" },
+            //    { "receipt", $"order_rcpt_{Guid.NewGuid()}" }
+            //};
+
+            //            var razorpayOrder = client.Order.Create(options);
+            //            var razorpayOrderId = razorpayOrder["id"].ToString();
+
+
+            //            // 2. NOW create pending order with RazorpayOrderId
+            //            var pending = new PendingOrder
+            //            {
+            //                UserId = userId,
+            //                AddressId = addressId,
+            //                TotalAmount = total,
+            //                RazorpayOrderId = razorpayOrderId, // ✅ IMPORTANT
+            //                CartSnapshot = JsonConvert.SerializeObject(cartItems)
+            //            };
+
+            //            await _pendingRepo.AddAsync(pending);
+            //            await _pendingRepo.SaveChangesAsync();
+
+            //            // Razorpay Order
+            //            var client = new RazorpayClient(
+            //                _config["Razorpay:Key"],
+            //                _config["Razorpay:Secret"]
+            //            );
+
+            //            var options = new Dictionary<string, object>
+            //            {
+            //                { "amount", (int)Math.Round(total * 100) },
+            //                { "currency", "INR" },
+            //                { "receipt", $"order_rcpt_{pending.Id}" }
+            //            };
+
+            //            var razorpayOrder = client.Order.Create(options);
+            //            var razorpayOrderId = razorpayOrder["id"].ToString();
+
+            //            pending.RazorpayOrderId = razorpayOrderId;
+            //            await _pendingRepo.SaveChangesAsync();
+
+            //            // Payment entry
+            //            var payment = new DomainPayment
+            //            {
+            //                UserId = userId,
+            //                Amount = total,
+            //                RazorpayOrderId = razorpayOrderId,
+            //                Status = PaymentStatus.Pending,
+            //                Provider = "Razorpay"
+            //            };
+
+            //            await _paymentRepo.AddAsync(payment);
+            //            await _paymentRepo.SaveChangesAsync();
+
+
+
+            var client = new RazorpayClient(
+    _config["Razorpay:Key"],
+    _config["Razorpay:Secret"]
+);
+
+            var options = new Dictionary<string, object>
+{
+    { "amount", (int)Math.Round(total * 100) },
+    { "currency", "INR" },
+    { "receipt", $"rcpt_{Guid.NewGuid().ToString("N").Substring(0, 20)}" }
+};
+
+            var razorpayOrder = client.Order.Create(options);
+            var razorpayOrderId = razorpayOrder["id"].ToString();
+
+            // THEN create pending order
             var pending = new PendingOrder
             {
                 UserId = userId,
                 AddressId = addressId,
                 TotalAmount = total,
+                RazorpayOrderId = razorpayOrderId,
                 CartSnapshot = JsonConvert.SerializeObject(cartItems)
             };
 
             await _pendingRepo.AddAsync(pending);
             await _pendingRepo.SaveChangesAsync();
-
-            // Razorpay Order
-            var client = new RazorpayClient(
-                _config["Razorpay:Key"],
-                _config["Razorpay:Secret"]
-            );
-
-            var options = new Dictionary<string, object>
-            {
-                { "amount", (int)Math.Round(total * 100) },
-                { "currency", "INR" },
-                { "receipt", $"order_rcpt_{pending.Id}" }
-            };
-
-            var razorpayOrder = client.Order.Create(options);
-            var razorpayOrderId = razorpayOrder["id"].ToString();
-
-            pending.RazorpayOrderId = razorpayOrderId;
-            await _pendingRepo.SaveChangesAsync();
-
-            // Payment entry
-            var payment = new DomainPayment
-            {
-                UserId = userId,
-                Amount = total,
-                RazorpayOrderId = razorpayOrderId,
-                Status = PaymentStatus.Pending,
-                Provider = "Razorpay"
-            };
-
-            await _paymentRepo.AddAsync(payment);
-            await _paymentRepo.SaveChangesAsync();
 
             return new ApiResponse<object>(200, "Payment initiated", new
             {

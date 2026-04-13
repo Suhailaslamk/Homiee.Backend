@@ -86,22 +86,52 @@ namespace Homiee.Application.Services
                 return new ApiResponse<string>(200, "Seller approved");
             }
 
-            public async Task<ApiResponse<string>> RejectSeller(int userId, string reason)
+        public async Task<ApiResponse<string>> RejectSeller(int userId, string reason)
+        {
+            var seller = await _sellerRepo.GetByUserIdAsync(userId);
+
+            if (seller == null)
+                return new ApiResponse<string>(404, "Seller not found");
+
+            // 🔥 PREVENT invalid state BEFORE calling domain
+            if (seller.Status == ApprovalStatus.Approved)
+                return new ApiResponse<string>(400, "Approved seller cannot be rejected");
+
+            if (seller.Status != ApprovalStatus.Submitted)
+                return new ApiResponse<string>(400, "Only submitted sellers can be rejected");
+            try
             {
-                var seller = await _sellerRepo.GetByUserIdAsync(userId);
-
-                if (seller == null)
-                    return new ApiResponse<string>(404, "Seller not found");
-
-                if (string.IsNullOrWhiteSpace(reason))
-                    return new ApiResponse<string>(400, "Rejection reason required");
-
-            seller.Reject(reason);
-
+                seller.Reject(reason);
                 await _sellerRepo.SaveChangesAsync();
 
-                return new ApiResponse<string>(200, "Seller rejected");
+                return new ApiResponse<string>(200, "Seller rejected successfully");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(400, ex.Message);
             }
         }
+        public async Task<ApiResponse<string>> SuspendSeller(int userId, string reason)
+        {
+            var seller = await _sellerRepo.GetByUserIdAsync(userId);
+
+            if (seller == null)
+                return new ApiResponse<string>(404, "Seller not found");
+
+            try
+            {
+                seller.Suspend(reason);
+                await _sellerRepo.SaveChangesAsync();
+
+                return new ApiResponse<string>(200, "Seller suspended successfully");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(400, ex.Message);
+            }
+        }
+
+    }
+
     }
 

@@ -26,6 +26,7 @@
             SellerId = sellerId;
             CategoryId = categoryId;
             Update(name, description, price);
+            UpdateStock(stock);
         }
 
         public void Update(string name, string description, decimal price)

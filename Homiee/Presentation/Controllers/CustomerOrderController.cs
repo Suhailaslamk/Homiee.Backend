@@ -36,10 +36,11 @@ namespace Homiee.Presentation.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpPost("from-cart")]
-        public async Task<IActionResult> CheckoutFromCart([FromBody] int addressId)
+        public async Task<IActionResult> CheckoutFromCart(CheckoutFromCartDto dto)
         {
-            var userId = int.Parse(User.FindFirst("userId").Value);
-            return Ok(await _service.CreateOrderFromCart(userId, addressId));
+            var userId = GetUserId();
+            var result = await _service.CreateOrderFromCart(userId, dto.AddressId);
+            return StatusCode(result.StatusCode, result);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrder(int id)

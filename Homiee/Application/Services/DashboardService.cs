@@ -3,6 +3,7 @@ using Homiee.Application.DTOs;
 
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
+using Homiee.Domain.Enums;
 using Homiee.Infrastructure.Data;
 
 namespace Homiee.Application.Services
@@ -21,14 +22,19 @@ namespace Homiee.Application.Services
             using var connection = _context.CreateConnection();
 
             var sql = @"
-                SELECT 
-                    (SELECT COUNT(*) FROM Users WHERE IsDeleted = 0) AS TotalUsers,
-                    (SELECT COUNT(*) FROM Sellers) AS TotalSellers,
-                    (SELECT COUNT(*) FROM Orders) AS TotalOrders,
-                    (SELECT ISNULL(SUM(TotalAmount),0) FROM Orders WHERE Status = 'Delivered') AS TotalRevenue
-            ";
+    SELECT 
+        (SELECT COUNT(*) FROM Users WHERE IsDeleted = 0) AS TotalUsers,
+        (SELECT COUNT(*) FROM Sellers) AS TotalSellers,
+        (SELECT COUNT(*) FROM Orders) AS TotalOrders,
+        (SELECT ISNULL(SUM(TotalAmount),0) 
+         FROM Orders 
+         WHERE Status = @DeliveredStatus) AS TotalRevenue
+";
 
-            var result = await connection.QueryFirstOrDefaultAsync<AdminDashboardDto>(sql);
+            var result = await connection.QueryFirstOrDefaultAsync<AdminDashboardDto>(
+    sql,
+    new { DeliveredStatus = (int)OrderStatus.Delivered }
+);
 
             return new ApiResponse<AdminDashboardDto>(200, "Success", result);
         }
@@ -38,23 +44,29 @@ namespace Homiee.Application.Services
             using var connection = _context.CreateConnection();
 
             var sql = @"
-                SELECT 
-                    (SELECT COUNT(*) FROM Products WHERE SellerId = @SellerId AND IsDeleted = 0) AS TotalProducts,
-                    
-                    (SELECT COUNT(*) FROM Orders WHERE SellerId = @SellerId) AS TotalOrders,
-                    
-                    (SELECT ISNULL(SUM(TotalAmount),0) 
-                     FROM Orders 
-                     WHERE SellerId = @SellerId AND Status = 'Delivered') AS TotalRevenue,
-                    
-                    (SELECT COUNT(*) 
-                     FROM Products 
-                     WHERE SellerId = @SellerId AND Stock < 5 AND IsDeleted = 0) AS LowStockProducts
-            ";
+    SELECT 
+        (SELECT COUNT(*) FROM Products WHERE SellerId = @SellerId AND IsDeleted = 0) AS TotalProducts,
+        
+        (SELECT COUNT(*) FROM Orders WHERE SellerId = @SellerId) AS TotalOrders,
+        
+        (SELECT ISNULL(SUM(TotalAmount),0) 
+         FROM Orders 
+         WHERE SellerId = @SellerId AND Status = @DeliveredStatus) AS TotalRevenue,
+        
+        (SELECT COUNT(*) 
+         FROM Products 
+         WHERE SellerId = @SellerId AND Stock < 5 AND IsDeleted = 0) AS LowStockProducts
+";
 
             var result = await connection.QueryFirstOrDefaultAsync<SellerDashboardDto>(
-                sql,
-                new { SellerId = sellerId }
+    sql,
+    new
+    {
+        SellerId = sellerId,
+        DeliveredStatus = (int)OrderStatus.Delivered
+    }
+
+            
             );
 
             return new ApiResponse<SellerDashboardDto>(200, "Success", result);

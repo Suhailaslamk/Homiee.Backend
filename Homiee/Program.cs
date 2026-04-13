@@ -122,7 +122,7 @@ builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ISellersRepository, SellersRepository>();
 builder.Services.AddScoped<IFileStorageService, AzureBlobService>();
 builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
-builder.Services.AddScoped<ISellerProfileService, SellerProfileService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ISellerOnboardingService, SellerOnboardingService>();
 builder.Services.AddScoped<IAdminSellerService, AdminSellerService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -156,7 +156,6 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 
 
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IRevokedAccessTokenRepository, RevokedAccessTokenRepository>();
@@ -168,6 +167,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+Console.WriteLine("this will show");
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");

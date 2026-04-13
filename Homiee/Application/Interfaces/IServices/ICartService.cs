@@ -1,11 +1,12 @@
 ﻿using Homiee.Application.DTOs;
+using Homiee.Common;
 
 namespace Homiee.Application.Interfaces.IServices
 {
     public interface ICartService
     {
-        Task AddToCart(int customerId, AddToCartDto dto);
-        Task<List<CartItemDto>> GetCart(int customerId);
-        Task RemoveFromCart(int customerId, int productId);
+        Task<ApiResponse<string>> AddToCart(int customerId, AddToCartDto dto);
+        Task<ApiResponse<List<CartItemDto>>> GetCart(int customerId);
+        Task<ApiResponse<string>> RemoveFromCart(int customerId, int productId);
     }
 }

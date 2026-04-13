@@ -7,5 +7,6 @@ namespace Homiee.Application.Interfaces.IServices
     {
         Task<ApiResponse<string>> CompleteSellerDetails(int userId, CompleteSellerDetailsDto dto);
         Task<ApiResponse<string>> ResubmitSeller(int userId, CompleteSellerDetailsDto dto);
+        Task<ApiResponse<object>> GetRejectionReason(int userId);
     }
 }

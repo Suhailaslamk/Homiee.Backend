@@ -27,23 +27,23 @@ namespace Homiee.Presentation.Controllers
         {
             var userId = GetUserId();
             var result = await _cartService.GetCart(userId);
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart(AddToCartDto dto)
         {
             var userId = GetUserId();
-            await _cartService.AddToCart(userId, dto);
-            return Ok("Added to cart");
+            var result = await _cartService.AddToCart(userId, dto);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("remove/{productId}")]
         public async Task<IActionResult> RemoveFromCart(int productId)
         {
             var userId = GetUserId();
-            await _cartService.RemoveFromCart(userId, productId);
-            return Ok("Removed");
+            var result = await _cartService.RemoveFromCart(userId, productId);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

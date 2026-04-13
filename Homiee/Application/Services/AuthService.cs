@@ -331,9 +331,19 @@ namespace Homiee.Application.Services
             if (user.IsDeleted)
                 return new ApiResponse<object>(403, "Account has been deleted");
 
+            if (user.Status == UserStatus.Suspended)
+                return new ApiResponse<object>(403, "Your account is suspended");
 
             if (user.IsBlocked)
                 return new ApiResponse<object>(403, "Your account has been blocked");
+
+            if (user.Status == UserStatus.Blocked)
+                return new ApiResponse<object>(403, "Account is blocked");
+
+            if (user.Status == UserStatus.Deleted)
+                return new ApiResponse<object>(403, "Account is deleted");
+
+            
 
             var accesstoken = GenerateAcessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -486,59 +496,59 @@ namespace Homiee.Application.Services
             return new ApiResponse<string>(200, "OTP resent successfully");
         }
 
-        public async Task<ApiResponse<UserProfileDto>> GetUserProfile(ClaimsPrincipal userClaims)
-        {
-            var userId = userClaims.FindFirst("userId")?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return new ApiResponse<UserProfileDto>(401, "Unauthorized");
+        //public async Task<ApiResponse<UserProfileDto>> GetUserProfile(ClaimsPrincipal userClaims)
+        //{
+        //    var userId = userClaims.FindFirst("userId")?.Value;
+        //    if (string.IsNullOrEmpty(userId))
+        //        return new ApiResponse<UserProfileDto>(401, "Unauthorized");
 
 
-            var user = await _userRepo.GetByIdAsync(int.Parse(userId));
-            if (user == null)
-                return new ApiResponse<UserProfileDto>(404, "User not found");
+        //    var user = await _userRepo.GetByIdAsync(int.Parse(userId));
+        //    if (user == null)
+        //        return new ApiResponse<UserProfileDto>(404, "User not found");
 
-            var profile = new UserProfileDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Role = user.Role.ToString(),
+        //    var profile = new UserProfileDto
+        //    {
+        //        Id = user.Id,
+        //        Name = user.Name,
+        //        Email = user.Email,
+        //        Role = user.Role.ToString(),
 
-            };
+        //    };
 
-            if (user.Role == UserRole.Seller)
-            {
-                var seller = await _sellerRepo.GetByUserIdAsync(user.Id);
+        //    if (user.Role == UserRole.Seller)
+        //    {
+        //        var seller = await _sellerRepo.GetByUserIdAsync(user.Id);
 
-                if (seller != null)
-                {
-                    profile.Seller = new SellerDto
-                    {
-                        BusinessName = seller.BusinessName,
-                        Address = seller.Address,
-                        IsApproved = seller.IsApproved
-                    };
-                }
-            }
+        //        if (seller != null)
+        //        {
+        //            profile.Seller = new SellerDto
+        //            {
+        //                BusinessName = seller.BusinessName,
+        //                Address = seller.Address,
+        //                IsApproved = seller.IsApproved
+        //            };
+        //        }
+        //    }
 
-            if (user.Role == UserRole.DeliveryPartner)
-            {
-                var delivery = await _deliveryRepo.GetByUserIdAsync(user.Id);
+        //    if (user.Role == UserRole.DeliveryPartner)
+        //    {
+        //        var delivery = await _deliveryRepo.GetByUserIdAsync(user.Id);
 
-                if (delivery != null)
-                {
-                    profile.Delivery = new DeliveryDto
-                    {
-                        VehicleType = delivery.VehicleType,
-                        IsAvailable = delivery.IsAvailable
-                    };
-                }
-            }
+        //        if (delivery != null)
+        //        {
+        //            profile.Delivery = new DeliveryDto
+        //            {
+        //                VehicleType = delivery.VehicleType,
+        //                IsAvailable = delivery.IsAvailable
+        //            };
+        //        }
+        //    }
 
-            return new ApiResponse<UserProfileDto>(200, "User profile retrieved successfully", profile);
+        //    return new ApiResponse<UserProfileDto>(200, "User profile retrieved successfully", profile);
 
 
-        }
+        //}
         public async Task<ApiResponse<object>> RefreshToken(string refreshToken)
         {
             var hashedToken = HashToken(refreshToken);

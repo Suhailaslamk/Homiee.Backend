@@ -28,7 +28,6 @@ namespace Homiee.Application.Interfaces.IServices
         public Task<ApiResponse<string>> VerifyOtp(VerifyOtpDto verifyotpdto);
         public Task<ApiResponse<string>> Logout(int userId,string accessToken);
         public  Task<ApiResponse<string>> ResendOtp(string email);
-        public Task<ApiResponse<UserProfileDto>> GetUserProfile(ClaimsPrincipal claims);
         Task<ApiResponse<object>> RefreshToken(string refreshToken);
     }
 }
