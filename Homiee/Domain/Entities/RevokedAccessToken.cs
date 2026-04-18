@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+﻿namespace Homiee.Domain.Entities
 {
     public class RevokedAccessToken
     {

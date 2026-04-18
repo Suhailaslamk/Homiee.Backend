@@ -5,6 +5,8 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
+using Homiee.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,6 +14,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+
 
 namespace Homiee.Application.Services
 {
@@ -26,6 +29,7 @@ namespace Homiee.Application.Services
         private readonly IRevokedAccessTokenRepository _revokeAccessRepo;
         private readonly ISellersRepository _sellerRepo;
         private readonly IDeliveryRepository _deliveryRepo;
+        private readonly AppDbContext _context;
 
         public AuthService(IUserRepository userRepo, 
             IConfiguration config, 
@@ -35,7 +39,8 @@ namespace Homiee.Application.Services
             ILogger<AuthService> logger,
             IRevokedAccessTokenRepository revokeAccessRepo,
             ISellersRepository sellerRepo,
-            IDeliveryRepository deliveryRepo
+            IDeliveryRepository deliveryRepo,
+            AppDbContext context
 
             )
 
@@ -49,7 +54,7 @@ namespace Homiee.Application.Services
             _revokeAccessRepo = revokeAccessRepo;
             _sellerRepo = sellerRepo;
             _deliveryRepo = deliveryRepo;
-
+            _context = context;
         }
         private static string NormalizeEmail(string email)
         {
@@ -149,14 +154,16 @@ namespace Homiee.Application.Services
 
 
         private async Task<(User user, ApiResponse<string>? error)> CreateBaseUser(
-          string fullName, string email, string password)
+          string fullName, string email, string password,UserRole role)
         {
 
             var normalizedEmail = NormalizeEmail(email);
 
             if (email.Contains(" "))
                 return (null!, new ApiResponse<string>(400, "Email must not contain spaces"));
-
+            if (string.IsNullOrWhiteSpace(email))
+                return (null!, new ApiResponse<string>(400, "Email is required"));
+           
             if (string.IsNullOrWhiteSpace(fullName))
                 return (null!, new ApiResponse<string>(400, "Full name is required"));
 
@@ -199,11 +206,11 @@ namespace Homiee.Application.Services
                 Name = fullName,
                 Email = normalizedEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-                IsEmailVerified = false
+                IsEmailVerified = false,
+                Role = role
             };
 
             await _userRepo.AddAsync(user);
-            await _userRepo.SaveChangesAsync();
 
             return (user, null);
         }
@@ -235,7 +242,7 @@ namespace Homiee.Application.Services
 
         public async Task<ApiResponse<string>> RegisterCustomer(UserRegisterDto dto)
         {
-            var (user, error) = await CreateBaseUser(dto.FullName, dto.Email, dto.Password);
+            var (user, error) = await CreateBaseUser(dto.FullName, dto.Email, dto.Password, UserRole.User);
 
             if (error != null)
                 return error;
@@ -250,33 +257,45 @@ namespace Homiee.Application.Services
 
         public async Task<ApiResponse<string>> RegisterSeller(RegisterSellerDto dto)
         {
-            var (user, error) = await CreateBaseUser(dto.FullName, dto.Email, dto.Password);
+            var (user, error) = await CreateBaseUser(dto.FullName, dto.Email, dto.Password, UserRole.Seller);
 
             if (error != null)
                 return error;
 
             user.Role = UserRole.Seller;
-            await _userRepo.SaveChangesAsync();
 
-            var seller = new Seller
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                UserId = user.Id,
-                BusinessName = dto.BusinessName,
-                Address = dto.Address,
-                Status = ApprovalStatus.Draft
-            };
+                await _userRepo.SaveChangesAsync();
 
-            await _sellerRepo.AddAsync(seller);
-            await _sellerRepo.SaveChangesAsync();
+                var seller = new Seller
+                {
+                    UserId = user.Id,
+                    BusinessName = dto.BusinessName,
+                    Address = dto.Address,
+                    Status = ApprovalStatus.Draft
+                };
 
-            await SendOtp(user);
+                await _sellerRepo.AddAsync(seller);
+                await _sellerRepo.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+            } catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
+                await SendOtp(user);
 
             return new ApiResponse<string>(200, "Seller registered successfully");
         }
 
         public async Task<ApiResponse<string>> RegisterDelivery(RegisterDeliveryDto dto)
         {
-            var (user, error) = await CreateBaseUser(dto.FullName, dto.Email, dto.Password);
+            var (user, error) = await CreateBaseUser(dto.FullName, dto.Email, dto.Password, UserRole.DeliveryPartner);
 
             if (error != null)
                 return error;
@@ -317,10 +336,16 @@ namespace Homiee.Application.Services
             if (user == null)
                 return new ApiResponse<object>(401, "Invalid email or password");
 
-            if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
-            {
-                return new ApiResponse<object>(401, "Invalid email or password");
-            }
+            if (!user.IsEmailVerified)
+                return new ApiResponse<object>(400,"Email not verified");
+
+            if (user.IsBlocked)
+                return new ApiResponse<object>(400,"User blocked");
+
+            //if (user.Status != UserStatus.Active)
+            //    return new ApiResponse<object>(400,"User not active");
+
+            
 
             if (!user.IsEmailVerified)
             {
@@ -343,7 +368,10 @@ namespace Homiee.Application.Services
             if (user.Status == UserStatus.Deleted)
                 return new ApiResponse<object>(403, "Account is deleted");
 
-            
+            if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            {
+                return new ApiResponse<object>(401, "Invalid email or password");
+            }
 
             var accesstoken = GenerateAcessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -417,19 +445,33 @@ namespace Homiee.Application.Services
                 // 🔥 get latest OTP to track attempts
                 var latestOtp = await _otpRepo.GetLatestOtpByUserId(user.Id);
 
-                if (latestOtp != null)
-                {
-                    latestOtp.AttemptCount++;
+                if (latestOtp == null)
+                    return new ApiResponse<string>(400, "No OTP found. Please request a new one.");
 
-                    if (latestOtp.AttemptCount >= latestOtp.MaxAttempts)
-                    {
-                        return new ApiResponse<string>(403, "Too many attempts. Request new OTP.");
-                    }
+                if (latestOtp.AttemptCount >= latestOtp.MaxAttempts)
+                    return new ApiResponse<string>(403, "Too many attempts. Request a new OTP.");
 
-                    await _otpRepo.SaveChangesAsync();
-                }
 
-                return new ApiResponse<string>(400, "Invalid or expired OTP");
+                latestOtp.AttemptCount++;
+                await _otpRepo.SaveChangesAsync();
+
+                if (latestOtp.IsUsed || latestOtp.ExpiresAt <= DateTime.UtcNow)
+                    return new ApiResponse<string>(400, "OTP has expired. Please request a new one.");
+
+
+
+                if (latestOtp.Code != verifyotpdto.Otp)
+                    return new ApiResponse<string>(400, "Invalid OTP.");
+
+
+                latestOtp.IsUsed = true;
+                user.IsEmailVerified = true;
+                await _userRepo.SaveChangesAsync();
+                var allOtps = await _otpRepo.GetAllByUserIdAsync(user.Id);
+                _otpRepo.RemoveRange(allOtps);
+                await _otpRepo.SaveChangesAsync();
+
+                return new ApiResponse<string>(200, "Email verified successfully");
             }
 
 
@@ -570,14 +612,19 @@ namespace Homiee.Application.Services
 
             if (storedToken.IsRevoked)
             {
+                var allUserTokens = await _tokenRepo.GetAllTokensByUserIdAsync(storedToken.UserId);
                 var userTokens = await _tokenRepo.GetRefreshTokenByAsync(storedToken.UserId);
-
-                foreach (var token in userTokens)
+                
+                foreach (var token in allUserTokens.Where(t => !t.IsRevoked))
                 {
                     token.IsRevoked = true;
                 }
 
                 await _tokenRepo.SaveChangesAsync();
+
+                _logger.LogWarning(
+        "Refresh token reuse detected for UserId {UserId}. All sessions revoked.",
+        storedToken.UserId);
 
                 return new ApiResponse<object>(401, "Token reuse detected. All sessions revoked.");
             }
@@ -641,12 +688,17 @@ namespace Homiee.Application.Services
             await _tokenRepo.SaveChangesAsync();
 
             _logger.LogInformation("user with userId {userId} logged out", userId);
+            var hashedAccessToken = HashToken(accessToken);
 
             await _revokeAccessRepo.AddAsync(new RevokedAccessToken
             {
-                Token = accessToken,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(5)
+                Token = hashedAccessToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(
+        Convert.ToDouble(_config["JWT:ExpiresAt"]))
             });
+
+            
+
             await _revokeAccessRepo.SaveChangesAsync();
 
             return new ApiResponse<string>(200, "User Logged Out Successfully");

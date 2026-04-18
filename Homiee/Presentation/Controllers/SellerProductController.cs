@@ -53,7 +53,7 @@ namespace Homiee.Presentation.Controllers
         [HttpGet("product/{id}")]
         public async Task<IActionResult> GetProduct(int id)
         {
-            int userId = int.Parse(User.FindFirst("id")!.Value);
+            int userId = GetUserId();
 
             var result = await _service.GetProductById(id, userId);
             return StatusCode(result.StatusCode, result);

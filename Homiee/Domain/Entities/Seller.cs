@@ -4,7 +4,6 @@ namespace Homiee.Domain.Entities
 {
     public class Seller : BaseEntity
     {
-        public int Id { get; set; }
 
         public int UserId { get; set; }
         public User User { get; set; } = null!;
@@ -23,7 +22,8 @@ namespace Homiee.Domain.Entities
         public ApprovalStatus Status { get; set; } = ApprovalStatus.Draft;
         public string? RejectionReason { get; set; }
         public DateTime? ReviewedAt { get; set; }
-
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
 
         public void Approve()
         {

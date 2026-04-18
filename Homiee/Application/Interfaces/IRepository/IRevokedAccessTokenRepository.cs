@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+﻿using Homiee.Domain.Entities;
 
 namespace Homiee.Application.Interfaces.IRepository
 {

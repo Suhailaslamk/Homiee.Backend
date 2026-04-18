@@ -82,7 +82,10 @@ namespace Homiee.Presentation.Controllers
         [HttpPost("logout")]
         public async Task<ActionResult> Logout()
         {
-            var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (!int.TryParse(userIdClaim, out var userId) || userId <= 0)
+                return Unauthorized("Invalid token claims");
+
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
             if (string.IsNullOrEmpty(authHeader))

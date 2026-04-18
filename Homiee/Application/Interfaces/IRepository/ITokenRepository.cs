@@ -9,6 +9,7 @@ namespace Homiee.Application.Interfaces.IRepository
 
         Task<List<RefreshToken>> GetRefreshTokenByAsync(int userId);
         Task<RefreshToken?> GetByTokenAsync(string token);
+        Task<List<RefreshToken>> GetAllTokensByUserIdAsync(int userId);
 
     }
 

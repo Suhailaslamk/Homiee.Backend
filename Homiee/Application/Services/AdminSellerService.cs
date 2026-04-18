@@ -1,11 +1,12 @@
-﻿using Homiee.Application.Interfaces.IRepository;
-using Homiee.Application.Interfaces.IServices;
+﻿using FluentAssertions.Execution;
 using Homiee.Application.DTOs;  
-
+using Homiee.Application.Interfaces.IRepository;
+using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Net.NetworkInformation;
 using static Homiee.Application.Services.AdminSellerService;
 
 namespace Homiee.Application.Services
@@ -14,11 +15,13 @@ namespace Homiee.Application.Services
     {
         
             private readonly ISellersRepository _sellerRepo;
-        
+        private readonly INotificationService _notificationService;
 
-            public AdminSellerService(ISellersRepository sellerRepo)
+
+        public AdminSellerService(ISellersRepository sellerRepo, INotificationService notificationService)
             {
                 _sellerRepo = sellerRepo;
+                _notificationService = notificationService;
             }
 
         public async Task<PagedResult<SellerListDto>> GetSellers(SellerQueryParamsDto queryParams)
@@ -82,8 +85,12 @@ namespace Homiee.Application.Services
             seller.Approve();
 
             await _sellerRepo.SaveChangesAsync();
-
-                return new ApiResponse<string>(200, "Seller approved");
+            await _notificationService.SendAsync(
+    userId,
+    "Approved",
+    "Admin approved your seller application"
+);
+            return new ApiResponse<string>(200, "Seller approved");
             }
 
         public async Task<ApiResponse<string>> RejectSeller(int userId, string reason)
@@ -102,7 +109,14 @@ namespace Homiee.Application.Services
             try
             {
                 seller.Reject(reason);
+
                 await _sellerRepo.SaveChangesAsync();
+
+                await _notificationService.SendAsync(
+    userId,
+    "Rejected",
+    $"Admin rejected your seller application. Reason: {reason}"
+);
 
                 return new ApiResponse<string>(200, "Seller rejected successfully");
             }
@@ -122,7 +136,11 @@ namespace Homiee.Application.Services
             {
                 seller.Suspend(reason);
                 await _sellerRepo.SaveChangesAsync();
-
+                await _notificationService.SendAsync(
+    userId,
+    "Suspended",
+    $"Admin suspended your seller account. Reason: {reason}"
+);
                 return new ApiResponse<string>(200, "Seller suspended successfully");
             }
             catch (Exception ex)

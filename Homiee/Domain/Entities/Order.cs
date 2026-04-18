@@ -6,7 +6,6 @@ namespace Homiee.Domain.Entities
 
     public class Order : BaseEntity
     {
-        public int Id { get; private set; }
         public int UserId { get; private set; }
         public int SellerId { get; private set; }
         public int AddressId { get; private set; }
@@ -33,7 +32,7 @@ namespace Homiee.Domain.Entities
         public void AddItem(OrderItem item)
         {
             if (item.Quantity <= 0)
-                throw new Exception("Invalid quantity");
+                throw new ArgumentException("Invalid quantity");
 
             Items.Add(item);
             TotalAmount += item.Price * item.Quantity;
@@ -42,7 +41,11 @@ namespace Homiee.Domain.Entities
         public void UpdateStatus(OrderStatus status)
         {
             if (Status == OrderStatus.Cancelled)
-                throw new Exception("Cannot update cancelled order");
+                throw new InvalidOperationException("Cannot update cancelled order");
+
+            if (Status == OrderStatus.Delivered)
+                throw new InvalidOperationException("Delivered order cannot change");
+
 
             Status = status;
         }

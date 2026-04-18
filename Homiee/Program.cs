@@ -3,14 +3,24 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Services;
 using Homiee.Infrastructure.Data;
 using Homiee.Infrastructure.Repositories;
+using Homiee.Middlewares;
+using Homiee.Presentation.Hubs;
+using Homiee.Providers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Homiee.Infrastructure.SignalR;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -114,6 +124,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -138,7 +149,6 @@ builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IMarketplaceQueryService, MarketplaceQueryService>();
-builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentRepository,PaymentRepository>();
 builder.Services.AddScoped<IPendingOrderRepository, PendingOrderRepository>();
@@ -148,17 +158,29 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
+
+builder.Services.Scan(scan => scan
+.FromAssemblyOf<SellerOrderService>() 
+.AddClasses()
+.AsMatchingInterface()
+.WithScopedLifetime());
 
 
+builder.Services.AddSignalR();
 
-
-
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IRevokedAccessTokenRepository, RevokedAccessTokenRepository>();
+builder.Services.AddSingleton<UserConnectionManager>();
 
 var app = builder.Build();
 
@@ -171,9 +193,15 @@ Console.WriteLine("this will show");
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
+app.MapHub<ChatHub>("/chatHub");
+app.MapHub<NotificationHub>("/hubs/notification");
 
 app.Run();

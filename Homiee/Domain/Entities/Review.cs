@@ -2,7 +2,6 @@
 {
     public class Review : BaseEntity
     {
-        public int Id { get; private set; }
 
         public int ProductId { get; private set; }
         public int UserId { get; private set; }

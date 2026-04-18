@@ -2,7 +2,6 @@
 {
     public class Product : BaseEntity
     {
-        public int Id { get; private set; }
         public int SellerId { get; private set; }
 
         public string Name { get; private set; }
@@ -32,10 +31,10 @@
         public void Update(string name, string description, decimal price)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new Exception("Product name required");
+                throw new ArgumentException("Product name required");
 
             if (price <= 0)
-                throw new Exception("Price must be greater than 0");
+                throw new ArgumentException("Price must be greater than 0");
 
             Name = name;
             Description = description;
@@ -44,10 +43,10 @@
         public void UpdateBasicDetails(string name, string description, decimal price)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new Exception("Product name required");
+                throw new ArgumentException("Product name required");
 
             if (price <= 0)
-                throw new Exception("Price must be greater than 0");
+                throw new ArgumentException("Price must be greater than 0");
 
             Name = name;
             Description = description;
@@ -56,24 +55,24 @@
         public void UpdateStock(int newStock)
         {
             if (newStock < 0)
-                throw new Exception("Stock cannot be negative");
+                throw new ArgumentException("Stock cannot be negative");
 
             Stock = newStock;
         }
         public void Delete()
         {
             if (Stock > 0)
-                throw new Exception("Cannot delete product with stock");
+                throw new ArgumentException("Cannot delete product with stock");
 
             IsDeleted = true;
         }
         public void ReduceStock(int quantity)
         {
             if (quantity <= 0)
-                throw new Exception("Invalid quantity");
+                throw new ArgumentException("Invalid quantity");
 
             if (Stock < quantity)
-                throw new Exception("Insufficient stock");
+                throw new ArgumentException("Insufficient stock");
 
             Stock -= quantity;
         }

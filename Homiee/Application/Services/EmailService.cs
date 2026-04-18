@@ -21,18 +21,18 @@ namespace Homiee.Application.Services
         public async Task SendAsync(string to,string subject,string body)
         {
             _logger.LogInformation("SMTP HOST: {host}", _config["Smtp:Host"]);
-            var smtp = new SmtpClient(_config["Smtp:Host"])
+            using var smtp = new SmtpClient(_config["Smtp:Host"])
             {
-                Port = int.Parse(_config["Smtp:Port"]),
+                Port = int.Parse(_config["Smtp:Port"]!),
                 Credentials = new NetworkCredential(
                     _config["Smtp:Username"],
                 _config["Smtp:Password"]),
                 EnableSsl = true
             };
 
-            var mail = new MailMessage
+           using var mail = new MailMessage
             {
-                From = new MailAddress(_config["Smtp:Username"]),
+                From = new MailAddress(_config["Smtp:Username"]!),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true

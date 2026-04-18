@@ -3,7 +3,7 @@
     public class ApiResponse<T>
 
     {
-        public bool IsSucces { get; set; }
+        public bool IsSuccess { get; set; }
         public int StatusCode { get; set; }
         public string Message { get; set; } = string.Empty;
 
@@ -19,7 +19,7 @@
             StatusCode = statusCode;
             Message = message;
             Data = data;
-            IsSucces = statusCode >= 200 && statusCode < 300;
+            IsSuccess = statusCode >= 200 && statusCode < 300;
             TotalCount = totalcount;
             CurrentPage = currentpage;
             PageSize = pagesize;

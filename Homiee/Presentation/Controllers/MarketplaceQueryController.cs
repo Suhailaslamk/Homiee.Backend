@@ -50,7 +50,11 @@ namespace Homiee.Presentation.Controllers
         [HttpPost("products/{id}/review")]
         public async Task<IActionResult> AddReview(int id, CreateReviewDto dto)
         {
-            var userId = int.Parse(User.FindFirst("userId")!.Value);
+            var userIdClaim = User.FindFirst("userId");
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim.Value);
             return Ok(await _reviewService.AddReview(userId, id, dto));
         }
 

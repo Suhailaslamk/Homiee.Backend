@@ -4,7 +4,6 @@ namespace Homiee.Domain.Entities
 {
     public class Address : BaseEntity
     {
-        public int Id { get; private set; }
         public int UserId { get; private set; }
 
         public string FullName { get; private set; }
@@ -30,22 +29,22 @@ namespace Homiee.Domain.Entities
         public void Update(string fullName, string phone, string line1, string city, string state, string pincode)
         {
             if (string.IsNullOrWhiteSpace(fullName))
-                throw new Exception("Full name is required");
+                throw new ArgumentException("Full name is required");
 
             if (!Regex.IsMatch(phone, @"^[6-9]\d{9}$"))
-                throw new Exception("Invalid phone number");
+                throw new ArgumentException("Invalid phone number");
 
             if (string.IsNullOrWhiteSpace(line1))
-                throw new Exception("Address line is required");
+                throw new ArgumentException("Address line is required");
 
             if (string.IsNullOrWhiteSpace(city))
-                throw new Exception("City is required");
+                throw new ArgumentException("City is required");
 
             if (string.IsNullOrWhiteSpace(state))
-                throw new Exception("State is required");
+                throw new ArgumentException("State is required");
 
             if (!Regex.IsMatch(pincode, @"^\d{6}$"))
-                throw new Exception("Invalid pincode");
+                throw new ArgumentException("Invalid pincode");
 
             FullName = fullName.Trim();
             Phone = phone;

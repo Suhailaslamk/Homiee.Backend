@@ -25,6 +25,12 @@ namespace Homiee.Infrastructure.Repositories
             return await _context.RefreshTokens
                 .FirstOrDefaultAsync(x => x.Token == token);
         }
+        public async Task<List<RefreshToken>> GetAllTokensByUserIdAsync(int userId)
+        {
+            return await _context.RefreshTokens
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+        }
         public async Task<List<RefreshToken>> GetRefreshTokenByAsync(int userId)
         {
             return await _context.RefreshTokens

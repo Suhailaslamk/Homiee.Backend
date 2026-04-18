@@ -1,5 +1,4 @@
-﻿using Homiee.Application.DTOs;
-using Homiee.Domain.Entities;
+﻿using Homiee.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Infrastructure.Data
@@ -35,7 +34,9 @@ namespace Homiee.Infrastructure.Data
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; }
         public DbSet<PendingOrder> PendingOrders { get; set; } = null!;
-
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -68,10 +69,10 @@ namespace Homiee.Infrastructure.Data
             modelBuilder.Entity<CartItem>()
                 .HasIndex(x => new { x.CustomerId, x.ProductId })
                 .IsUnique();
-            
+
             modelBuilder.Entity<Payment>()
-                .HasIndex(x => new { x.UserId, x.PaymentGatewayId })
-                .IsUnique();
+    .HasIndex(x => x.RazorpayOrderId)
+    .IsUnique();
             modelBuilder.Entity<Order>()
     .HasOne(o => o.User)
     .WithMany()
@@ -82,7 +83,14 @@ namespace Homiee.Infrastructure.Data
     .WithMany(o => o.Items)
     .HasForeignKey(oi => oi.OrderId)
     .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<User>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<Product>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<OtpCode>()
+    .HasIndex(x => x.UserId);
 
+            modelBuilder.Entity<RevokedAccessToken>()
+                .HasIndex(x => x.Token)
+                .IsUnique();
         }
     }
 }

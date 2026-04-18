@@ -105,6 +105,7 @@ using Homiee.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Homiee.Infrastructure.Data;
 using Xunit;
 namespace Homiee.Tests.Services
 {
@@ -124,8 +125,9 @@ namespace Homiee.Tests.Services
             var mockRevokedAccess = new Mock<IRevokedAccessTokenRepository>();
             var mockSellerRepo = new Mock<ISellersRepository>(); 
             var mockDeliveryPartnerRepo = new Mock<IDeliveryRepository>();
+            var mockAppDbContext = new Mock<AppDbContext>();
 
-        var user = new User
+            var user = new User
             {
                 Id = 1,
                 Email = "test@gmail.com",
@@ -145,8 +147,9 @@ namespace Homiee.Tests.Services
                 mockOtpRepo.Object,
                 mockLogger.Object,
                 mockRevokedAccess.Object,
-                mockSellerRepo.Object, 
-                mockDeliveryPartnerRepo.Object);
+                mockSellerRepo.Object,
+                mockDeliveryPartnerRepo.Object,
+                mockAppDbContext.Object);
 
             var dto = new LoginDto
             {

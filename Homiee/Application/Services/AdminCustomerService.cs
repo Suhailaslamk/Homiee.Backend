@@ -1,4 +1,5 @@
-﻿using Homiee.Application.DTOs;
+﻿using FluentAssertions.Execution;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
@@ -12,11 +13,14 @@ namespace Homiee.Application.Services
     {
         private readonly IUserRepository _userRepo;
         private readonly IOrderRepository _orderRepo;
+        private readonly IOrderRepository _orderRepository;
+        private readonly INotificationService _notificationService;
 
-        public AdminCustomerService(IUserRepository userRepo, IOrderRepository orderRepo)
+        public AdminCustomerService(IUserRepository userRepo, IOrderRepository orderRepo, INotificationService notificationService)
         {
             _userRepo = userRepo;
             _orderRepo = orderRepo;
+            _notificationService = notificationService;
         }
 
         // ✅ 1. GET PAGINATED CUSTOMERS
@@ -115,7 +119,7 @@ namespace Homiee.Application.Services
             // user.BlockReason = reason;
 
             await _userRepo.SaveChangesAsync();
-
+            await _notificationService.SendAsync(user.Id, "Account Blocked", $"Your account has been blocked. Reason: {reason}");
             return new ApiResponse<string>(200, "Customer blocked");
         }
 
@@ -130,7 +134,7 @@ namespace Homiee.Application.Services
             user.Status = UserStatus.Active;
 
             await _userRepo.SaveChangesAsync();
-
+            await _notificationService.SendAsync(user.Id, "Account Unblocked", $"Your account has been unblocked");
             return new ApiResponse<string>(200, "Customer unblocked");
         }
 
@@ -146,7 +150,7 @@ namespace Homiee.Application.Services
             user.Status = UserStatus.Deleted;
 
             await _userRepo.SaveChangesAsync();
-
+                        await _notificationService.SendAsync(user.Id, "Account Deleted", $"Your account has been deleted");
             return new ApiResponse<string>(200, "Customer deleted");
         }
     }

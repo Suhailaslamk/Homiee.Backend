@@ -54,9 +54,9 @@ namespace Homiee.Application.Services
                 if (!string.IsNullOrEmpty(request.Search))
                 {
                     var search = request.Search.ToLower();
-                    query = query.Where(p =>
-                        EF.Functions.Like(p.Name, $"%{search}%"));
-                }
+                query = query.Where(p =>
+               EF.Functions.Like(p.Name, $"%{request.Search}%"));
+            }
 
                 if (request.MinPrice.HasValue)
                     query = query.Where(p => p.Price >= request.MinPrice);
@@ -66,7 +66,11 @@ namespace Homiee.Application.Services
 
                 var total = await query.CountAsync();
 
-                var items = await query
+            if (request.Page <= 0) request.Page = 1;
+            if (request.PageSize <= 0) request.PageSize = 10;
+            if (request.PageSize > 50) request.PageSize = 50;
+
+            var items = await query
                     .OrderByDescending(p => p.CreatedAt)
                     .Skip((request.Page - 1) * request.PageSize)
                     .Take(request.PageSize)
@@ -76,7 +80,9 @@ namespace Homiee.Application.Services
                         Name = p.Name,
                         Price = p.Price,
                         SellerId = p.SellerId,
-                        SellerName = p.Seller.User.Name,
+                        SellerName = p.Seller != null && p.Seller.User != null
+    ? p.Seller.User.Name
+    : null,
                         ImageUrl = p.Images
                             .Where(i => i.IsPrimary)
                             .Select(i => i.ImageUrl)
@@ -93,10 +99,10 @@ namespace Homiee.Application.Services
             // ✅ 3. Product Details
             public async Task<ApiResponse<SellerProductDetailsDto>> GetProductById(int id)
             {
-                                 var product = await _productRepo.Query()
-                     .AsNoTracking()
-                     .Include(p => p.Images) // 🔥 REQUIRED
-                     .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+            var product = await _productRepo.Query()
+.AsNoTracking()
+.Include(p => p.Images) // 🔥 REQUIRED
+.FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
             if (product == null)
                     return new ApiResponse<SellerProductDetailsDto>(404, "Product not found");
@@ -110,9 +116,9 @@ namespace Homiee.Application.Services
                 Stock = product.Stock,
                 CategoryId = product.CategoryId,
 
-                Images = product.Images
-    .Select(i => i.ImageUrl)
-    .ToList()
+                Images = product.Images != null
+    ? product.Images.Select(i => i.ImageUrl).ToList()
+    : new List<string>()
             };
 
             return new ApiResponse<SellerProductDetailsDto>(200, "Success", dto);
@@ -131,9 +137,9 @@ namespace Homiee.Application.Services
                 var dto = new SellerDetailsDto
                 {
                     Id = seller.Id,
-                    BusinessName = seller.BusinessName,
-                    PhoneNumber = seller.PhoneNumber,
-                    Address = seller.Address
+                    BusinessName = seller.BusinessName ?? "",
+                    PhoneNumber = seller.PhoneNumber ?? "",
+                    Address = seller.Address ?? ""
                 };
 
                 return new ApiResponse<SellerDetailsDto>(200, "Success", dto);
@@ -150,7 +156,7 @@ namespace Homiee.Application.Services
             if (!string.IsNullOrEmpty(request.Search))
             {
                 var search = request.Search.ToLower();
-                query = query.Where(s => EF.Functions.Like(s.BusinessName, $"%{search}%"));
+                query = query.Where(s => EF.Functions.Like(s.BusinessName, $"%{request.Search}%"));
             }
 
             // 📂 Filter by category (IMPORTANT: via products)
@@ -161,7 +167,9 @@ namespace Homiee.Application.Services
             }
 
             var total = await query.CountAsync();
-
+            if (request.Page <= 0) request.Page = 1;
+            if (request.PageSize <= 0) request.PageSize = 10;
+            if (request.PageSize > 50) request.PageSize = 50;
             var items = await query
                 .OrderByDescending(s => s.Id)
                 .Skip((request.Page - 1) * request.PageSize)
@@ -197,7 +205,7 @@ namespace Homiee.Application.Services
             if (!string.IsNullOrEmpty(request.Search))
             {
                 var search = request.Search.ToLower();
-                query = query.Where(p => EF.Functions.Like(p.Name, $"%{search}%"));
+                query = query.Where(p => EF.Functions.Like(p.Name, $"%{request.Search}%"));
             }
 
             if (request.MinPrice.HasValue)
@@ -207,7 +215,9 @@ namespace Homiee.Application.Services
                 query = query.Where(p => p.Price <= request.MaxPrice);
 
             var total = await query.CountAsync();
-
+            if (request.Page <= 0) request.Page = 1;
+            if (request.PageSize <= 0) request.PageSize = 10;
+            if (request.PageSize > 50) request.PageSize = 50;
             var items = await query
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((request.Page - 1) * request.PageSize)
@@ -217,9 +227,11 @@ namespace Homiee.Application.Services
                     Id = p.Id,
                     Name = p.Name,
                     Price = p.Price,
-                    SellerId = p.SellerId,
-                    SellerName = p.Seller.User.Name,
-                    ImageUrl = p.Images
+                   SellerId = p.SellerId,
+                   SellerName = p.Seller != null && p.Seller.User != null
+              ? p.Seller.User.Name
+              : null,
+                              ImageUrl = p.Images
                         .Where(i => i.IsPrimary)
                         .Select(i => i.ImageUrl)
                         .FirstOrDefault()
@@ -251,7 +263,9 @@ namespace Homiee.Application.Services
                     Name = p.Name,
                     Price = p.Price,
                     SellerId = p.SellerId,
-                    SellerName = p.Seller.User.Name,
+                    SellerName = p.Seller != null && p.Seller.User != null
+    ? p.Seller.User.Name
+    : null,
                     ImageUrl = p.Images
                         .Where(i => i.IsPrimary)
                         .Select(i => i.ImageUrl)

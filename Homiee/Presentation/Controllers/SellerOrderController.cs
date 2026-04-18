@@ -32,7 +32,7 @@ namespace Homiee.Presentation.Controllers
         [HttpGet("order/{id}")]
         public async Task<IActionResult> GetOrder(int id)
         {
-            int userId = int.Parse(User.FindFirst("id")!.Value);
+            int userId = int.Parse(User.FindFirst("userId")!.Value);     
 
             var result = await _service.GetOrderById(id, userId);
             return StatusCode(result.StatusCode, result);

@@ -11,10 +11,12 @@ namespace Homiee.Application.Services
         public class AdminOrderService : IAdminOrderService
         {
             private readonly IOrderRepository _orderRepo;
+            private readonly INotificationService _notificatiService;
 
-            public AdminOrderService(IOrderRepository orderRepo)
+        public AdminOrderService(IOrderRepository orderRepo, INotificationService notificatiService)
             {
                 _orderRepo = orderRepo;
+            _notificatiService = notificatiService;
             }
 
         public async Task<ApiResponse<PagedResult<AdminOrderDto>>> GetOrders(AdminOrderQueryDto request)
@@ -70,8 +72,13 @@ namespace Homiee.Application.Services
                 {
                     order.UpdateStatus(newStatus);
                     await _orderRepo.SaveChangesAsync();
+                await _notificatiService.SendAsync(
 
-                    return new ApiResponse<string>(200, "Order status updated by admin");
+                    order.UserId,
+                    "Order Update",
+                    $"Your order #{order.Id} status has been updated to {newStatus}"
+                );
+                return new ApiResponse<string>(200, "Order status updated by admin");
                 }
                 catch (Exception ex)
                 {

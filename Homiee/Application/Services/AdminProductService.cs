@@ -10,10 +10,12 @@ namespace Homiee.Application.Services
     public class AdminProductService : IAdminProductService
     {
         private readonly IProductRepository _productRepo;
+                private readonly INotificationService _notificationService;
 
-        public AdminProductService(IProductRepository productRepo)
+        public AdminProductService(IProductRepository productRepo, INotificationService notificationService)
         {
             _productRepo = productRepo;
+            _notificationService = notificationService;
         }
 
         public async Task<ApiResponse<PagedResult<AdminProductDto>>> GetAll(AdminProductQueryDto request)
@@ -148,7 +150,10 @@ namespace Homiee.Application.Services
             {
                 product.Delete();
                 await _productRepo.SaveChangesAsync();
-
+                await _notificationService.SendAsync(
+                    product.SellerId,
+                    "Product Deleted",
+                    $"Your product '{product.Name}' has been deleted by admin");
                 return new ApiResponse<string>(200, "Product deleted");
             }
             catch (Exception ex)

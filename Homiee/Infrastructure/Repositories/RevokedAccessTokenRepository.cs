@@ -1,5 +1,4 @@
-﻿using Homiee.Application.DTOs;
-using Homiee.Application.Interfaces.IRepository;
+﻿using Homiee.Application.Interfaces.IRepository;
 using Homiee.Domain.Entities;
 using Homiee.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

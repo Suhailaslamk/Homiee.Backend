@@ -1,13 +1,28 @@
-﻿namespace Homiee.Application.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Homiee.Application.DTOs
 {
     public class RegisterSellerDto
     {
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
+        [Required]
+        [StringLength(100, MinimumLength = 3)]
+        public string FullName { get; set; } = null!;
 
-        public string BusinessName { get; set; }
-        public string Address { get; set; }
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = null!;
+
+        [Required]
+        [MinLength(8)]
+        public string Password { get; set; } = null!;
+
+        [Required]
+        [StringLength(200)]
+        public string BusinessName { get; set; } = null!;
+
+        [Required]
+        [StringLength(500)]
+        public string Address { get; set; } = null!;
     }
 
 }
