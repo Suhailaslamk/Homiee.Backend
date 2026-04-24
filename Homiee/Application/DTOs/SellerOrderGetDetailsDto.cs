@@ -10,7 +10,12 @@
         // Customer Info
         public string CustomerName { get; set; } = default!;
         public string CustomerEmail { get; set; } = default!;
-
+        public string ShippingFullName { get; set; } = default!;
+        public string ShippingPhone { get; set; } = default!;
+        public string ShippingLine1 { get; set; } = default!;
+        public string ShippingCity { get; set; } = default!;
+        public string ShippingState { get; set; } = default!;
+        public string ShippingPincode { get; set; } = default!;
         public List<SellerOrderItemsDto> Items { get; set; } = new();
     }
 }

@@ -18,7 +18,6 @@ namespace Homiee.Infrastructure.Repositories
         {
             return await _context.CartItems
                 .Where(x => x.CustomerId == customerId)
-                .AsNoTracking()
                 .ToListAsync();
         }
 

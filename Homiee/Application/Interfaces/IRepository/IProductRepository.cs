@@ -9,5 +9,11 @@ namespace Homiee.Application.Interfaces.IRepository
         Task<Product?> GetByIdAsync(int id);
         IQueryable<Product> Query();
         Task SaveChangesAsync();
+        Task<List<Product>> GetCandidatesForRecommendationAsync(
+            int categoryId,
+            int sellerId,
+            CancellationToken cancellationToken = default);
+
+        Task<Product> GetByIdWithImagesAsync(int id);
     }
 }

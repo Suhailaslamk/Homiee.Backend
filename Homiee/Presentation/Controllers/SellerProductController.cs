@@ -20,7 +20,15 @@ namespace Homiee.Presentation.Controllers
 
         private int GetUserId()
         {
-            return int.Parse(User.FindFirst("userId")!.Value);
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                throw new UnauthorizedAccessException("Invalid or missing token");
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid userId claim");
+
+            return userId;
         }
 
         [HttpPost]

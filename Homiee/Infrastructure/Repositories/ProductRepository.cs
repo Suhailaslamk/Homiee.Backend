@@ -1,6 +1,7 @@
 ﻿using Homiee.Application.Interfaces.IRepository;
 using Homiee.Domain.Entities;
 using Homiee.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Infrastructure.Repositories
 {
@@ -32,5 +33,25 @@ namespace Homiee.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<Product> GetByIdWithImagesAsync(int id)
+        {
+            return await _context.Products
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+        public async Task<List<Product>> GetCandidatesForRecommendationAsync(
+            int categoryId,
+            int sellerId,
+            CancellationToken cancellationToken = default)
+        {
+            // Pull only same-category OR same-seller products.
+            // Keeps the scoring pool small — no full catalog scan.
+            return await _context.Products
+                .AsNoTracking()
+                .Where(p => !p.IsDeleted && (p.CategoryId == categoryId || p.SellerId == sellerId))
+                .Include(p => p.Images)
+                .ToListAsync(cancellationToken);
+        }
     }
-}
+    }
+

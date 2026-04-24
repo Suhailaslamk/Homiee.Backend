@@ -11,10 +11,12 @@ namespace Homiee.Presentation.Controllers
     public class AdminSellerController : ControllerBase
     {
         private readonly IAdminSellerService _adminSellerService;
+        private readonly ISellerEarningService _earningService;
 
-        public AdminSellerController(IAdminSellerService adminSellerService)
+        public AdminSellerController(IAdminSellerService adminSellerService, ISellerEarningService earningService)
         {
             _adminSellerService = adminSellerService;
+            _earningService = earningService;
         }
 
         [HttpGet("sellers")]
@@ -62,6 +64,21 @@ namespace Homiee.Presentation.Controllers
         public async Task<IActionResult> Suspend(int userId, [FromBody] string reason)
         {
             return Ok(await _adminSellerService.SuspendSeller(userId, reason));
+        }
+        [HttpPost("sellers/{sellerId}/release-earnings")]
+        public async Task<IActionResult> ReleaseEarnings(
+            int sellerId,
+            [FromQuery] int holdDays = 7)
+        {
+            var result = await _earningService.ReleaseEarnings(sellerId, holdDays);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPost("sellers/{sellerId}/payout")]
+        public async Task<IActionResult> ProcessPayout(int sellerId)
+        {
+            var result = await _earningService.ProcessPayout(sellerId);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

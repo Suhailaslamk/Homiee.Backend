@@ -1,7 +1,8 @@
-﻿using Homiee.Application.Interfaces.IServices;
+﻿using Homiee.Application.DTOs;
+using Homiee.Application.Interfaces.IServices;
+using Homiee.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Homiee.Application.DTOs;
 
 namespace Homiee.Presentation.Controllers
 {
@@ -28,6 +29,12 @@ namespace Homiee.Presentation.Controllers
         public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDto dto)
         {
             var result = await _service.UpdateStatus(id, dto.Status);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("orders/{orderId}")]
+        public async Task<IActionResult> GetOrder(int orderId)
+        {
+            var result = await _service.GetOrderById(orderId);
             return StatusCode(result.StatusCode, result);
         }
     }

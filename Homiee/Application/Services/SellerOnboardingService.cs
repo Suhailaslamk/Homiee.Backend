@@ -12,13 +12,15 @@ namespace Homiee.Application.Services
     {
         private readonly ISellersRepository _sellerRepo;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IUserRepository _userRepo;
 
         public SellerOnboardingService(
             ISellersRepository sellerRepo,
-            IFileStorageService fileStorageService)
+            IFileStorageService fileStorageService, IUserRepository userRepo)
         {
             _sellerRepo = sellerRepo;
             _fileStorageService = fileStorageService;
+            _userRepo = userRepo;
         }
 
         // ========================
@@ -66,8 +68,12 @@ namespace Homiee.Application.Services
         // ========================
         public async Task<ApiResponse<string>> CompleteSellerDetails(int userId, CompleteSellerDetailsDto dto)
         {
-            
+            var user = await _userRepo.GetByIdAsync(userId);
 
+            if (user == null || !user.IsEmailVerified)
+            {
+                return new ApiResponse<string>(400, "Please verify your email before completing profile");
+            }
 
             var validation = ValidateSeller(dto);
             if (validation != null)
@@ -87,8 +93,10 @@ namespace Homiee.Application.Services
 
                 await _sellerRepo.AddAsync(seller);
             }
-            if (seller.Status == ApprovalStatus.Approved)
-                return new ApiResponse<string>(400, "Approved sellers cannot resubmit profile");
+            if (seller.Status == ApprovalStatus.Approved && seller.BusinessName != null)
+            {
+                return new ApiResponse<string>(400, "Profile already completed");
+            }
             string? businessProofUrl = null;
             string? identityProofUrl = null;
 
@@ -109,7 +117,8 @@ namespace Homiee.Application.Services
             seller.Address = dto.Address;
             seller.PhoneNumber = dto.PhoneNumber;
             seller.GSTNumber = dto.GSTNumber;
-            //seller.LicenseNumber = dto.LicenseNumber;
+            seller.Latitude = dto.Latitude;
+            seller.Longitude = dto.Longitude;
 
             if (businessProofUrl != null)
                 seller.BusinessProofUrl = businessProofUrl;
@@ -169,15 +178,16 @@ namespace Homiee.Application.Services
             seller.Status = ApprovalStatus.Submitted;
             seller.RejectionReason = null;
             seller.ReviewedAt = null;
+            seller.Latitude = dto.Latitude;
+            seller.Longitude = dto.Longitude;
 
             await _sellerRepo.SaveChangesAsync();
+
 
             return new ApiResponse<string>(200, "Profile resubmitted successfully");
         }
 
-        // ========================
-        // REJECTION REASON
-        // ========================
+        
         public async Task<ApiResponse<object>> GetRejectionReason(int userId)
         {
             var seller = await _sellerRepo.GetByUserIdAsync(userId);

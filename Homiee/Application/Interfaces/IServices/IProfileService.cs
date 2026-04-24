@@ -11,7 +11,18 @@ namespace Homiee.Application.Interfaces.IServices
 
 
         Task<ApiResponse<UserProfileDto>> GetProfile(int userId);
-            
-        Task<ApiResponse<string>> UpdateProfile(int userId, UpdateProfileDto dto, UserRole requesterRole);
+
+
+
+
+
+             Task<ApiResponse<string>> UpdateUserProfile(int userId,UpdateUserprofileDto dto);
+
+
+            Task<ApiResponse<string>> UpdateSellerProfile(
+                int userId,
+                UpdateSellerProfileDto dto);
+
+
 }
 }

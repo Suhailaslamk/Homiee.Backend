@@ -13,6 +13,11 @@
         public string? RejectionReason { get; set; }
 
         public string SellerName { get; set; }
+        public int SellerId { get; set; }
+        public string SellerEmail { get; set; }
+        public string SellerPhone { get; set; }
+        public string SellerBusinessName { get; set; }
+        public string SellerStatus { get; set; }
 
         public List<string> Images { get; set; }
     }

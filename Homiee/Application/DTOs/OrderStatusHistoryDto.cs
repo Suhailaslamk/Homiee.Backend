@@ -1,4 +1,6 @@
-﻿namespace Homiee.Application.DTOs
+﻿using Homiee.Domain.Enums;
+
+namespace Homiee.Application.DTOs
 {
     public class OrderStatusHistoryDto
     {

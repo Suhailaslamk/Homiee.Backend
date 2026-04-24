@@ -30,13 +30,17 @@ namespace Homiee.Application.Services
 
             var mapped = result.Data.Select(s => new SellerListDto
             {
+                Id = s.Id,           // ADD THIS — this is the Seller table PK
                 UserId = s.UserId,
                 BusinessName = s.BusinessName,
                 PhoneNumber = s.PhoneNumber,
                 GSTNumber = s.GSTNumber,
                 Status = s.Status.ToString(),
                 Email = s.User.Email,
-                Name = s.User.Name
+                Name = s.User.Name,
+                Address = s.Address,
+                ProductCount = s.Products?.Count(p => !p.IsDeleted) ?? 0 // ADD THIS (was also null — see bug 15)
+                                                                         // ProductCount — see bug 15 below
             }).ToList();
 
             return new PagedResult<SellerListDto>
@@ -65,7 +69,7 @@ namespace Homiee.Application.Services
                     seller.GSTNumber,
                     seller.BusinessProofUrl,
                     seller.IdentityProofUrl,
-                    seller.Status,
+                    Status = seller.Status.ToString(),
                     seller.RejectionReason
                 });
             }
@@ -77,10 +81,19 @@ namespace Homiee.Application.Services
                 if (seller == null)
                     return new ApiResponse<string>(404, "Seller not found");
 
-                if (seller.Status != ApprovalStatus.Submitted)
-                    return new ApiResponse<string>(400, "Seller not ready for approval");
+            if (seller.Status == ApprovalStatus.Approved)
+                return new ApiResponse<string>(400, "Seller is already approved");
 
-                
+            if (seller.Status == ApprovalStatus.Suspended)
+                return new ApiResponse<string>(400, "Seller is suspended. Unsuspend before approving");
+
+            if (seller.Status == ApprovalStatus.Draft)
+                return new ApiResponse<string>(400, "Seller has not submitted their application yet");
+
+            if (seller.Status != ApprovalStatus.Submitted)
+                return new ApiResponse<string>(400, "Seller is not ready for approval");
+
+
 
             seller.Approve();
 

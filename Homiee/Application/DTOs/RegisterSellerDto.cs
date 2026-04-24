@@ -23,6 +23,12 @@ namespace Homiee.Application.DTOs
         [Required]
         [StringLength(500)]
         public string Address { get; set; } = null!;
+
+        [Required]
+        public double Latitude { get; set; }
+
+        [Required]
+        public double Longitude { get; set; }
     }
 
 }

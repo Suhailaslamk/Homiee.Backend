@@ -12,7 +12,7 @@ namespace Homiee.Domain.Entities
         public UserRole Role { get; set; } = UserRole.User;
         public bool IsBlocked { get; set; } = false;
         public UserStatus Status { get;  set; }
-
+        public string? ProfilePictureUrl { get; set; }
         public DateTime? LastOtpSentAt { get; set; }
     }
 }

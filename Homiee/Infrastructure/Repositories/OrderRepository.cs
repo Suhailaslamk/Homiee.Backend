@@ -17,7 +17,15 @@ namespace Homiee.Infrastructure.Repositories
         {
             return _context.Orders;
         }
-
+        public async Task<Order?> GetOrderWithDetailsAsync(int orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Seller)
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
         public async Task<Order?> GetByIdAsync(int id)
         {
             return await _context.Orders

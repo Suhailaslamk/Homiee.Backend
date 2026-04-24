@@ -8,7 +8,8 @@ namespace Homiee.Application.Interfaces.IServices
 
         Task<ApiResponse<CustomerDetailsDto>> GetCustomerById(int id);
 
-        Task<ApiResponse<List<OrderDetailsDto>>> GetCustomerOrders(int customerId);
+        Task<ApiResponse<PagedResult<OrderDetailsDto>>>
+    GetCustomerOrders(int customerId, int page = 1, int pageSize = 10);
 
         Task<ApiResponse<string>> BlockCustomer(int id, string? reason);
 

@@ -1,10 +1,12 @@
 ﻿using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
+using Homiee.Application.Options;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Homiee.Application.Services
 {
@@ -15,19 +17,24 @@ namespace Homiee.Application.Services
         private readonly IProductImageRepository _productImageRepo;
         private readonly IFileStorageService _fileService;
         private readonly ICategoryRepository _categoryRepo;
-
+        private readonly ICacheService _cache;
+        private readonly CacheSettings _cfg;
 
         public SellerProductService(IProductRepository productRepo,
                                    ISellersRepository sellerRepo,
                                    IProductImageRepository productImageRepo,
                                    IFileStorageService fileService,
-                                   ICategoryRepository categoryRepo)
+                                   ICategoryRepository categoryRepo,
+                                   ICacheService cache,
+                                   IOptions<CacheSettings> cfg)
         {
             _productRepo = productRepo;
             _sellerRepo = sellerRepo;
             _productImageRepo = productImageRepo;
             _fileService = fileService;
             _categoryRepo = categoryRepo;
+            _cache = cache;
+            _cfg = cfg.Value; 
         }
 
         public async Task<ApiResponse<string>> CreateProduct(CreateProductDto dto, int userId)
@@ -63,6 +70,8 @@ namespace Homiee.Application.Services
                 return new ApiResponse<string>(400, "Category does not exist");
             if (dto.Price <= 0)
                 return new ApiResponse<string>(400, "Price must be greater than zero");
+            if (dto.Stock <= 0)
+                return new ApiResponse<string>(400, "Stock must be greater than zero");
             if (!category.IsActive)
                 return new ApiResponse<string>(400, "Category is inactive");
 
@@ -70,7 +79,7 @@ namespace Homiee.Application.Services
                 return new ApiResponse<string>(400, "Stock cannot be negative");
             try
             {
-                var imageUrl = await _fileService.UploadAsync(dto.Image, "productsimages");
+                var imageUrl = await _fileService.UploadAsync(dto.Image, "products");
                 //var product = new Product(seller.Id, dto.Name, dto.Description, dto.Price, dto.Stock);
 
                        var product = new Product(
@@ -121,8 +130,11 @@ namespace Homiee.Application.Services
             if (dto.Price <= 0)
                 return new ApiResponse<string>(400, "Price must be greater than zero");
 
-            if (dto.Price > 1_000_000) // optional business rule
-                return new ApiResponse<string>(400, "Price is too high");
+            if (dto.Stock <= 0)
+                return new ApiResponse<string>(400, "Stock must be greater than zero");
+
+            //if (dto.Price > 1_000_000) // optional business rule
+            //    return new ApiResponse<string>(400, "Price is too high");
 
             // 🔍 Seller validation
             var seller = await _sellerRepo.GetByUserIdAsync(userId);
@@ -143,9 +155,13 @@ namespace Homiee.Application.Services
             try
             {
                 // 🧠 Domain handles internal consistency
-                product.Update(dto.Name.Trim(), dto.Description?.Trim(), dto.Price);
+                product.Update(dto.Name.Trim(), dto.Description?.Trim(),dto.Stock, dto.Price);
 
                 await _productRepo.SaveChangesAsync();
+
+                await _cache.RemoveAsync($"product:detail:{productId}");
+                await _cache.RemoveAsync($"recommendations:{productId}:10"); // default topN
+                await _cache.RemoveByPrefixAsync($"recommendations:{productId}:");
 
                 return new ApiResponse<string>(200, "Updated successfully");
             }
@@ -194,6 +210,10 @@ namespace Homiee.Application.Services
 
                 await _productRepo.SaveChangesAsync();
 
+                await _cache.RemoveAsync($"product:detail:{productId}");
+                await _cache.RemoveAsync($"recommendations:{productId}:10"); // default topN
+                await _cache.RemoveByPrefixAsync($"recommendations:{productId}:"); // all topN variants
+
                 return new ApiResponse<string>(200, "Deleted successfully");
             }
             catch (Exception ex)
@@ -210,6 +230,7 @@ namespace Homiee.Application.Services
 
             var query = _productRepo.Query()
          .AsNoTracking()
+         .Include(p => p.Images)
          .Where(p => p.SellerId == seller.Id && !p.IsDeleted);
          
                  if (!string.IsNullOrEmpty(request.Search))
@@ -247,7 +268,13 @@ namespace Homiee.Application.Services
                     Id = p.Id,
                     Name = p.Name,
                     Price = p.Price,
-                    Stock = p.Stock
+                    Stock = p.Stock,
+                    ImageUrl = p.Images
+                        .Where(i => i.IsPrimary)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault() ?? p.Images
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
 
@@ -345,12 +372,17 @@ namespace Homiee.Application.Services
         }
         public async Task<ApiResponse<SellerProductDetailsDto>> GetProductById(int productId, int userId)
         {
+            var cacheKey = $"product:detail:{productId}";
+            var cached = await _cache.GetAsync<SellerProductDetailsDto>(cacheKey);
+            if (cached is not null) return new ApiResponse<SellerProductDetailsDto>(200, "Success", cached);
+
             var seller = await _sellerRepo.GetByUserIdAsync(userId);
             if (seller == null)
                 return new ApiResponse<SellerProductDetailsDto>(404, "Seller not found");
 
             var product = await _productRepo.Query()
                 .AsNoTracking()
+                .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
 
             if (product == null)
@@ -366,8 +398,16 @@ namespace Homiee.Application.Services
                 Description = product.Description,
                 Price = product.Price,
                 Stock = product.Stock,
-                CategoryId = product.CategoryId
+                CategoryId = product.CategoryId,
+                Images = product.Images
+                    .OrderByDescending(i => i.IsPrimary)
+                    .Select(i => i.ImageUrl)
+                    .ToList()
+
+
             };
+
+            await _cache.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(_cfg.ProductDetailTtlMinutes));
 
             return new ApiResponse<SellerProductDetailsDto>(200, "Success", dto);
         }
@@ -378,7 +418,8 @@ namespace Homiee.Application.Services
                 .Select(c => new CategoryDto
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    IsActive = true 
                 })
                 .ToListAsync();
 

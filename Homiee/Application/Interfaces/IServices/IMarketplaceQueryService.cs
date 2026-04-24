@@ -12,5 +12,27 @@ namespace Homiee.Application.Interfaces.IServices
         Task<ApiResponse<PagedResult<SellerListDto>>> GetSellers(SellerQueryDto query);
         Task<ApiResponse<PagedResult<ProductListDto>>> GetSellerProducts(int sellerId, ProductQuery query);
         Task<ApiResponse<SearchResultDto>> Search(string query);
+
+        Task<ApiResponse<PagedResult<SellerStoreDto>>> GetStores(StoreQueryDto query);
+        Task<ApiResponse<SellerStorePageDto>> GetStoreDetails(int sellerId, ProductQuery productQuery);
+
+        Task<ApiResponse<List<SellerStoreDto>>> GetNearbyStores(NearbyQueryDto query);
+        Task<ApiResponse<PagedResult<ProductListDto>>> GetNearbyProducts(NearbyQueryDto query);
+
+
+        // ── Step 7: Location-based ────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

@@ -1,13 +1,15 @@
-﻿namespace Homiee.Domain.Entities
+﻿using Homiee.Domain.Enums;
+
+namespace Homiee.Domain.Entities
 {
     public class OrderStatusHistory : BaseEntity
     {
-
         public int OrderId { get; set; }
-
-        public string Status { get; set; } = null!;
+        public OrderStatus Status { get; set; }
         public Order Order { get; set; }
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
-        public DateTime ChangedAt { get; set; } = DateTime.UtcNow;
+
+
     }
 }

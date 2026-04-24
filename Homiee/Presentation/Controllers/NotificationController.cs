@@ -1,5 +1,4 @@
-﻿using Homiee.Application.Interfaces.IRepository;
-using Homiee.Application.Interfaces.IServices;
+﻿using Homiee.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,36 +9,39 @@ namespace Homiee.Presentation.Controllers
     [Route("api/notifications")]
     public class NotificationController : ControllerBase
     {
-        private readonly INotificationRepository _repo;
+        private readonly INotificationService _service;
 
-        public NotificationController(INotificationRepository repo)
+        public NotificationController(INotificationService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
         private int GetUserId()
-            => int.Parse(User.FindFirst("userId")!.Value);
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                throw new UnauthorizedAccessException("Invalid or missing token");
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid userId claim");
+
+            return userId;
+        }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var data = await _repo.GetByUserIdAsync(GetUserId());
-            return Ok(data);
+            var result = await _service.GetUserNotifications(GetUserId());
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPatch("{id}/read")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
-            var notif = await _repo.GetByIdAsync(id);
+            var result = await _service.MarkAsRead(id, GetUserId());
 
-            if (notif == null)
-                return NotFound();
-
-            notif.IsRead = true;
-
-            await _repo.SaveChangesAsync();
-
-            return Ok();
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

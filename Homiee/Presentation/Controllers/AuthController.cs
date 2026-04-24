@@ -62,14 +62,7 @@ namespace Homiee.Presentation.Controllers
             var result = await _authService.Login(loginDto);
             return StatusCode(result.StatusCode, result);
         }
-        //[Authorize]
-        //[HttpGet("me")]
-
-        //public async Task<ActionResult> GetCurrentUser()
-        //{
-        //    var result = await _authService.GetUserProfile(User);
-        //    return StatusCode(result.StatusCode, result);
-        //}
+        
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenDto dto)

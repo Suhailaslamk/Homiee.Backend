@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Homiee.Presentation.Controllers
 {
-    //[Authorize(Roles = "Customer")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     [ApiController]
     [Route("api/address")]
     public class AddressController : ControllerBase
@@ -20,23 +19,44 @@ namespace Homiee.Presentation.Controllers
 
         private int GetUserId()
         {
-            return int.Parse(User.FindFirst("userId")!.Value);
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+                throw new UnauthorizedAccessException("Invalid or missing token");
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid userId claim");
+
+            return userId;
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Get()
-            => Ok(await _service.GetAddresses(GetUserId()));
+        {
+            var result = await _service.GetAddresses(GetUserId());
+            return StatusCode(result.StatusCode, result);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateAddressDto dto)
-            => Ok(await _service.Create(GetUserId(), dto));
-
+        {
+            var result = await _service.Create(GetUserId(), dto);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateAddressDto dto)
-            => Ok(await _service.Update(GetUserId(), id, dto));
-
+        {
+            var result = await _service.Update(GetUserId(), id, dto);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
-            => Ok(await _service.Delete(GetUserId(), id));
+        {
+            var result = await _service.Delete(GetUserId(), id);
+            return StatusCode(result.StatusCode, result);
+        }
+            
     }
 }

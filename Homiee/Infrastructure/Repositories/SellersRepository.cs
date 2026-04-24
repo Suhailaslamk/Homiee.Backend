@@ -37,8 +37,9 @@ namespace Homiee.Infrastructure.Repositories
         public async Task<PagedResult<Seller>> GetFilteredAsync(SellerQueryParamsDto queryParams)
         {
             var query = _context.Sellers
-                .Include(s => s.User)
-                .AsQueryable();
+    .Include(s => s.User)
+    .Include(s => s.Products)   // ADD THIS
+    .AsQueryable();
 
             // 🔍 FILTER BY STATUS
             if (!string.IsNullOrEmpty(queryParams.Status) &&

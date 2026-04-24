@@ -44,10 +44,12 @@ namespace Homiee.Application.Services
             //        query = query.Where(p => p.Status == status);
             //}
 
-            
+
             query = request.SortBy?.ToLower() switch
             {
                 "price" => request.Desc ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+                "name" => request.Desc ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                "stock" => request.Desc ? query.OrderByDescending(p => p.Stock) : query.OrderBy(p => p.Stock),
                 _ => query.OrderByDescending(p => p.CreatedAt)
             };
 
@@ -62,7 +64,7 @@ namespace Homiee.Application.Services
                     Name = p.Name,
                     Price = p.Price,
                     SellerName = p.Seller.User.Name,
-                    //Status = p.Status.ToString(),
+                    SellerId = p.SellerId,
                     IsDeleted = p.IsDeleted,
                     CreatedAt = p.CreatedAt
                 })
@@ -90,9 +92,12 @@ namespace Homiee.Application.Services
                 Description = product.Description,
                 Price = product.Price,
                 Stock = product.Stock,
-                //Status = product.Status.ToString(),
-                //RejectionReason = product.RejectionReason,
-                SellerName = product.Seller.User.Name,
+                SellerId = product.SellerId,                    // ADD
+                SellerName = product.Seller?.User?.Name,
+                SellerEmail = product.Seller?.User?.Email,         // ADD
+                SellerPhone = product.Seller?.PhoneNumber,         // ADD
+                SellerBusinessName = product.Seller?.BusinessName,        // ADD
+                SellerStatus = product.Seller?.Status.ToString(),   // ADD
                 Images = product.Images.Select(i => i.ImageUrl).ToList()
             };
 

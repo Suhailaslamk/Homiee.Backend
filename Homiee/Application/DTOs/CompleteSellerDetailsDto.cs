@@ -32,10 +32,17 @@ namespace Homiee.Application.DTOs
         public string? LicenseNumber { get; set; }
         [Required]
 
+        
+        public double Latitude { get; set; }
 
+        [Required]
+        public double Longitude { get; set; }
+
+        [Required]
         public IFormFile? BusinessProof { get; set; }
         [Required]
 
+        
         public IFormFile? IdentityProof { get; set; }
     }
 }

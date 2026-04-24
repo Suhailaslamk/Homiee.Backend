@@ -1,8 +1,11 @@
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
+using Homiee.Application.Options;
 using Homiee.Application.Services;
+using Homiee.Infrastructure.Cache;
 using Homiee.Infrastructure.Data;
 using Homiee.Infrastructure.Repositories;
+using Homiee.Infrastructure.SignalR;
 using Homiee.Middlewares;
 using Homiee.Presentation.Hubs;
 using Homiee.Providers;
@@ -10,21 +13,42 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Homiee.Infrastructure.SignalR;
+using StackExchange.Redis;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-
-
+using System.Security.Cryptography;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AppDbContext>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.Configure<CacheSettings>(
+    builder.Configuration.GetSection("CacheSettings"));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(
+        builder.Configuration.GetConnectionString("Redis")!));
+
+builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+
+// Optional: also wire up IDistributedCache for SignalR backplane / session use
+builder.Services.AddStackExchangeRedisCache(opt =>
+{
+    opt.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
+
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(
+        builder.Configuration.GetConnectionString("Redis")!);
+
+// Health check
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>()
+    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -55,6 +79,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    // ✅ THIS WAS MISSING — you deleted it when adding OnMessageReceived
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -68,24 +93,62 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["JWT:key"]))
     };
+
     options.Events = new JwtBearerEvents
     {
+        // ✅ For SignalR — WebSocket can't send Authorization header,
+        // so token comes as ?access_token= query param
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/chatHub") ||
+                 path.StartsWithSegments("/hubs/notification")))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        },
+
         OnTokenValidated = async context =>
         {
-            var token = context.HttpContext.Request.Headers["Authorization"]
-    .ToString()
-    .Replace("Bearer ", "");
+            // ✅ For SignalR WebSocket, header is empty — token came from query string
+            // So get the raw token from context.SecurityToken, not the header
+            var tokenHandler = context.SecurityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken;
+            var rawToken = tokenHandler?.RawData;
+
+            if (string.IsNullOrEmpty(rawToken))
+            {
+                // Fallback to header for regular HTTP requests
+                var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader))
+                {
+                    context.Fail("Missing token");
+                    return;
+                }
+                rawToken = authHeader.Replace("Bearer ", "").Trim();
+            }
+
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken));
+            var hashedToken = Convert.ToBase64String(bytes);
 
             var repo = context.HttpContext.RequestServices
                 .GetRequiredService<IRevokedAccessTokenRepository>();
 
-            if (await repo.IsRevokedAsync(token))
+            var isRevoked = await repo.IsRevokedAsync(hashedToken);
+
+            if (isRevoked)
             {
                 context.Fail("Token has been revoked");
             }
         }
     };
 });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -95,7 +158,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
     });
-}); 
+});
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -123,8 +186,11 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+builder.Services.Configure<RecommendationWeightsOptions>(
+    builder.Configuration.GetSection(RecommendationWeightsOptions.SectionName));
 
 
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -149,22 +215,30 @@ builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IMarketplaceQueryService, MarketplaceQueryService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPaymentRepository,PaymentRepository>();
+//builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPendingOrderRepository, PendingOrderRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IAdminCustomerService, AdminCustomerService>();
 builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
+builder.Services.AddScoped<ISellerReviewService, SellerReviewService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
+builder.Services.AddScoped<ISellerEarningService, SellerEarningService>();
+builder.Services.AddScoped<IAdminAnalyticsService, AdminAnalyticsService>();
+builder.Services.AddScoped<ISellerAnalyticsService, SellerAnalyticsService>();
+builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
 
-builder.Services.Scan(scan => scan
-.FromAssemblyOf<SellerOrderService>() 
-.AddClasses()
-.AsMatchingInterface()
-.WithScopedLifetime());
+
+//builder.Services.Scan(scan => scan
+//.FromAssemblyOf<SellerOrderService>() 
+//.AddClasses()
+//.AsMatchingInterface()
+//.WithScopedLifetime());
 
 
 builder.Services.AddSignalR();
@@ -174,7 +248,6 @@ builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
 
 
 builder.Services.AddControllers();
@@ -189,7 +262,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-Console.WriteLine("this will show");
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
@@ -205,3 +277,17 @@ app.MapHub<ChatHub>("/chatHub");
 app.MapHub<NotificationHub>("/hubs/notification");
 
 app.Run();
+
+
+
+
+
+
+
+
+
+
+
+
+
+

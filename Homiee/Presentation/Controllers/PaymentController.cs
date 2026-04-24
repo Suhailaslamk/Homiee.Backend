@@ -1,123 +1,105 @@
-﻿
-using Homiee.Application.DTOs;
-using Homiee.Application.Interfaces.IRepository;
-using Homiee.Application.Interfaces.IServices;
-using Homiee.Common;
-using Homiee.Domain.Entities;
-using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using System.Text;
+﻿//using Homiee.Application.DTOs;
+//using Homiee.Application.Interfaces.IServices;
+//using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Mvc;
+//using System.Security.Cryptography;
+//using System.Text;
 
-namespace Homiee.Presentation.Controllers
-{
-    [Authorize]
-    [ApiController]
-    [Route("api/payment")]
-    public class PaymentController : ControllerBase
-    {
-        private readonly IPaymentService _paymentService;
-        private readonly IConfiguration _config;
+//namespace Homiee.Presentation.Controllers
+//{
+//    [Authorize]
+//    [ApiController]
+//    [Route("api/payment")]
+//    public class PaymentController : ControllerBase
+//    {
+//        private readonly IPaymentService _paymentService;
+//        private readonly IConfiguration _config;
 
-        public PaymentController(IPaymentService paymentService, IConfiguration config)
-        {
-            _paymentService = paymentService;
-            _config = config;
-        }
+//        public PaymentController(IPaymentService paymentService, IConfiguration config)
+//        {
+//            _paymentService = paymentService;
+//            _config = config;
+//        }
 
-        [HttpPost("initiate")]
-        public async Task<IActionResult> Initiate(int addressId)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            if (userIdClaim == null)
-                return Unauthorized();
+//        private int GetUserId()
+//        {
+//            var claim = User.FindFirst("userId")?.Value;
+//            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out var id))
+//                throw new UnauthorizedAccessException("Invalid token");
+//            return id;
+//        }
 
-            var userId = int.Parse(userIdClaim);
+//        // Initiate is exposed on CustomerOrderController as well.
+//        // This endpoint stays for standalone / non-cart payment flows.
+//        [HttpPost("initiate")]
+//        public async Task<IActionResult> Initiate([FromQuery] int addressId)
+//        {
+//            var result = await _paymentService.InitiatePayment(GetUserId(), addressId);
+//            return StatusCode(result.StatusCode, result);
+//        }
 
-            var result = await _paymentService.InitiatePayment(userId, addressId);
-            return StatusCode(result.StatusCode, result);
-        }
+//        [HttpPost("verify")]
+//        public async Task<IActionResult> Verify([FromBody] VerifyPaymentDto dto)
+//        {
+//            var result = await _paymentService.VerifyAndStorePaymentId(GetUserId(), dto);
+//            return StatusCode(result.StatusCode, result);
+//        }
 
-        [HttpPost("verify")]
-        public async Task<IActionResult> Verify([FromBody] VerifyPaymentDto dto)
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            if (userIdClaim == null)
-                return Unauthorized();
+//        // Webhook is anonymous — Razorpay calls this directly.
+//        // Signature is verified before delegating to the service.
+//        [AllowAnonymous]
+//        [HttpPost("webhook")]
+//        public async Task<IActionResult> RazorpayWebhook()
+//        {
+//            var json = await new StreamReader(Request.Body).ReadToEndAsync();
+//            var signature = Request.Headers["X-Razorpay-Signature"].FirstOrDefault();
+//            var secret = _config["Razorpay:WebhookSecret"];
 
-            var userId = int.Parse(userIdClaim);
+//            if (string.IsNullOrEmpty(signature))
+//                return Unauthorized("Missing signature");
 
-            var result = await _paymentService.VerifyPayment(userId, dto);
-            return StatusCode(result.StatusCode, result);
-        }
+//            if (!VerifySignature(json, signature, secret))
+//                return Unauthorized("Invalid signature");
 
-        // FIX #5: [AllowAnonymous] is mandatory here.
-        // The class-level [Authorize] was blocking ALL Razorpay webhook calls with 401
-        // because Razorpay has no JWT token to send. This meant payment.captured events
-        // were being rejected and orders were never being created after successful payment.
-        [AllowAnonymous]
-        [HttpPost("webhook")]
-        public async Task<IActionResult> RazorpayWebhook()
-        {
-            var json = await new StreamReader(Request.Body).ReadToEndAsync();
-            var signature = Request.Headers["X-Razorpay-Signature"].FirstOrDefault();
-            var secret = _config["Razorpay:WebhookSecret"];
+//            await _paymentService.HandleWebhook(json);
+//            return Ok();
+//        }
 
-            if (string.IsNullOrEmpty(signature))
-                return Unauthorized("Missing signature");
+//        [HttpGet("status/{razorpayOrderId}")]
+//        public async Task<IActionResult> Status(string razorpayOrderId)
+//        {
+//            var result = await _paymentService.GetPaymentStatus(razorpayOrderId);
+//            return StatusCode(result.StatusCode, result);
+//        }
 
-            if (!VerifySignature(json, signature, secret))
-                return Unauthorized("Invalid signature");
+//        [HttpPost("retry/{razorpayOrderId}")]
+//        public async Task<IActionResult> Retry(string razorpayOrderId)
+//        {
+//            var result = await _paymentService.RetryPayment(razorpayOrderId);
+//            return StatusCode(result.StatusCode, result);
+//        }
 
-            await _paymentService.HandleWebhook(json);
+//        [HttpGet("pending")]
+//        public async Task<IActionResult> GetPending()
+//        {
+//            var result = await _paymentService.GetPendingPayment(GetUserId());
+//            return StatusCode(result.StatusCode, result);
+//        }
 
-            return Ok();
-        }
+//        // ── HMAC-SHA256 signature verification ───────────────────────────
+//        private static bool VerifySignature(string payload, string signature, string secret)
+//        {
+//            var key = Encoding.UTF8.GetBytes(secret);
+//            var data = Encoding.UTF8.GetBytes(payload);
 
-        [HttpGet("status/{orderId}")]
-        public async Task<IActionResult> Status(string orderId)
-        {
-            var result = await _paymentService.GetPaymentStatus(orderId);
-            return StatusCode(result.StatusCode, result);
-        }
+//            using var hmac = new HMACSHA256(key);
+//            var hash = hmac.ComputeHash(data);
+//            var generated = BitConverter.ToString(hash).Replace("-", "").ToLower();
 
-        [HttpPost("retry/{orderId}")]
-        public async Task<IActionResult> Retry(string orderId)
-        {
-            var result = await _paymentService.RetryPayment(orderId);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        [HttpGet("pending")]
-        public async Task<IActionResult> GetPendingPayment()
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            if (userIdClaim == null)
-                return Unauthorized();
-
-            var userId = int.Parse(userIdClaim);
-
-            var result = await _paymentService.GetPendingPayment(userId);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        private bool VerifySignature(string payload, string signature, string secret)
-        {
-            var keyBytes = Encoding.UTF8.GetBytes(secret);
-            var payloadBytes = Encoding.UTF8.GetBytes(payload);
-
-            using var hmac = new HMACSHA256(keyBytes);
-            var hash = hmac.ComputeHash(payloadBytes);
-            var generatedSignature = BitConverter.ToString(hash).Replace("-", "").ToLower();
-
-            return CryptographicOperations.FixedTimeEquals(
-                Encoding.UTF8.GetBytes(generatedSignature),
-                Encoding.UTF8.GetBytes(signature)
-            );
-        }
-    }
-}
-
-
+//            // Constant-time compare prevents timing attacks
+//            return CryptographicOperations.FixedTimeEquals(
+//                Encoding.UTF8.GetBytes(generated),
+//                Encoding.UTF8.GetBytes(signature));
+//        }
+//    }
+//}

@@ -12,5 +12,7 @@
         public string? SortBy { get; set; }
         public bool Desc { get; set; }
         public int? CategoryId { get; set; }
+        public bool? InStockOnly { get; set; }       // ← NEW
+        public double? MinRating { get; set; }
     }
 }

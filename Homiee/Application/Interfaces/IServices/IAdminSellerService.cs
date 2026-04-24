@@ -6,8 +6,8 @@ namespace Homiee.Application.Interfaces.IServices
     public interface IAdminSellerService
     {
         Task<PagedResult<SellerListDto>> GetSellers(SellerQueryParamsDto queryParams);
-        Task<ApiResponse<object>> GetSellerDetails(int userId);
-        Task<ApiResponse<string>> ApproveSeller(int userId);
+        Task<ApiResponse<object>> GetSellerDetails(int sellerId);
+        Task<ApiResponse<string>> ApproveSeller(int sellerId);
         Task<ApiResponse<string>> RejectSeller(int userId, string reason);
         Task<ApiResponse<string>> SuspendSeller(int userId, string reason);
     }

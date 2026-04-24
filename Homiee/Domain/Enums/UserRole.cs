@@ -2,11 +2,11 @@
 {
     public enum UserRole
     {
-        User,
-        BusinessOwner,
-        Seller,
-        DeliveryPartner,
-        Admin,
+        User =0 ,
+        BusinessOwner =1 ,
+        Seller = 2 ,
+        DeliveryPartner =3 ,
+        Admin = 4 ,
 
     }
 }

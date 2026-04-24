@@ -13,7 +13,6 @@ namespace Homiee.Application.Services
     {
         private readonly IUserRepository _userRepo;
         private readonly IOrderRepository _orderRepo;
-        private readonly IOrderRepository _orderRepository;
         private readonly INotificationService _notificationService;
 
         public AdminCustomerService(IUserRepository userRepo, IOrderRepository orderRepo, INotificationService notificationService)
@@ -40,7 +39,8 @@ namespace Homiee.Application.Services
 
             if (!string.IsNullOrEmpty(query.Status) && query.Status.ToLower() != "all")
             {
-                usersQuery = usersQuery.Where(u => u.Status.ToString().ToLower() == query.Status.ToLower());
+                if (Enum.TryParse<UserStatus>(query.Status, true, out var parsedStatus))
+                    usersQuery = usersQuery.Where(u => u.Status == parsedStatus);
             }
 
             var total = await usersQuery.CountAsync();
@@ -55,7 +55,8 @@ namespace Homiee.Application.Services
                     FullName = u.Name,
                     Email = u.Email,
                     Status = u.Status.ToString(),
-                    CreatedAt = u.CreatedOn
+                    CreatedAt = u.CreatedOn,
+                    ProfilePictureUrl = u.ProfilePictureUrl
                 })
                 .ToListAsync();
 
@@ -88,11 +89,15 @@ namespace Homiee.Application.Services
         }
 
         // ✅ 3. GET CUSTOMER ORDERS
-        public async Task<ApiResponse<List<OrderDetailsDto>>> GetCustomerOrders(int customerId)
+        public async Task<ApiResponse<PagedResult<OrderDetailsDto>>>
+    GetCustomerOrders(int customerId, int page = 1, int pageSize = 10)
         {
-            var orders = await _orderRepo.Query()
-                .Where(o => o.UserId == customerId)
+            var q = _orderRepo.Query().Where(o => o.UserId == customerId);
+            var total = await q.CountAsync();
+            var orders = await q
                 .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(o => new OrderDetailsDto
                 {
                     Id = o.Id,
@@ -101,8 +106,8 @@ namespace Homiee.Application.Services
                     CreatedAt = o.CreatedAt
                 })
                 .ToListAsync();
-
-            return new ApiResponse<List<OrderDetailsDto>>(200, "Success", orders);
+            var result = new PagedResult<OrderDetailsDto>(200, "Success", orders, total, page, pageSize);
+            return new ApiResponse<PagedResult<OrderDetailsDto>>(200, "Success", result);
         }
 
         // ✅ 4. BLOCK CUSTOMER

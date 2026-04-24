@@ -1,4 +1,5 @@
-﻿using Homiee.Application.Interfaces.IRepository;
+﻿using Homiee.Application.DTOs;
+using Homiee.Application.Interfaces.IRepository;
 using Homiee.Domain.Entities;
 using Homiee.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,11 @@ namespace Homiee.Infrastructure.Repositories
             await _context.ChatMessages.AddAsync(message);
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<ChatMessage>> GetConversation(int user1, int user2)
         {
             return await _context.ChatMessages
@@ -29,8 +35,39 @@ namespace Homiee.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task SaveChangesAsync()
+        public async Task<List<ConversationSummaryDto>> GetInboxAsync(int userId)
         {
+            return await _context.ChatMessages
+                .Where(m => m.SenderId == userId || m.ReceiverId == userId)
+                .GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
+                .Select(g => new ConversationSummaryDto
+                {
+                    OtherUserId = g.Key,
+                    OtherUserName = _context.Users
+                        .Where(u => u.Id == g.Key)
+                        .Select(u => u.Name)
+                        .FirstOrDefault() ?? "Unknown",
+                    OtherUserAvatar = _context.Users
+                        .Where(u => u.Id == g.Key)
+                        .Select(u => u.ProfilePictureUrl)
+                        .FirstOrDefault(),
+                    LastMessage = g.OrderByDescending(m => m.SentAt)
+                        .Select(m => m.Message)
+                        .FirstOrDefault() ?? "",
+                    LastMessageAt = g.Max(m => m.SentAt),
+                    UnreadCount = g.Count(m => m.ReceiverId == userId && !m.IsRead)
+                })
+                .OrderByDescending(c => c.LastMessageAt)
+                .ToListAsync();
+        }
+
+        public async Task MarkAsReadAsync(int senderId, int receiverId)
+        {
+            var unread = await _context.ChatMessages
+                .Where(m => m.SenderId == senderId && m.ReceiverId == receiverId && !m.IsRead)
+                .ToListAsync();
+
+            unread.ForEach(m => m.IsRead = true);
             await _context.SaveChangesAsync();
         }
     }

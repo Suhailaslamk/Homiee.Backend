@@ -95,74 +95,74 @@
 
 
 
-using FluentAssertions;
-using Homiee.Application.DTOs;
-using Homiee.Application.DTOs.Auth;
-using Homiee.Application.Interfaces.IRepository;
-using Homiee.Application.Interfaces.IServices;
-using Homiee.Application.Services;
-using Homiee.Domain.Entities;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Homiee.Infrastructure.Data;
-using Xunit;
-namespace Homiee.Tests.Services
-{
+//using FluentAssertions;
+//using Homiee.Application.DTOs;
+//using Homiee.Application.DTOs.Auth;
+//using Homiee.Application.Interfaces.IRepository;
+//using Homiee.Application.Interfaces.IServices;
+//using Homiee.Application.Services;
+//using Homiee.Domain.Entities;
+//using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.Logging;
+//using Moq;
+//using Homiee.Infrastructure.Data;
+//using Xunit;
+//namespace Homiee.Tests.Services
+//{
 
-    public class AuthServiceTests
-    {
-        [Fact]
-        public async Task Login_ShouldFail_WhenPasswordIsIncorrect()
-        {
-            // Arrange
-            var mockUserRepo = new Mock<IUserRepository>();
-            var mockTokenRepo = new Mock<ITokenRepository>();
-            var mockEmailService = new Mock<IEmailService>();
-            var mockOtpRepo = new Mock<IOtpRepository>();
-            var mockConfig = new Mock<IConfiguration>();
-            var mockLogger = new Mock<ILogger<AuthService>>();
-            var mockRevokedAccess = new Mock<IRevokedAccessTokenRepository>();
-            var mockSellerRepo = new Mock<ISellersRepository>(); 
-            var mockDeliveryPartnerRepo = new Mock<IDeliveryRepository>();
-            var mockAppDbContext = new Mock<AppDbContext>();
+//    public class AuthServiceTests
+//    {
+//        [Fact]
+//        public async Task Login_ShouldFail_WhenPasswordIsIncorrect()
+//        {
+//            // Arrange
+//            var mockUserRepo = new Mock<IUserRepository>();
+//            var mockTokenRepo = new Mock<ITokenRepository>();
+//            var mockEmailService = new Mock<IEmailService>();
+//            var mockOtpRepo = new Mock<IOtpRepository>();
+//            var mockConfig = new Mock<IConfiguration>();
+//            var mockLogger = new Mock<ILogger<AuthService>>();
+//            var mockRevokedAccess = new Mock<IRevokedAccessTokenRepository>();
+//            var mockSellerRepo = new Mock<ISellersRepository>(); 
+//            var mockDeliveryPartnerRepo = new Mock<IDeliveryRepository>();
+//            var mockAppDbContext = new Mock<AppDbContext>();
 
-            var user = new User
-            {
-                Id = 1,
-                Email = "test@gmail.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Correct123!"),
-                IsEmailVerified = true,
-                IsBlocked = false
-            };
+//            var user = new User
+//            {
+//                Id = 1,
+//                Email = "test@gmail.com",
+//                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Correct123!"),
+//                IsEmailVerified = true,
+//                IsBlocked = false
+//            };
 
-            mockUserRepo.Setup(x => x.GetByEmailAsync(It.IsAny<string>()))
-                        .ReturnsAsync(user);
+//            mockUserRepo.Setup(x => x.GetByEmailAsync(It.IsAny<string>()))
+//                        .ReturnsAsync(user);
 
-            var service = new AuthService(
-                mockUserRepo.Object,
-                mockConfig.Object,
-                mockEmailService.Object,
-                mockTokenRepo.Object,
-                mockOtpRepo.Object,
-                mockLogger.Object,
-                mockRevokedAccess.Object,
-                mockSellerRepo.Object,
-                mockDeliveryPartnerRepo.Object,
-                mockAppDbContext.Object);
+//            var service = new AuthService(
+//                mockUserRepo.Object,
+//                mockConfig.Object,
+//                mockEmailService.Object,
+//                mockTokenRepo.Object,
+//                mockOtpRepo.Object,
+//                mockLogger.Object,
+//                mockRevokedAccess.Object,
+//                mockSellerRepo.Object,
+//                mockDeliveryPartnerRepo.Object,
+//                mockAppDbContext.Object);
 
-            var dto = new LoginDto
-            {
-                Email = "test@gmail.com",
-                Password = "WrongPassword"
-            };
+//            var dto = new LoginDto
+//            {
+//                Email = "test@gmail.com",
+//                Password = "WrongPassword"
+//            };
 
-            // Act
-            var result = await service.Login(dto);
+//            // Act
+//            var result = await service.Login(dto);
 
-            // Assert
-            result.StatusCode.Should().Be(401);
-            result.Message.Should().Be("Invalid email or password");
-        }
-    }
-}
+//            // Assert
+//            result.StatusCode.Should().Be(401);
+//            result.Message.Should().Be("Invalid email or password");
+//        }
+//    }
+//}

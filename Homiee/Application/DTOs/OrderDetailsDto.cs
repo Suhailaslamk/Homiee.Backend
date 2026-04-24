@@ -6,6 +6,6 @@
         public decimal TotalAmount { get; set; }
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
-        public List<OrderItemDto> Items { get; set; }
+        public List<GetOrderItemDto> Items { get; set; }
     }
 }

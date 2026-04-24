@@ -1,8 +1,6 @@
 ﻿using Homiee.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
 namespace Homiee.Presentation.Hubs
 {
@@ -18,20 +16,20 @@ namespace Homiee.Presentation.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var userId = int.Parse(Context.User.FindFirst("userId")!.Value);
-
+            var userId = GetUserId();
             _manager.AddConnection(userId, Context.ConnectionId);
-
             await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = int.Parse(Context.User.FindFirst("userId")!.Value);
-
-            _manager.RemoveConnection(userId);
-
+            var userId = GetUserId();
+            // ✅ Pass connectionId — won't remove user if they're still on ChatHub
+            _manager.RemoveConnection(userId, Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
+
+        private int GetUserId() =>
+            int.Parse(Context.User!.FindFirst("userId")!.Value);
     }
 }

@@ -12,5 +12,9 @@
 
         // Optional (add later if needed)
         public int ItemCount { get; set; }
+
+        public string CustomerName { get; set; }
+
+        public List<SellerOrderItemsDto> Items { get; set; } = new();
     }
 }

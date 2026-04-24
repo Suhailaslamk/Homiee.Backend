@@ -37,6 +37,10 @@ namespace Homiee.Infrastructure.Data
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+        public DbSet<SellerReview> SellerReviews { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<SellerEarning> SellerEarnings { get; set; }
+         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -70,9 +74,7 @@ namespace Homiee.Infrastructure.Data
                 .HasIndex(x => new { x.CustomerId, x.ProductId })
                 .IsUnique();
 
-            modelBuilder.Entity<Payment>()
-    .HasIndex(x => x.RazorpayOrderId)
-    .IsUnique();
+           
             modelBuilder.Entity<Order>()
     .HasOne(o => o.User)
     .WithMany()
@@ -91,6 +93,50 @@ namespace Homiee.Infrastructure.Data
             modelBuilder.Entity<RevokedAccessToken>()
                 .HasIndex(x => x.Token)
                 .IsUnique();
+           
+            modelBuilder.Entity<Wishlist>()
+    .HasIndex(w => new { w.UserId, w.ProductId })
+    .IsUnique();
+
+            modelBuilder.Entity<SellerReview>()
+                .HasIndex(r => new { r.UserId, r.SellerId, r.OrderId })
+                .IsUnique();
+            modelBuilder.Entity<Order>()
+    .Property(o => o.PaymentMethod)
+    .HasConversion<int>();
+            modelBuilder.Entity<SellerReview>()
+                .HasOne(r => r.Seller)
+                .WithMany()
+                .HasForeignKey(r => r.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
+           
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<int>();
+
+            modelBuilder.Entity<OrderStatusHistory>()
+                .Property(o => o.Status)
+                .HasConversion<int>();
+            modelBuilder.Entity<SellerReview>()
+                .HasOne(r => r.Order)
+                .WithMany()
+                .HasForeignKey(r => r.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SellerEarning>()
+                .HasOne(e => e.Seller)
+                .WithMany()
+                .HasForeignKey(e => e.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SellerEarning>()
+                .HasOne(e => e.Order)
+                .WithMany()
+                .HasForeignKey(e => e.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SellerEarning>()
+               .HasIndex(e => new { e.SellerId, e.OrderId })
+               .IsUnique();
         }
     }
 }
