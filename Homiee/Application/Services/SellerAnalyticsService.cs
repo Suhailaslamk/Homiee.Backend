@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Options;
@@ -14,12 +14,14 @@ namespace Homiee.Application.Services
         private readonly DapperContext _context;
         private readonly ICacheService _cache;
         private readonly CacheSettings _cfg;
+        private readonly ILogger<SellerAnalyticsService> _logger;
 
-        public SellerAnalyticsService(DapperContext context, ICacheService cache, IOptions<CacheSettings> cfg)
+        public SellerAnalyticsService(DapperContext context, ICacheService cache, IOptions<CacheSettings> cfg, ILogger<SellerAnalyticsService> logger)
         {
             _context = context;
             _cache = cache;
-            _cfg = cfg.Value; 
+            _cfg = cfg.Value;
+            _logger = logger;
         }
 
         // ─────────────────────────────────────────────────────────────────────────
@@ -28,14 +30,20 @@ namespace Homiee.Application.Services
         public async Task<ApiResponse<SellerAnalyticsDto>> GetAnalytics(
             int sellerId, SellerAnalyticsQueryDto query)
         {
+            _logger.LogInformation("Fetching analytics for Seller #{SellerId} (Days: {Days}, TopN: {TopN})", sellerId, query.Days, query.TopN);
+
             query.Days = Math.Clamp(query.Days, 1, 365);
             query.TopN = Math.Clamp(query.TopN, 1, 50);
 
             var key = $"seller:analytics:{sellerId}:{query.Days}:{query.TopN}";
             var cached = await _cache.GetAsync<SellerAnalyticsDto>(key);
             if (cached is not null)
+            {
+                _logger.LogInformation("Analytics cache hit for Seller #{SellerId}", sellerId);
                 return new ApiResponse<SellerAnalyticsDto>(200, "Success", cached);
+            }
 
+            _logger.LogInformation("Analytics cache miss for Seller #{SellerId}. Executing Dapper queries.", sellerId);
             using var conn = _context.CreateConnection();
             conn.Open();
 
@@ -245,6 +253,8 @@ SELECT
         WHEN 3 THEN 'Shipped'
         WHEN 4 THEN 'Delivered'
         WHEN 5 THEN 'Cancelled'
+        WHEN 6 THEN 'Accepted'
+        WHEN 7 THEN 'Rejected'
         ELSE 'Unknown'
     END AS Status,
     COUNT(*) AS [Count]
@@ -315,9 +325,10 @@ SELECT TOP 10
         WHEN 3 THEN 'Shipped'
         WHEN 4 THEN 'Delivered'
         WHEN 5 THEN 'Cancelled'
+        WHEN 6 THEN 'Accepted'
+        WHEN 7 THEN 'Rejected'
         ELSE 'Unknown'
     END              AS Status,
-    o.PaymentMethod,
     o.CreatedAt
 FROM Orders o
 JOIN Users  u ON u.Id = o.UserId

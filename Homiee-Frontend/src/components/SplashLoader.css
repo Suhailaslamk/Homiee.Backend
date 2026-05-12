@@ -1,0 +1,128 @@
+.splash-container {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #0d1a10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.splash-lighting {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(30, 58, 36, 0.45) 0%,
+    rgba(13, 26, 16, 1) 80%
+  );
+  pointer-events: none;
+}
+
+.logo-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-svg-border {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130%;
+  height: 180%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.svg-text-path {
+  font-family: 'Outfit', sans-serif;
+  font-size: 45px;
+  font-weight: 900;
+  fill: none;
+  stroke: #c5a059;
+  stroke-width: 0.5;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  filter: blur(0.5px);
+}
+
+.logo-text {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #c5a059;
+  letter-spacing: -0.01em;
+}
+
+.o-position {
+  position: relative;
+  width: 0.9em;
+  height: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 -0.05em;
+  transform: translateY(0.18em);
+  perspective: 1500px;
+}
+
+.flip-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.flip-side {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* KEY: Solid background for the flip sides to ensure screen blending works against the right base */
+  background: #0d1a10; 
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.blended-asset {
+  width: 75%;
+  height: 75%;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  clip-path: circle(49%);
+  -webkit-clip-path: circle(49%);
+}
+
+.coin-glow {
+  filter: brightness(1.2) drop-shadow(0 0 25px rgba(197, 160, 89, 0.4));
+}
+
+.letter {
+  display: inline-block;
+}

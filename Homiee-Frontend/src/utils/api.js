@@ -7,9 +7,16 @@ export function getPagedItems(response) {
 }
 
 export function getPagedMeta(response) {
+  const data = response?.data;
+  const page = data?.page ?? 1;
+  const pageSize = data?.pageSize ?? 10;
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = data?.totalPages ?? Math.ceil(totalCount / pageSize);
+  
   return {
-    totalCount: response?.data?.totalCount ?? 0,
-    page: response?.data?.page ?? 1,
-    pageSize: response?.data?.pageSize ?? 10,
+    totalCount,
+    page,
+    pageSize,
+    totalPages: totalPages || 1,
   };
 }

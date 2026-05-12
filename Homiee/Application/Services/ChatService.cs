@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Domain.Entities;
@@ -30,10 +30,10 @@ namespace Homiee.Application.Services
             await _repo.AddAsync(msg);
             await _repo.SaveChangesAsync();
 
-            var senderName = await _context.Users
-                .Where(u => u.Id == senderId)
-                .Select(u => u.Name)
-                .FirstOrDefaultAsync() ?? senderId.ToString();
+            // Resolve sender name (checking BusinessName if they are a seller)
+            var senderUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == senderId);
+            var senderSeller = await _context.Sellers.FirstOrDefaultAsync(s => s.UserId == senderId);
+            var senderName = senderSeller?.BusinessName ?? senderUser?.Name ?? senderId.ToString();
 
             return new ChatMessageDto
             {
@@ -50,18 +50,32 @@ namespace Homiee.Application.Services
         public async Task<List<ChatMessageDto>> GetConversationAsync(int userId, int otherUserId)
         {
             var messages = await _repo.GetConversation(userId, otherUserId);
-
-            // Resolve both names in one query
-            var ids = new[] { userId, otherUserId };
-            var names = await _context.Users
+            var ids = new HashSet<int> { userId, otherUserId };
+            
+            var userList = await _context.Users
                 .Where(u => ids.Contains(u.Id))
-                .ToDictionaryAsync(u => u.Id, u => u.Name);
+                .Select(u => new { u.Id, u.Name })
+                .ToListAsync();
+
+            var sellerList = await _context.Sellers
+                .Where(s => ids.Contains(s.UserId))
+                .Select(s => new { s.UserId, s.BusinessName })
+                .ToListAsync();
+
+            var names = ids.ToDictionary(
+                id => id,
+                id => {
+                    var sName = sellerList.FirstOrDefault(s => s.UserId == id)?.BusinessName;
+                    if (!string.IsNullOrEmpty(sName)) return sName;
+                    return userList.FirstOrDefault(u => u.Id == id)?.Name ?? $"User {id}";
+                }
+            );
 
             return messages.Select(m => new ChatMessageDto
             {
                 Id = m.Id,
                 SenderId = m.SenderId,
-                SenderName = names.GetValueOrDefault(m.SenderId, m.SenderId.ToString()),
+                SenderName = names.GetValueOrDefault(m.SenderId, $"User {m.SenderId}"),
                 ReceiverId = m.ReceiverId,
                 Message = m.Message,
                 SentAt = m.SentAt,

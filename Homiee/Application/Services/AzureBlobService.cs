@@ -1,4 +1,4 @@
-﻿//using Azure.Storage.Blobs;
+//using Azure.Storage.Blobs;
 //using Azure.Storage.Blobs.Models;
 //using Azure.Storage.Blobs.Specialized;
 //using Azure.Storage.Sas;
@@ -70,48 +70,53 @@ namespace Homiee.Application.Services
 
             var client = new BlobServiceClient(connectionString);
             _container = client.GetBlobContainerClient(containerName);
-
-            // Note: Since you manually changed access to 'Blob' in the portal, 
-            // this line will ensure the container exists but won't overwrite your portal settings.
-            _container.CreateIfNotExists(PublicAccessType.Blob);
         }
 
         public async Task<string> UploadAsync(IFormFile file, string folder)
         {
-            if (file == null || file.Length == 0)
-                throw new ArgumentException("File is empty");
-
-            if (string.IsNullOrWhiteSpace(folder))
-                throw new ArgumentException("Folder name is required");
-
-            // 1. Clean folder and filename
-            var safeFolder = folder.Trim().Trim('/');
-            var extension = Path.GetExtension(file.FileName).ToLower();
-
-            // 2. Generate a clean, unique name (Guid + Extension)
-            // Using just the Guid + Extension is safer than keeping original filenames which might have special characters
-            var fileName = $"{Guid.NewGuid()}{extension}";
-            var blobPath = $"{safeFolder}/{fileName}";
-
-            var blobClient = _container.GetBlobClient(blobPath);
-
-            // 3. Set proper headers so the browser renders the image instead of downloading it
-            var blobHttpHeader = new BlobHttpHeaders
+            try
             {
-                ContentType = file.ContentType
-            };
+                if (file == null || file.Length == 0)
+                    throw new ArgumentException("File is empty");
 
-            // 4. Upload using the modern BlobUploadOptions
-            using (var stream = file.OpenReadStream())
-            {
-                await blobClient.UploadAsync(stream, new BlobUploadOptions
+                if (string.IsNullOrWhiteSpace(folder))
+                    throw new ArgumentException("Folder name is required");
+
+                // Ensure container exists before upload
+                await _container.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+                // 1. Clean folder and filename
+                var safeFolder = folder.Trim().Trim('/');
+                var extension = Path.GetExtension(file.FileName).ToLower();
+
+                // 2. Generate a clean, unique name
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var blobPath = $"{safeFolder}/{fileName}";
+
+                var blobClient = _container.GetBlobClient(blobPath);
+
+                // 3. Set proper headers
+                var blobHttpHeader = new BlobHttpHeaders
                 {
-                    HttpHeaders = blobHttpHeader
-                });
-            }
+                    ContentType = file.ContentType
+                };
 
-            // 5. Return the direct URL (Works because you set access to 'Blob')
-            return  blobClient.Uri.GetLeftPart(UriPartial.Path); 
+                // 4. Upload
+                using (var stream = file.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(stream, new BlobUploadOptions
+                    {
+                        HttpHeaders = blobHttpHeader
+                    });
+                }
+
+                // 5. Return the direct URL
+                return blobClient.Uri.GetLeftPart(UriPartial.Path);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"[AzureStorageError] Path: {_container.Name}/{folder}. Message: {ex.Message}", ex);
+            }
         }
 
         public async Task<bool> DeleteAsync(string fileUrl)

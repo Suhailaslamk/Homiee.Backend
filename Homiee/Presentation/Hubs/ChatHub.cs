@@ -1,4 +1,4 @@
-﻿using Homiee.Application.Interfaces.IServices;
+using Homiee.Application.Interfaces.IServices;
 using Homiee.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -33,6 +33,13 @@ namespace Homiee.Presentation.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
+        /// <summary>
+        /// Direct WebSocket invocation path — NOT used by the current frontend.
+        /// The frontend sends messages via REST POST /api/chat/send, which 
+        /// handles SignalR delivery via ChatController.
+        /// This method is retained for potential future native/mobile clients.
+        /// Do NOT remove without updating the frontend to invoke it.
+        /// </summary>
         public async Task SendMessage(int receiverId, string message)
         {
             var senderId = GetUserId();

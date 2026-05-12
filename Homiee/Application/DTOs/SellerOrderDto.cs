@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class SellerOrderDto
     {
@@ -9,6 +9,7 @@
         public string Status { get; set; }
 
         public DateTime CreatedAt { get; set; }
+        public DateTime? RequestedDeliveryDate { get; set; }
 
         // Optional (add later if needed)
         public int ItemCount { get; set; }

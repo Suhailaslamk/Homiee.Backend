@@ -1,9 +1,10 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Domain.Entities;
 using Microsoft.AspNetCore.SignalR;
 using Homiee.Presentation.Hubs;
+using Homiee.Infrastructure.SignalR;
 using Homiee.Common;
 
 namespace Homiee.Application.Services
@@ -12,13 +13,16 @@ namespace Homiee.Application.Services
     {
         private readonly INotificationRepository _repo;
         private readonly IHubContext<NotificationHub> _hub;
+        private readonly UserConnectionManager _connectionManager;
 
         public NotificationService(
             INotificationRepository repo,
-            IHubContext<NotificationHub> hub)
+            IHubContext<NotificationHub> hub,
+            UserConnectionManager connectionManager)
         {
             _repo = repo;
             _hub = hub;
+            _connectionManager = connectionManager;
         }
 
         public async Task SendAsync(int userId, string title, string message)
@@ -43,9 +47,16 @@ namespace Homiee.Application.Services
                 CreatedAt = notification.CreatedAt
             };
 
-            // ✅ Single correct SignalR call
-            await _hub.Clients.User(userId.ToString())
-                .SendAsync("ReceiveNotification", dto);
+            // ✅ Real-time push via SignalR
+            var connections = _connectionManager.GetConnections(userId);
+            if (connections.Any())
+            {
+                foreach (var conn in connections)
+                {
+                    await _hub.Clients.Client(conn)
+                        .SendAsync("ReceiveNotification", dto);
+                }
+            }
         }
 
         public async Task<ApiResponse<List<NotificationDto>>> GetUserNotifications(int userId)

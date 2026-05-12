@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class AdminAnalyticsDto
     {
@@ -9,7 +9,6 @@
         public List<TopProductDto> TopProducts { get; set; } = new();
         public List<TopCategoryDto> TopCategories { get; set; } = new();
         public List<NewUsersByDayDto> NewUsersLast30Days { get; set; } = new();
-        public List<PaymentMethodBreakdownDto> PaymentBreakdown { get; set; } = new();
         public SellerStatusBreakdownDto SellerStatusBreakdown { get; set; } = new();
         public AdminEarningsSummaryDto EarningsSummary { get; set; } = new();
     }

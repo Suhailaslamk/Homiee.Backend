@@ -1,7 +1,17 @@
 import api from './axios';
 
 export const getAdminDashboard = async () => {
-  const response = await api.get('/dashboard/admin');
+  const response = await api.get('/admin/analytics/kpis');
+  return response.data;
+};
+
+export const getAdminAnalyticsKpis = async () => {
+  const response = await api.get('/admin/analytics/kpis');
+  return response.data;
+};
+
+export const getAdminAnalytics = async () => {
+  const response = await api.get('/admin/analytics');
   return response.data;
 };
 
@@ -27,16 +37,12 @@ export const approveSeller = async (userId) => {
 };
 
 export const rejectSeller = async (userId, reason) => {
-  const response = await api.post(`/admin/sellers/${userId}/reject`, reason, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await api.post(`/admin/sellers/${userId}/reject`, { reason });
   return response.data;
 };
 
 export const suspendSeller = async (userId, reason) => {
-  const response = await api.post(`/admin/suspend/${userId}`, reason, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await api.post(`/admin/suspend/${userId}`, { reason });
   return response.data;
 };
 
@@ -62,9 +68,7 @@ export const getAdminCustomerOrders = async (id) => {
 };
 
 export const blockCustomer = async (id, reason) => {
-  const response = await api.patch(`/admin/customers/${id}/block`, reason ?? '', {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await api.patch(`/admin/customers/${id}/block`, { reason: reason ?? '' });
   return response.data;
 };
 

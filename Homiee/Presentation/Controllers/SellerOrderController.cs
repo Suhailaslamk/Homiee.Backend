@@ -1,4 +1,4 @@
-﻿//using Homiee.Application.Interfaces.IServices;
+//using Homiee.Application.Interfaces.IServices;
 //using Microsoft.AspNetCore.Authorization;
 //using Microsoft.AspNetCore.Mvc;
 //using Homiee.Application.DTOs;
@@ -96,7 +96,7 @@ namespace Homiee.Presentation.Controllers
         }
 
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDto dto)
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusDto dto)
         {
             var result = await _service.UpdateStatus(id, GetUserId(), dto.Status);
             return StatusCode(result.StatusCode, result);
@@ -106,6 +106,13 @@ namespace Homiee.Presentation.Controllers
         public async Task<IActionResult> GetTracking(int id)
         {
             var result = await _service.GetOrderTracking(id, GetUserId());
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("delivery-calendar")]
+        public async Task<IActionResult> GetDeliveryCalendar([FromQuery] int month, [FromQuery] int year)
+        {
+            var result = await _service.GetDeliveryCalendar(GetUserId(), month, year);
             return StatusCode(result.StatusCode, result);
         }
     }

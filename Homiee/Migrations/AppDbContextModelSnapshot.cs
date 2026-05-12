@@ -372,11 +372,8 @@ namespace Homiee.Migrations
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RazorpayPaymentId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("RequestedDeliveryDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("SellerId")
                         .HasColumnType("int");
@@ -559,68 +556,6 @@ namespace Homiee.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("OtpCodes");
-                });
-
-            modelBuilder.Entity("Homiee.Domain.Entities.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DeletedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentGatewayId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Provider")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RazorpayOrderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RazorpayPaymentId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Homiee.Domain.Entities.PendingOrder", b =>

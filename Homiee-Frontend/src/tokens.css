@@ -1,0 +1,66 @@
+
+
+:root {
+  /* Colors - Editorial Forest & Warm Neutrals */
+  --color-primary: #1e3a24;
+  --color-primary-light: #2c5434;
+  --color-primary-dark: #122215;
+  
+  --color-accent: #c4622d;
+  --color-accent-light: #d67a48;
+  
+  --color-background: #f5f0e8;
+  --color-surface: #ffffff;
+  --color-surface-hover: #faf7f2;
+  
+  --color-stone: #8c857d;
+  --color-sand: #e6dfd3;
+  --color-text-main: #2a2825;
+  --color-text-muted: #6b6661;
+  
+  /* Typography */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'DM Sans', sans-serif;
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  
+  /* Border Radius Scale */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(30, 58, 36, 0.05);
+  --shadow-md: 0 4px 12px rgba(30, 58, 36, 0.08);
+  --shadow-lg: 0 12px 24px rgba(30, 58, 36, 0.12);
+  --shadow-float: 0 20px 40px rgba(30, 58, 36, 0.15);
+  
+  /* Transitions */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+  --transition-fast: 150ms var(--ease-smooth);
+  --transition-normal: 300ms var(--ease-smooth);
+  --transition-bounce: 400ms var(--ease-spring);
+}
+
+/* Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-lg);
+}
+
+.premium-gradient {
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  color: var(--color-background);
+}

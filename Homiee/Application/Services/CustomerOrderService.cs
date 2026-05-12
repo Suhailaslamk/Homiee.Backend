@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
@@ -19,6 +19,7 @@ namespace Homiee.Application.Services
         private readonly INotificationService _notificationService;
         private readonly IWishlistService _wishlistService;
         private readonly IUserRepository _userRepo;
+        private readonly ILogger<CustomerOrderService> _logger;
 
         public CustomerOrderService(
             IOrderRepository orderRepo,
@@ -28,7 +29,8 @@ namespace Homiee.Application.Services
             IAddressRepository addressRepo,
             INotificationService notificationService,
             IWishlistService wishlistService,
-            IUserRepository userRepo)
+            IUserRepository userRepo,
+            ILogger<CustomerOrderService> logger)
         {
             _orderRepo = orderRepo;
             _productRepo = productRepo;
@@ -38,25 +40,39 @@ namespace Homiee.Application.Services
             _notificationService = notificationService;
             _wishlistService = wishlistService;
             _userRepo = userRepo;
-
+            _logger = logger;
         }
 
-        public async Task<ApiResponse<string>> PlaceCodOrderFromCart(int userId, int addressId)
+        public async Task<ApiResponse<string>> PlaceCodOrderFromCart(int userId, int addressId, DateTime? requestedDeliveryDate = null)
         {
+            _logger.LogInformation("Attempting to place COD order for User #{UserId} with Address #{AddressId}", userId, addressId);
+
             var cartItems = await _cartRepo.GetCartItems(userId);
             if (!cartItems.Any())
+            {
+                _logger.LogWarning("Order placement failed for User #{UserId}: Cart is empty", userId);
                 return new ApiResponse<string>(400, "Cart is empty");
+            }
 
             var address = await _addressRepo.GetByIdAsync(addressId);
             if (address == null || address.UserId != userId)
+            {
+                _logger.LogWarning("Order placement failed for User #{UserId}: Invalid Address #{AddressId}", userId, addressId);
                 return new ApiResponse<string>(400, "Invalid address");
+            }
             
             var user = await _userRepo.GetByIdAsync(userId);
             if (user == null)
+            {
+                _logger.LogWarning("Order placement failed: User #{UserId} not found", userId);
                 return new ApiResponse<string>(404, "User not found");
+            }
 
             if(user.Role == UserRole.Admin)
+            {
+                _logger.LogWarning("Order placement blocked: Admin User #{UserId} attempted to place an order", userId);
                 return new ApiResponse<string>(400, "Admin cannot place orders");
+            }
 
 
             // ── Validate ALL cart items before opening the transaction ─────
@@ -64,15 +80,22 @@ namespace Homiee.Application.Services
             foreach (var item in cartItems)
             {
                 var product = await _productRepo.GetByIdWithImagesAsync(item.ProductId);
-                if (product.SellerId == userId)
-                    return new ApiResponse<string>(400, "You cannot buy your own product");
                 if (product == null || product.IsDeleted)
+                {
+                    _logger.LogWarning("Order validation failed for User #{UserId}: Product #{ProductId} not found or deleted", userId, item.ProductId);
                     return new ApiResponse<string>(404, $"Product {item.ProductId} not found");
+                }
+                if (product.SellerId == userId)
+                {
+                    _logger.LogWarning("Order validation failed for User #{UserId}: Attempted to buy own product #{ProductId}", userId, item.ProductId);
+                    return new ApiResponse<string>(400, "You cannot buy your own product");
+                }
                 if (product.Stock < item.Quantity)
+                {
+                    _logger.LogWarning("Order validation failed for User #{UserId}: Insufficient stock for Product '{ProductName}'", userId, product.Name);
                     return new ApiResponse<string>(400, $"Not enough stock for '{product.Name}'");
+                }
                 productMap[item.ProductId] = product;
-
-               
             }
 
             using var tx = await _dbContext.Database.BeginTransactionAsync();
@@ -84,16 +107,16 @@ namespace Homiee.Application.Services
 
                 foreach (var group in grouped)
                 {
-                    var order = new Order(userId, group.Key, addressId, PaymentMethod.COD);
+                    var order = new Order(userId, group.Key, addressId, requestedDeliveryDate);
                    
                     foreach (var item in group)
                     {
                         var product = productMap[item.ProductId];
                         product.ReduceStock(item.Quantity);
                         order.AddItem(new OrderItem(
-    product.Id, product.SellerId,
-    item.Quantity, product.Price,
-    product.Name ?? "Unknown"));
+                            product.Id, product.SellerId,
+                            item.Quantity, product.Price,
+                            product.Name ?? "Unknown"));
                     }
 
                     order.UpdateStatus(OrderStatus.Placed);
@@ -106,6 +129,7 @@ namespace Homiee.Application.Services
                         CreatedOn = DateTime.UtcNow
                     });
 
+                    _logger.LogInformation("Created Order #{OrderId} for User #{UserId} from Seller #{SellerId}", order.Id, userId, group.Key);
                     notifySellerIds.Add(group.Key);
                 }
 
@@ -114,15 +138,25 @@ namespace Homiee.Application.Services
 
                 await _dbContext.SaveChangesAsync();
                 await tx.CommitAsync();
+                _logger.LogInformation("Successfully committed COD orders for User #{UserId}", userId);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to place COD order for User #{UserId}", userId);
                 await tx.RollbackAsync();
                 return new ApiResponse<string>(500, ex.Message);
             }
 
             // Post-commit side-effects
-            await _wishlistService.ClearWishlist(userId);
+            try 
+            {
+                await _wishlistService.ClearWishlist(userId);
+                _logger.LogInformation("Cleared wishlist for User #{UserId} after order placement", userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to clear wishlist for User #{UserId} after order placement", userId);
+            }
 
             foreach (var sellerId in notifySellerIds.Distinct())
                 await _notificationService.SendAsync(sellerId, "New Order", "You received a new order");
@@ -144,10 +178,10 @@ namespace Homiee.Application.Services
                     Id = o.Id,
                     TotalAmount = o.TotalAmount,
                     Status = o.Status.ToString(),
-                    PaymentMethod = o.PaymentMethod.ToString(),
                     SellerId = o.SellerId,
                     ShopName = o.Seller != null ? o.Seller.BusinessName : null,// enum → string for DTO
                     CreatedAt = o.CreatedAt,
+                    RequestedDeliveryDate = o.RequestedDeliveryDate,
                     Items = o.Items.Select(i => new CustomerOrderItemDto
                     {
                         ProductId = i.ProductId,
@@ -184,6 +218,7 @@ namespace Homiee.Application.Services
                 TotalAmount = order.TotalAmount,
                 Status = order.Status.ToString(),
                 CreatedAt = order.CreatedAt,
+                RequestedDeliveryDate = order.RequestedDeliveryDate,
                 Items = order.Items.Select(i => new GetOrderItemDto
                 {
                     ProductId = i.ProductId,

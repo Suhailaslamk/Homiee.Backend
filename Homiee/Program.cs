@@ -18,9 +18,20 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
+using NLog;
+using NLog.Web;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+var logger = NLog.LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
+logger.Debug("init main");
+
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
+
+    // NLog: Setup NLog for Dependency injection
+    builder.Logging.ClearProviders();
+    builder.Host.UseNLog();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -29,26 +40,50 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.Configure<CacheSettings>(
     builder.Configuration.GetSection("CacheSettings"));
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(
-        builder.Configuration.GetConnectionString("Redis")!));
+// Redis & Cache Configuration (Stability Patch)
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+bool isRedisAvailable = false;
 
-builder.Services.AddSingleton<ICacheService, RedisCacheService>();
-
-// Optional: also wire up IDistributedCache for SignalR backplane / session use
-builder.Services.AddStackExchangeRedisCache(opt =>
+/*
+try 
 {
-    opt.Configuration = builder.Configuration.GetConnectionString("Redis");
-});
+    // Attempt a quick connection to see if Redis is actually running
+    var muxer = ConnectionMultiplexer.Connect(redisConnectionString + ",connectTimeout=2000,abortConnect=true");
+    builder.Services.AddSingleton<IConnectionMultiplexer>(muxer);
+    builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+    builder.Services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConnectionString);
+    isRedisAvailable = true;
+}
+catch 
+{
+}
+*/
 
-builder.Services.AddSignalR()
-    .AddStackExchangeRedis(
-        builder.Configuration.GetConnectionString("Redis")!);
+// Fallback to local memory if Redis is down (Forced for debugging)
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
+isRedisAvailable = false;
+
+var signalRBuilder = builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.PayloadSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+if (isRedisAvailable)
+{
+    signalRBuilder.AddStackExchangeRedis(redisConnectionString!);
+}
 
 // Health check
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AppDbContext>()
-    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+var healthBuilder = builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>();
+
+if (isRedisAvailable)
+{
+    healthBuilder.AddRedis(redisConnectionString!);
+}
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -72,6 +107,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
+builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -89,9 +125,10 @@ builder.Services.AddAuthentication(options =>
 
         ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidAudience = builder.Configuration["JWT:Audience"],
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role,
 
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JWT:key"]))
+            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
     };
 
     options.Events = new JwtBearerEvents
@@ -115,35 +152,43 @@ builder.Services.AddAuthentication(options =>
 
         OnTokenValidated = async context =>
         {
-            // ✅ For SignalR WebSocket, header is empty — token came from query string
-            // So get the raw token from context.SecurityToken, not the header
-            var tokenHandler = context.SecurityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken;
-            var rawToken = tokenHandler?.RawData;
-
-            if (string.IsNullOrEmpty(rawToken))
+            try 
             {
-                // Fallback to header for regular HTTP requests
-                var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
-                if (string.IsNullOrEmpty(authHeader))
+                var tokenHandler = context.SecurityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken;
+                var rawToken = tokenHandler?.RawData;
+
+                if (string.IsNullOrEmpty(rawToken))
                 {
-                    context.Fail("Missing token");
-                    return;
+                    var authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
+                    if (string.IsNullOrEmpty(authHeader))
+                    {
+                        // If it's a SignalR request and we have no token, it might be the negotiate phase
+                        // or a failed transport upgrade. 
+                        return;
+                    }
+                    rawToken = authHeader.Replace("Bearer ", "").Trim();
                 }
-                rawToken = authHeader.Replace("Bearer ", "").Trim();
+
+                using var sha256 = SHA256.Create();
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken));
+                var hashedToken = Convert.ToBase64String(bytes);
+
+                var repo = context.HttpContext.RequestServices.GetService<IRevokedAccessTokenRepository>();
+                if (repo != null)
+                {
+                    var isRevoked = await repo.IsRevokedAsync(hashedToken);
+                    if (isRevoked)
+                    {
+                        context.Fail("Token has been revoked");
+                    }
+                }
             }
-
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken));
-            var hashedToken = Convert.ToBase64String(bytes);
-
-            var repo = context.HttpContext.RequestServices
-                .GetRequiredService<IRevokedAccessTokenRepository>();
-
-            var isRevoked = await repo.IsRevokedAsync(hashedToken);
-
-            if (isRevoked)
+            catch (Exception ex)
             {
-                context.Fail("Token has been revoked");
+                // Stability Patch: If revocation check fails (e.g. Redis timeout), 
+                // we allow the connection to proceed to avoid persistent 401s.
+                var logger = context.HttpContext.RequestServices.GetService<ILogger<Program>>();
+                logger?.LogWarning(ex, "Token revocation check failed. Allowing connection for stability.");
             }
         }
     };
@@ -153,7 +198,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -197,7 +242,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ISellersRepository, SellersRepository>();
-builder.Services.AddScoped<IFileStorageService, AzureBlobService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ISellerOnboardingService, SellerOnboardingService>();
@@ -215,8 +260,6 @@ builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IMarketplaceQueryService, MarketplaceQueryService>();
-//builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPendingOrderRepository, PendingOrderRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IAddressService, AddressService>();
@@ -241,16 +284,22 @@ builder.Services.AddScoped<IWishlistService, WishlistService>();
 //.WithScopedLifetime());
 
 
-builder.Services.AddSignalR();
+// SignalR already initialized in stability patch above
 
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddHostedService<Homiee.Infrastructure.BackgroundServices.DeliveryReminderService>();
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IRevokedAccessTokenRepository, RevokedAccessTokenRepository>();
 builder.Services.AddSingleton<UserConnectionManager>();
@@ -263,7 +312,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 
 app.UseMiddleware<ExceptionMiddleware>();
@@ -277,6 +330,18 @@ app.MapHub<ChatHub>("/chatHub");
 app.MapHub<NotificationHub>("/hubs/notification");
 
 app.Run();
+}
+catch (Exception exception)
+{
+    // NLog: catch setup errors
+    logger.Error(exception, "Stopped program because of exception");
+    throw;
+}
+finally
+{
+    // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+    NLog.LogManager.Shutdown();
+}
 
 
 

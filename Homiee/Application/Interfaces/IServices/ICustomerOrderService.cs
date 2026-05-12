@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Common;
 
 namespace Homiee.Application.Interfaces.IServices
@@ -7,7 +7,7 @@ namespace Homiee.Application.Interfaces.IServices
     {
         //Task<ApiResponse<string>> PlaceCodOrder(int userId, CreateOrderDto dto);
 
-        Task<ApiResponse<string>> PlaceCodOrderFromCart(int userId, int addressId);
+        Task<ApiResponse<string>> PlaceCodOrderFromCart(int userId, int addressId, DateTime? requestedDeliveryDate = null);
 
         //Task<ApiResponse<string>> PlaceOnlineOrderFromCart(int userId, int addressId, string razorpayPaymentId);
 

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Lock, Mail } from 'lucide-react';
+import { Home, Loader2, Lock, Mail, ArrowRight, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import api from '../api/axios';
 import { getProfile } from '../api/profile';
 import { useToast } from '../hooks/useToast';
@@ -11,8 +12,12 @@ export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
   const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data) => {
+    if (isLoading) return;
+    setIsLoading(true);
+    
     try {
       const response = await api.post('/auth/login', data);
       const accessToken = response.data?.data?.accesstoken;
@@ -23,7 +28,6 @@ export default function Login() {
       }
 
       localStorage.setItem('token', accessToken);
-
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
       }
@@ -47,67 +51,108 @@ export default function Login() {
     } catch (err) {
       console.error('Login failed:', err);
       toast.error(err.response?.data?.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-transparent p-4">
-      <div className="w-full max-w-md rounded-[28px] border border-stone-200 bg-[#fffaf2] p-10 shadow-xl shadow-stone-200/40">
-        <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#f4d6c8] text-[#b85c38]">
-            <Home size={30} />
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2000&auto=format&fit=crop" 
+          alt="Artisanal Background" 
+          className="w-full h-full object-cover scale-105 blur-[2px]"
+        />
+        <div className="absolute inset-0 bg-[var(--color-primary-dark)]/60 backdrop-blur-[2px]" />
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative z-10 w-full max-w-xl"
+      >
+        <div className="bg-white/95 backdrop-blur-xl rounded-[48px] p-12 sm:p-16 shadow-2xl border border-white/20">
+          <div className="mb-12">
+            <Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-sand)]/30 text-[var(--color-primary-dark)] text-xs font-bold uppercase tracking-widest mb-8 hover:bg-[var(--color-sand)]/50 transition-colors">
+              <Home size={14} /> Back to Home
+            </Link>
+            
+            <h2 className="text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">
+              Welcome <i className="text-[var(--color-accent)]">Back</i>
+            </h2>
+            <p className="mt-4 text-[var(--color-text-muted)] font-medium text-lg">
+              Enter your credentials to access your curated collection and dashboard.
+            </p>
           </div>
-          <h2 className="text-3xl font-bold text-stone-800">Welcome to Homiee</h2>
-          <p className="mt-2 text-stone-500">Log in to manage your home business journey</p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] ml-1">Email Address</label>
+              <div className="relative group">
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-accent)] transition-colors" size={20} />
+                <input
+                  type="email"
+                  {...register('email', { required: 'Email is required' })}
+                  placeholder="name@example.com"
+                  className="w-full rounded-2xl border border-[var(--color-stone)]/10 bg-[var(--color-sand)]/5 py-5 pl-16 pr-6 outline-none transition-all focus:border-[var(--color-accent)] focus:bg-white text-[var(--color-text-main)] font-medium"
+                />
+              </div>
+              {errors.email && <p className="mt-1 text-xs text-rose-500 font-bold ml-1">{errors.email.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] ml-1">Password</label>
+              <div className="relative group">
+                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-accent)] transition-colors" size={20} />
+                <input
+                  type="password"
+                  {...register('password', { required: 'Password is required' })}
+                  placeholder="********"
+                  autoComplete="current-password"
+                  className="w-full rounded-2xl border border-[var(--color-stone)]/10 bg-[var(--color-sand)]/5 py-5 pl-16 pr-6 outline-none transition-all focus:border-[var(--color-accent)] focus:bg-white text-[var(--color-text-main)] font-medium"
+                />
+              </div>
+              {errors.password && <p className="mt-1 text-xs text-rose-500 font-bold ml-1">{errors.password.message}</p>}
+            </div>
+
+            <div className="flex items-center justify-between text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest px-1">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input type="checkbox" className="w-4 h-4 rounded border-[var(--color-stone)]/20 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
+                <span className="group-hover:text-[var(--color-primary-dark)] transition-colors">Remember me</span>
+              </label>
+              <Link to="/forgot-password" title="Currently unavailable" className="hover:text-[var(--color-accent)] transition-colors">Forgot Password?</Link>
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[var(--color-primary-dark)] py-5 font-bold text-white shadow-xl shadow-[var(--color-primary-dark)]/20 transition hover:bg-[var(--color-primary)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group"
+            >
+              {isLoading ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <>
+                  Enter Homiee
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-12 pt-12 border-t border-[var(--color-stone)]/10 text-center">
+            <p className="text-sm font-medium text-[var(--color-text-muted)]">
+              New to the community?{' '}
+              <Link to="/signup/customer" className="font-bold text-[var(--color-primary-dark)] hover:text-[var(--color-accent)] transition-colors underline underline-offset-4">Join as a Collector</Link>
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-stone-700">Email Address</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3.5 text-stone-400" size={18} />
-              <input
-                type="email"
-                {...register('email', { required: 'Email is required' })}
-                placeholder="name@example.com"
-                className="w-full rounded-xl border border-stone-200 bg-[#fff7ee] py-3 pl-10 pr-4 outline-none transition-all focus:border-[#d36f51] focus:ring-2 focus:ring-[#f0c7b7] focus:bg-white"
-              />
-            </div>
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-stone-700">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3.5 text-stone-400" size={18} />
-              <input
-                type="password"
-                {...register('password', { required: 'Password is required' })}
-                placeholder="********"
-                className="w-full rounded-xl border border-stone-200 bg-[#fff7ee] py-3 pl-10 pr-4 outline-none transition-all focus:border-[#d36f51] focus:ring-2 focus:ring-[#f0c7b7] focus:bg-white"
-              />
-            </div>
-            {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center text-stone-600">
-              <input type="checkbox" className="mr-2 rounded border-stone-300 text-[#b85c38] focus:ring-[#d36f51]" />
-              Remember me
-            </label>
-            <span className="font-medium text-[#b85c38]">Verified accounts only</span>
-          </div>
-
-          <button type="submit" className="w-full rounded-xl bg-[#3f5143] py-3.5 font-bold text-white shadow-lg transition hover:bg-[#334237] active:scale-[0.98]">
-            Sign In
-          </button>
-        </form>
-
-        <p className="mt-8 text-center text-sm text-stone-600">
-          Don&apos;t have an account?{' '}
-          <Link to="/" className="font-bold text-[#b85c38] hover:underline">Register here</Link>
-        </p>
-      </div>
+        {/* Floating Decorative Elements */}
+        <div className="absolute -top-12 -right-12 w-24 h-24 bg-[var(--color-accent)] rounded-full blur-3xl opacity-20 pointer-events-none" />
+        <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-[var(--color-primary)] rounded-full blur-3xl opacity-20 pointer-events-none" />
+      </motion.div>
     </div>
   );
 }

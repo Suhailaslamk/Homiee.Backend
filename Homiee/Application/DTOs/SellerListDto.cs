@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class SellerListDto
     {
@@ -13,5 +13,6 @@
         public int  ProductCount { get; set; }
 
         public string Address { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

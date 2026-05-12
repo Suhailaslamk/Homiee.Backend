@@ -1,80 +1,3 @@
-﻿//using Homiee.Application.DTOs;
-//using Homiee.Application.Interfaces.IServices;
-//using Homiee.Infrastructure.SignalR;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Mvc;
-
-//namespace Homiee.Presentation.Controllers
-//{
-//    [Authorize]
-//    [ApiController]
-//    [Route("api/chat")]
-//    public class ChatController : ControllerBase
-//    {
-//        private readonly IChatService _chatService;
-//        IHubContext<ChatHub> hubContext;
-//        UserConnectionManager manager;
-
-//        public ChatController(IChatService chatService)
-//        {
-//            _chatService = chatService;
-//        }
-
-//        private int GetUserId()
-//        {
-//            var claim = User.FindFirst("userId")?.Value;
-//            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out var id))
-//                throw new UnauthorizedAccessException("Invalid token");
-//            return id;
-//        }
-
-//        // ❌ Was missing
-//        [HttpGet("inbox")]
-//        public async Task<IActionResult> GetInbox()
-//        {
-//            var data = await _chatService.GetInboxAsync(GetUserId());
-//            return Ok(data);
-//        }
-
-//        [HttpGet("{otherUserId:int}")]
-//        public async Task<IActionResult> GetConversation(int otherUserId)
-//        {
-//            var data = await _chatService.GetConversationAsync(GetUserId(), otherUserId);
-//            return Ok(data);
-//        }
-
-//        // ❌ Was missing
-//        [HttpPut("{senderId:int}/read")]
-//        public async Task<IActionResult> MarkAsRead(int senderId)
-//        {
-//            await _chatService.MarkAsReadAsync(senderId, GetUserId());
-//            return NoContent();
-//        }
-//        [HttpPost("send")]
-//        public async Task<IActionResult> SendMessage([FromBody] SendMessageDto dto)
-//        {
-//            var senderId = GetUserId();
-
-//            var msg = await _chatService.SendMessageAsync(
-//                senderId,
-//                dto.ReceiverId,
-//                dto.Message
-//            );
-
-//            return Ok(msg);
-//        }
-//    }
-//}
-
-
-
-
-
-
-
-
-
-
 using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Infrastructure.SignalR;
@@ -82,12 +5,13 @@ using Homiee.Presentation.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Presentation.Controllers
 {
-    [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/chat")]
+    [Authorize]
     public class ChatController : ControllerBase
     {
         private readonly IChatService _chatService;
@@ -115,25 +39,27 @@ namespace Homiee.Presentation.Controllers
         [HttpGet("inbox")]
         public async Task<IActionResult> GetInbox()
         {
-            var data = await _chatService.GetInboxAsync(GetUserId());
+            var userId = GetUserId();
+            var data = await _chatService.GetInboxAsync(userId);
             return Ok(data);
         }
 
         [HttpGet("{otherUserId:int}")]
         public async Task<IActionResult> GetConversation(int otherUserId)
         {
-            var data = await _chatService.GetConversationAsync(GetUserId(), otherUserId);
+            var userId = GetUserId();
+            var data = await _chatService.GetConversationAsync(userId, otherUserId);
             return Ok(data);
         }
 
         [HttpPut("{senderId:int}/read")]
         public async Task<IActionResult> MarkAsRead(int senderId)
         {
-            await _chatService.MarkAsReadAsync(senderId, GetUserId());
-            return NoContent();
+            var receiverId = GetUserId();
+            await _chatService.MarkAsReadAsync(senderId, receiverId);
+            return Ok();
         }
 
-        // ✅ FIXED SEND (REST + REALTIME)
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageDto dto)
         {

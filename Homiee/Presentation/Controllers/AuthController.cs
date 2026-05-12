@@ -1,11 +1,9 @@
-﻿using Castle.Core.Logging;
 using Homiee.Application.DTOs;
 using Homiee.Application.DTOs.Auth;
 using Homiee.Application.Interfaces.IServices;
-using Homiee.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 
 namespace Homiee.Presentation.Controllers
 {
@@ -14,11 +12,12 @@ namespace Homiee.Presentation.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService )
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
         {
             _authService = authService;
-           
+            _logger = logger;
         }
         [HttpPost("register/customer")]
         public async Task<ActionResult> RegisterCustomer([FromBody] UserRegisterDto dto)
@@ -59,7 +58,9 @@ namespace Homiee.Presentation.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
         {
+            _logger.LogInformation("Login request received for Email: {Email}", loginDto?.Email);
             var result = await _authService.Login(loginDto);
+            _logger.LogInformation("Login response for {Email}: {StatusCode}", loginDto?.Email, result.StatusCode);
             return StatusCode(result.StatusCode, result);
         }
         

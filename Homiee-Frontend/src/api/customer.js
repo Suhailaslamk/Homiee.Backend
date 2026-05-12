@@ -51,7 +51,7 @@ export const getOrderStatusHistory = async (id) => {
 };
 
 export const checkoutFromCart = async (payload) => {
-  const response = await api.post('/customer/orders/from-cart', payload);
+  const response = await api.post('/customer/orders/checkout/cod', payload);
   return response.data;
 };
 
@@ -60,7 +60,17 @@ export const cancelOrder = async (id) => {
   return response.data;
 };
 
-export const initiateCartPayment = async (payload) => {
-  const response = await api.post('/customer/orders/checkout/initiate-payment', payload);
+export const getWishlist = async () => {
+  const response = await api.get('/customer/wishlist');
+  return response.data;
+};
+
+export const addToWishlist = async (productId) => {
+  const response = await api.post('/customer/wishlist/add', { productId });
+  return response.data;
+};
+
+export const removeFromWishlist = async (productId) => {
+  const response = await api.delete(`/customer/wishlist/remove/${productId}`);
   return response.data;
 };

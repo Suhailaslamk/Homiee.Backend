@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.DTOs.Auth;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
@@ -319,59 +319,65 @@ namespace Homiee.Application.Services
         public async Task<ApiResponse<object>> Login(LoginDto loginDto)
         {
             if (loginDto == null)
+            {
+                _logger.LogWarning("Login failed: Null request body");
                 return new ApiResponse<object>(400, "Invalid request");
+            }
 
             if (string.IsNullOrWhiteSpace(loginDto.Email) ||
     string.IsNullOrWhiteSpace(loginDto.Password))
+            {
+                _logger.LogWarning("Login failed: Missing credentials for Email '{Email}'", loginDto.Email);
                 return new ApiResponse<object>(400, "Email and password are required");
+            }
 
             if (loginDto.Email.Contains(" "))
+            {
+                _logger.LogWarning("Login failed: Email '{Email}' contains spaces", loginDto.Email);
                 return new ApiResponse<object>(400, "Email must not contain spaces");
+            }
 
             var normalizedEmail = NormalizeEmail(loginDto.Email);
-
-
+            _logger.LogInformation("Attempting login for '{NormalizedEmail}'", normalizedEmail);
 
             var user = await _userRepo.GetByEmailAsync(normalizedEmail);
             if (user == null)
+            {
+                _logger.LogWarning("Login failed: User with email '{NormalizedEmail}' not found", normalizedEmail);
                 return new ApiResponse<object>(401, "Invalid email or password");
-
-            if (!user.IsEmailVerified)
-                return new ApiResponse<object>(400,"Email not verified");
-
-            if (user.IsBlocked)
-                return new ApiResponse<object>(400,"User blocked");
-
-            //if (user.Status != UserStatus.Active)
-            //    return new ApiResponse<object>(400,"User not active");
-
-            
+            }
 
             if (!user.IsEmailVerified)
             {
-                return new ApiResponse<object>(403, "Please verify your email first");
+                _logger.LogWarning("Login failed: User '{NormalizedEmail}' has not verified their email", normalizedEmail);
+                return new ApiResponse<object>(400,"Email not verified");
             }
 
+            if (user.IsBlocked)
+            {
+                _logger.LogWarning("Login blocked: User '{NormalizedEmail}' is blocked", normalizedEmail);
+                return new ApiResponse<object>(400,"User blocked");
+            }
 
             if (user.IsDeleted)
+            {
+                _logger.LogWarning("Login blocked: User '{NormalizedEmail}' account is deleted", normalizedEmail);
                 return new ApiResponse<object>(403, "Account has been deleted");
+            }
 
             if (user.Status == UserStatus.Suspended)
+            {
+                _logger.LogWarning("Login blocked: User '{NormalizedEmail}' account is suspended", normalizedEmail);
                 return new ApiResponse<object>(403, "Your account is suspended");
-
-            if (user.IsBlocked)
-                return new ApiResponse<object>(403, "Your account has been blocked");
-
-            if (user.Status == UserStatus.Blocked)
-                return new ApiResponse<object>(403, "Account is blocked");
-
-            if (user.Status == UserStatus.Deleted)
-                return new ApiResponse<object>(403, "Account is deleted");
+            }
 
             if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
             {
+                _logger.LogWarning("Login failed: Invalid password for User '{NormalizedEmail}'", normalizedEmail);
                 return new ApiResponse<object>(401, "Invalid email or password");
             }
+
+            _logger.LogInformation("Login successful for User '{NormalizedEmail}' (ID: {UserId}, Role: {Role})", normalizedEmail, user.Id, user.Role);
 
             var accesstoken = GenerateAcessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -383,7 +389,6 @@ namespace Homiee.Application.Services
                 Token = hashedToken,
                 Expires = DateTime.UtcNow.AddDays(7),
                 IsRevoked = false,
-
             };
 
             await _tokenRepo.AddAsync(reToken);
@@ -601,7 +606,7 @@ namespace Homiee.Application.Services
 
             return new ApiResponse<object>(200, "Token refreshed", new
             {
-                accessToken = newAccessToken,
+                accesstoken = newAccessToken,
                 refreshToken = newRefreshToken
             });
         }

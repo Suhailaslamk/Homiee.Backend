@@ -1,9 +1,12 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Enums;
+using Homiee.Domain.Entities;
+using Homiee.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Homiee.Application.Services
 {
@@ -11,23 +14,29 @@ namespace Homiee.Application.Services
         public class AdminOrderService : IAdminOrderService
         {
             private readonly IOrderRepository _orderRepo;
-            private readonly INotificationService _notificatiService;
+            private readonly INotificationService _notificationService;
+            private readonly ILogger<AdminOrderService> _logger;
+            private readonly AppDbContext _dbContext;
 
         private static readonly Dictionary<OrderStatus, List<OrderStatus>> AllowedTransitions =
     new()
     {
-        { OrderStatus.Pending, new() { OrderStatus.Placed, OrderStatus.Cancelled } },
-        { OrderStatus.Placed, new() { OrderStatus.Processing, OrderStatus.Cancelled } },
-        { OrderStatus.Processing, new() { OrderStatus.Shipped, OrderStatus.Cancelled } },
+        { OrderStatus.Pending, new() { OrderStatus.Placed, OrderStatus.Accepted, OrderStatus.Rejected, OrderStatus.Cancelled } },
+        { OrderStatus.Placed, new() { OrderStatus.Accepted, OrderStatus.Processing, OrderStatus.Rejected, OrderStatus.Cancelled } },
+        { OrderStatus.Accepted, new() { OrderStatus.Processing, OrderStatus.Shipped, OrderStatus.Cancelled } },
+        { OrderStatus.Processing, new() { OrderStatus.Shipped, OrderStatus.Delivered, OrderStatus.Cancelled } },
         { OrderStatus.Shipped, new() { OrderStatus.Delivered } },
-        { OrderStatus.Delivered, new() { } }, // terminal
-        { OrderStatus.Cancelled, new() { } }  // terminal
+        { OrderStatus.Delivered, new() { } },
+        { OrderStatus.Rejected, new() { } },
+        { OrderStatus.Cancelled, new() { } }
     };
 
-        public AdminOrderService(IOrderRepository orderRepo, INotificationService notificatiService)
+        public AdminOrderService(IOrderRepository orderRepo, INotificationService notificationService, ILogger<AdminOrderService> logger, AppDbContext dbContext)
             {
                 _orderRepo = orderRepo;
-            _notificatiService = notificatiService;
+            _notificationService = notificationService;
+            _logger = logger;
+            _dbContext = dbContext;
             }
 
         public async Task<ApiResponse<PagedResult<AdminOrderDto>>> GetOrders(AdminOrderQueryDto request)
@@ -87,22 +96,31 @@ namespace Homiee.Application.Services
 
         public async Task<ApiResponse<string>> UpdateStatus(int orderId, OrderStatus status)
         {
+            _logger.LogInformation("Admin attempt to override status for Order #{OrderId} to {NewStatus}", orderId, status);
+
             var order = await _orderRepo.GetByIdAsync(orderId);
 
             if (order == null)
+            {
+                _logger.LogWarning("Admin status update failed: Order #{OrderId} not found", orderId);
                 return new ApiResponse<string>(404, "Order not found");
+            }
 
             var currentStatus = order.Status;
             var newStatus = status;
 
             // 🚫 Prevent same status update
             if (currentStatus == newStatus)
+            {
+                _logger.LogWarning("Admin status update skipped: Order #{OrderId} already in '{CurrentStatus}' state", orderId, currentStatus);
                 return new ApiResponse<string>(400, $"Order is already in '{currentStatus}' state");
+            }
 
             // 🚫 Validate transition
             if (!AllowedTransitions.ContainsKey(currentStatus) ||
                 !AllowedTransitions[currentStatus].Contains(newStatus))
             {
+                _logger.LogWarning("Admin invalid transition attempt for Order #{OrderId}: {CurrentStatus} → {NewStatus}", orderId, currentStatus, newStatus);
                 return new ApiResponse<string>(400,
                     $"Invalid status transition: {currentStatus} → {newStatus}");
             }
@@ -110,9 +128,18 @@ namespace Homiee.Application.Services
             try
             {
                 order.UpdateStatus(newStatus);
-                await _orderRepo.SaveChangesAsync();
 
-                await _notificatiService.SendAsync(
+                _dbContext.Set<OrderStatusHistory>().Add(new OrderStatusHistory
+                {
+                    OrderId = order.Id,
+                    Status = newStatus,
+                    CreatedOn = DateTime.UtcNow
+                });
+
+                await _orderRepo.SaveChangesAsync();
+                _logger.LogInformation("Admin successfully updated Order #{OrderId} status from {OldStatus} to {NewStatus}", orderId, currentStatus, newStatus);
+
+                await _notificationService.SendAsync(
                     order.UserId,
                     "Order Update",
                     $"Your order #{order.Id} status has been updated to {newStatus}"
@@ -122,6 +149,7 @@ namespace Homiee.Application.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Admin failed to update Order #{OrderId} status to {NewStatus}", orderId, newStatus);
                 return new ApiResponse<string>(400, ex.Message);
             }
         }
@@ -138,8 +166,8 @@ namespace Homiee.Application.Services
                 OrderId = order.Id,
                 Status = order.Status.ToString(),
                 TotalAmount = order.TotalAmount,
-                PaymentMethod = order.PaymentMethod.ToString(),
                 CreatedAt = order.CreatedAt,
+                RequestedDeliveryDate = order.RequestedDeliveryDate,
 
                 Customer = new CustomerForAdminOrderDetailsDto
                 {

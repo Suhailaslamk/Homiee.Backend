@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Options;
@@ -47,7 +47,6 @@ namespace Homiee.Application.Services
             dto.TopProducts = await FetchTopProductsAsync(connection, query.TopN);
             dto.TopCategories = await FetchTopCategoriesAsync(connection, query.TopN);
             dto.NewUsersLast30Days = await FetchNewUsersByDayAsync(connection, query.Days);
-            dto.PaymentBreakdown = await FetchPaymentBreakdownAsync(connection);
             dto.SellerStatusBreakdown = await FetchSellerStatusBreakdownAsync(connection);
             dto.EarningsSummary = await FetchEarningsSummaryAsync(connection);
 
@@ -312,21 +311,7 @@ ORDER BY d.[Date];
             return rows.ToList();
         }
 
-        private static async Task<List<PaymentMethodBreakdownDto>> FetchPaymentBreakdownAsync(
-            System.Data.IDbConnection conn)
-        {
-            const string sql = @"
-SELECT
-    PaymentMethod                        AS Method,
-    COUNT(*)                             AS [Count],
-    ISNULL(SUM(TotalAmount), 0)          AS TotalAmount
-FROM Orders
-GROUP BY PaymentMethod
-ORDER BY [Count] DESC;
-";
-            var rows = await conn.QueryAsync<PaymentMethodBreakdownDto>(sql);
-            return rows.ToList();
-        }
+
 
         private static async Task<SellerStatusBreakdownDto> FetchSellerStatusBreakdownAsync(
             System.Data.IDbConnection conn)

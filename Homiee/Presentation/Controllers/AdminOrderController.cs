@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +26,7 @@ namespace Homiee.Presentation.Controllers
         }
 
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDto dto)
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusDto dto)
         {
             var result = await _service.UpdateStatus(id, dto.Status);
             return StatusCode(result.StatusCode, result);

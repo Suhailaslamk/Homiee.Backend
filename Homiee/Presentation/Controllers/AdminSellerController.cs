@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.DTOs;
@@ -12,11 +12,13 @@ namespace Homiee.Presentation.Controllers
     {
         private readonly IAdminSellerService _adminSellerService;
         private readonly ISellerEarningService _earningService;
+        private readonly ILogger<AdminSellerController> _logger;
 
-        public AdminSellerController(IAdminSellerService adminSellerService, ISellerEarningService earningService)
+        public AdminSellerController(IAdminSellerService adminSellerService, ISellerEarningService earningService, ILogger<AdminSellerController> logger)
         {
             _adminSellerService = adminSellerService;
             _earningService = earningService;
+            _logger = logger;
         }
 
         [HttpGet("sellers")]
@@ -36,14 +38,18 @@ namespace Homiee.Presentation.Controllers
         [HttpPost("sellers/{userId}/approve")]
         public async Task<ActionResult> Approve(int userId)
         {
+            _logger.LogInformation("Admin request to APPROVE Seller for User #{UserId}", userId);
             var result = await _adminSellerService.ApproveSeller(userId);
+            _logger.LogInformation("Admin APPROVE result for User #{UserId}: {StatusCode}", userId, result.StatusCode);
             return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("sellers/{userId}/reject")]
-        public async Task<ActionResult> Reject(int userId, [FromBody] string reason)
+        public async Task<ActionResult> Reject(int userId, [FromBody] AdminActionDto dto)
         {
-            var result = await _adminSellerService.RejectSeller(userId, reason);
+            _logger.LogInformation("Admin request to REJECT Seller for User #{UserId}. Reason: {Reason}", userId, dto.Reason);
+            var result = await _adminSellerService.RejectSeller(userId, dto.Reason);
+            _logger.LogInformation("Admin REJECT result for User #{UserId}: {StatusCode}", userId, result.StatusCode);
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("sellers/rejected")]
@@ -61,9 +67,10 @@ namespace Homiee.Presentation.Controllers
         }
 
         [HttpPost("suspend/{userId}")]
-        public async Task<IActionResult> Suspend(int userId, [FromBody] string reason)
+        public async Task<IActionResult> Suspend(int userId, [FromBody] AdminActionDto dto)
         {
-            return Ok(await _adminSellerService.SuspendSeller(userId, reason));
+            var result = await _adminSellerService.SuspendSeller(userId, dto.Reason);
+            return StatusCode(result.StatusCode, result);
         }
         [HttpPost("sellers/{sellerId}/release-earnings")]
         public async Task<IActionResult> ReleaseEarnings(

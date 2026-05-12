@@ -1,4 +1,5 @@
-﻿using Homiee.Domain.Enums;
+using System.Text.Json.Serialization;
+using Homiee.Domain.Enums;
 
 namespace Homiee.Application.DTOs
 {

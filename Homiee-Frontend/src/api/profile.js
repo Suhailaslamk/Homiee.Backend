@@ -1,4 +1,5 @@
 import api from './axios';
+import { getCurrentRole, isSellerRole } from '../utils/auth';
 
 export const getProfile = async () => {
   const response = await api.get('/profile');
@@ -6,6 +7,8 @@ export const getProfile = async () => {
 };
 
 export const updateProfile = async (payload) => {
-  const response = await api.put('/profile', payload);
+  const role = getCurrentRole();
+  const endpoint = isSellerRole(role) ? '/profile/seller' : '/profile/user';
+  const response = await api.put(endpoint, payload);
   return response.data;
 };

@@ -1,8 +1,9 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class SellerStoreDto
     {
         public int SellerId { get; set; }
+        public int SellerUserId { get; set; }
         public string BusinessName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public double Latitude { get; set; }

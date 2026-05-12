@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -12,15 +12,12 @@ namespace Homiee.Presentation.Controllers
     public class CustomerOrderController : ControllerBase
     {
         private readonly ICustomerOrderService _orderService;
-        //private readonly IPaymentService _paymentService;
 
         public CustomerOrderController(
             ICustomerOrderService orderService
-            //IPaymentService paymentService
             )
         {
             _orderService = orderService;
-            //_paymentService = paymentService;
         }
 
         private int GetUserId()
@@ -31,46 +28,12 @@ namespace Homiee.Presentation.Controllers
             return id;
         }
 
-        
-        //[HttpPost]
-        //public async Task<IActionResult> PlaceCodOrder([FromBody] CreateOrderDto dto)
-        //{
-        //    if (dto.PaymentMethod != PaymentMethod.COD)
-        //        return BadRequest("Use /checkout/initiate-payment for online orders");
-
-        //    var result = await _orderService.PlaceCodOrder(GetUserId(), dto);
-        //    return StatusCode(result.StatusCode, result);
-        //}
-
-        
         [HttpPost("checkout/cod")]
         public async Task<IActionResult> CheckoutCod([FromBody] CheckoutFromCartDto dto)
         {
-            //if (dto.PaymentMethod != PaymentMethod.COD)
-            //    return BadRequest("Use /checkout/initiate-payment for online orders");
-
-            var result = await _orderService.PlaceCodOrderFromCart(GetUserId(), dto.AddressId);
+            var result = await _orderService.PlaceCodOrderFromCart(GetUserId(), dto.AddressId, dto.RequestedDeliveryDate);
             return StatusCode(result.StatusCode, result);
         }
-
-        
-        //[HttpPost("checkout/initiate-payment")]
-        //public async Task<IActionResult> InitiateOnlinePayment([FromBody] CheckoutFromCartDto dto)
-        //{
-        //    if (dto.PaymentMethod != PaymentMethod.Online)
-        //        return BadRequest("Use /checkout/cod for COD orders");
-
-        //    var result = await _paymentService.InitiatePayment(GetUserId(), dto.AddressId);
-        //    return StatusCode(result.StatusCode, result);
-        //}
-
-        
-        //[HttpPost("checkout/verify-payment")]
-        //public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentDto dto)
-        //{
-        //    var result = await _paymentService.VerifyAndStorePaymentId(GetUserId(), dto);
-        //    return StatusCode(result.StatusCode, result);
-        //}
 
         
 

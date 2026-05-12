@@ -28,13 +28,19 @@ export function ToastProvider({ children }) {
   }, []);
 
   const showToast = useCallback((message, type = 'info') => {
-    const id = crypto.randomUUID();
+    // Check for existing toast with same message to prevent duplication
+    setToasts((current) => {
+      const isDuplicate = current.some((toast) => toast.message === message);
+      if (isDuplicate) return current;
 
-    setToasts((current) => [...current, { id, message, type }]);
+      const id = crypto.randomUUID();
+      
+      window.setTimeout(() => {
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      }, 3500);
 
-    window.setTimeout(() => {
-      setToasts((current) => current.filter((toast) => toast.id !== id));
-    }, 3500);
+      return [...current, { id, message, type }];
+    });
   }, []);
 
   const value = useMemo(() => ({

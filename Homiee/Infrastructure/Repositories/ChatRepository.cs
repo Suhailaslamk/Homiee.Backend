@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Domain.Entities;
 using Homiee.Infrastructure.Data;
@@ -37,28 +37,34 @@ namespace Homiee.Infrastructure.Repositories
 
         public async Task<List<ConversationSummaryDto>> GetInboxAsync(int userId)
         {
-            return await _context.ChatMessages
+            var conversations = await _context.ChatMessages
                 .Where(m => m.SenderId == userId || m.ReceiverId == userId)
+                .OrderByDescending(m => m.SentAt)
+                .ToListAsync();
+
+            return conversations
                 .GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
-                .Select(g => new ConversationSummaryDto
+                .Select(g => 
                 {
-                    OtherUserId = g.Key,
-                    OtherUserName = _context.Users
-                        .Where(u => u.Id == g.Key)
-                        .Select(u => u.Name)
-                        .FirstOrDefault() ?? "Unknown",
-                    OtherUserAvatar = _context.Users
-                        .Where(u => u.Id == g.Key)
-                        .Select(u => u.ProfilePictureUrl)
-                        .FirstOrDefault(),
-                    LastMessage = g.OrderByDescending(m => m.SentAt)
-                        .Select(m => m.Message)
-                        .FirstOrDefault() ?? "",
-                    LastMessageAt = g.Max(m => m.SentAt),
-                    UnreadCount = g.Count(m => m.ReceiverId == userId && !m.IsRead)
+                    var otherId = g.Key;
+                    var lastMsg = g.First();
+                    
+                    // Priority: Seller Business Name > User Name > ID
+                    var sellerName = _context.Sellers.Where(s => s.UserId == otherId).Select(s => s.BusinessName).FirstOrDefault();
+                    var userName = _context.Users.Where(u => u.Id == otherId).Select(u => u.Name).FirstOrDefault();
+                    
+                    return new ConversationSummaryDto
+                    {
+                        OtherUserId = otherId,
+                        OtherUserName = sellerName ?? userName ?? $"User {otherId}",
+                        OtherUserAvatar = _context.Users.Where(u => u.Id == otherId).Select(u => u.ProfilePictureUrl).FirstOrDefault(),
+                        LastMessage = lastMsg.Message,
+                        LastMessageAt = lastMsg.SentAt,
+                        UnreadCount = g.Count(m => m.ReceiverId == userId && !m.IsRead)
+                    };
                 })
                 .OrderByDescending(c => c.LastMessageAt)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task MarkAsReadAsync(int senderId, int receiverId)

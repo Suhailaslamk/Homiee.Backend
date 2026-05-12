@@ -1,4 +1,3 @@
-﻿using Homiee.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace Homiee.Application.DTOs
@@ -8,8 +7,6 @@ namespace Homiee.Application.DTOs
         
         [Required]
         public int AddressId { get; set; }
-
-        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.COD;
 
         
         [Required]

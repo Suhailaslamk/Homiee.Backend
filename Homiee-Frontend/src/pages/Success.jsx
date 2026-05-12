@@ -1,44 +1,107 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Package, ArrowRight, Download } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, Download, Home, Sparkles, CheckCircle2, ShoppingBag, ArrowUpRight, Compass, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Success() {
   return (
-    <div className="pt-32 min-h-screen bg-white pb-20 flex flex-col items-center">
+    <div className="pt-40 min-h-screen bg-[var(--color-sand)]/10 pb-32 flex flex-col items-center px-6 overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.1, scale: 1 }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
+          className="absolute -top-40 -left-40 w-96 h-96 bg-[var(--color-accent)] blur-[100px] rounded-full"
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.1, scale: 1 }}
+          transition={{ duration: 3, repeat: Infinity, repeatType: 'reverse', delay: 1 }}
+          className="absolute -bottom-40 -right-40 w-96 h-96 bg-[var(--color-primary-dark)] blur-[100px] rounded-full"
+        />
+      </div>
+
       <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="text-center max-w-lg px-6"
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center max-w-2xl w-full relative z-10"
       >
-        <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-50">
-          <CheckCircle size={48} />
-        </div>
+        <motion.div 
+          initial={{ scale: 0, rotate: -45 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            delay: 0.2
+          }}
+          className="w-32 h-32 bg-[var(--color-primary-dark)] text-[var(--color-accent)] rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-[var(--color-primary-dark)]/20 border-4 border-white/50"
+        >
+          <CheckCircle2 size={64} />
+        </motion.div>
         
-        <h1 className="text-4xl font-black text-slate-900 mb-4">Order Confirmed!</h1>
-        <p className="text-slate-500 text-lg mb-10">
-          Thank you for your purchase. We've sent a receipt to your email. Your items are being prepared by the merchants.
+        <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6 tracking-tight">Acquisition Genesis</h1>
+        <p className="text-xl text-[var(--color-text-muted)] font-medium mb-12 italic leading-relaxed px-12">
+          "Your chosen artisanal treasures have begun their orchestrated journey from studio to your personal vault."
         </p>
 
-        <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100 mb-10 text-left">
-          <div className="flex justify-between mb-4">
-            <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Order ID</span>
-            <span className="font-bold text-slate-900">#ORD-7701-X</span>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white/50 backdrop-blur-xl rounded-[4rem] p-12 border border-white shadow-2xl mb-12 text-left relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-sand)]/30 blur-3xl rounded-full -mr-16 -mt-16" />
+          
+          <div className="space-y-8 relative z-10">
+            <div className="flex justify-between items-center pb-6 border-b border-[var(--color-stone)]/5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
+                  <ShieldCheck size={16} />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Registry Reference</span>
+              </div>
+              <span className="font-bold text-[var(--color-primary-dark)] bg-white px-5 py-2 rounded-xl border border-[var(--color-stone)]/5 shadow-sm">#{Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
+                  <Sparkles size={16} />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Estimated Orchestration</span>
+              </div>
+              <span className="font-bold text-[var(--color-accent)]">3 - 7 Orbital Days</span>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Estimated Delivery</span>
-            <span className="font-bold text-slate-900">April 22 - April 25</span>
-          </div>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 gap-6">
+          <Link 
+            to="/orders" 
+            className="group w-full bg-[var(--color-primary-dark)] text-white py-6 rounded-[2rem] font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 shadow-2xl shadow-[var(--color-primary-dark)]/20"
+          >
+            Observe Journey <Package size={22} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link 
+            to="/discovery" 
+            className="group w-full bg-white border border-[var(--color-stone)]/10 text-[var(--color-primary-dark)] py-6 rounded-[2rem] font-bold text-lg hover:bg-[var(--color-sand)]/20 active:scale-95 transition-all flex items-center justify-center gap-4 shadow-xl"
+          >
+            Continue Discovery <Compass size={22} className="group-hover:rotate-45 transition-transform duration-700" />
+          </Link>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <Link to="/profile" className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-blue-600 transition flex items-center justify-center gap-2">
-            Track My Order <Package size={20} />
-          </Link>
-          <button className="flex items-center justify-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition">
-            <Download size={18} /> Download Invoice
-          </button>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-16 flex items-center justify-center gap-3 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.3em]"
+        >
+          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+          Transmission Encrypted & Secured
+        </motion.div>
       </motion.div>
     </div>
   );

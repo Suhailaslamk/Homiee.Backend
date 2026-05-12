@@ -1,4 +1,4 @@
-﻿using Homiee.Domain.Entities;
+using Homiee.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Infrastructure.Data
@@ -31,7 +31,6 @@ namespace Homiee.Infrastructure.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; }
         public DbSet<PendingOrder> PendingOrders { get; set; } = null!;
         public DbSet<ChatMessage> ChatMessages { get; set; }
@@ -101,9 +100,6 @@ namespace Homiee.Infrastructure.Data
             modelBuilder.Entity<SellerReview>()
                 .HasIndex(r => new { r.UserId, r.SellerId, r.OrderId })
                 .IsUnique();
-            modelBuilder.Entity<Order>()
-    .Property(o => o.PaymentMethod)
-    .HasConversion<int>();
             modelBuilder.Entity<SellerReview>()
                 .HasOne(r => r.Seller)
                 .WithMany()

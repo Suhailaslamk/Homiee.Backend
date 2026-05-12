@@ -1,110 +1,302 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Boxes, ChevronLeft, FileCheck2, MapPin, Phone, ShoppingBag, Users } from 'lucide-react';
-import WorkspaceShell from '../../components/WorkspaceShell';
-import StatePanel from '../../components/StatePanel';
-import StatusPill from '../../components/StatusPill';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  Boxes, 
+  ChevronLeft, 
+  FileCheck2, 
+  MapPin, 
+  Phone, 
+  ShoppingBag, 
+  Users, 
+  ExternalLink, 
+  Mail,
+  Store,
+  FileText,
+  AlertCircle,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  XCircle,
+  Globe,
+  Briefcase,
+  IdCard,
+  History,
+  Layers
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import SurfaceCard from '../../components/SurfaceCard';
-import { getAdminSellerById } from '../../api/admin';
+import StatusPill from '../../components/StatusPill';
+import StatePanel from '../../components/StatePanel';
+import { approveSeller, getAdminSellerById, rejectSeller } from '../../api/admin';
 import { getResponseData } from '../../utils/api';
-
-const NAV_ITEMS = [
-  { label: 'Dashboard', path: '/admin/dashboard', icon: Boxes },
-  { label: 'Sellers', path: '/admin/sellers', icon: Users },
-  { label: 'Customers', path: '/admin/customers', icon: Users },
-  { label: 'Orders', path: '/admin/orders', icon: ShoppingBag },
-  { label: 'Products', path: '/admin/products', icon: Boxes },
-  { label: 'Categories', path: '/admin/categories', icon: Boxes },
-];
+import { useToast } from '../../hooks/useToast';
 
 export default function SellerDetails() {
+  const queryClient = useQueryClient();
+  const toast = useToast();
   const { userId } = useParams();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin-seller', userId],
     queryFn: () => getAdminSellerById(userId),
     enabled: Boolean(userId),
   });
 
+  const approveMutation = useMutation({
+    mutationFn: () => approveSeller(userId),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-seller', userId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-sellers'] });
+      toast.success(response.message || 'Artisan approved successfully.');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Unable to approve artisan.');
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: (reason) => rejectSeller(userId, reason),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-seller', userId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-sellers'] });
+      toast.success(response.message || 'Artisan application rejected.');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Unable to reject application.');
+    },
+  });
+
+  const sanitizeDocUrl = (url) => {
+    if (!url) return '#';
+    
+    // If it's a local filesystem URL from the fallback service
+    if (url.startsWith('/uploads')) {
+      return `http://127.0.0.1:5276${url}`;
+    }
+
+    try {
+      return url.split('?')[0];
+    } catch {
+      return url;
+    }
+  };
+
   const seller = getResponseData(data);
 
   return (
-    <WorkspaceShell title="Admin Console" subtitle="Seller application details and document links." navItems={NAV_ITEMS} accent="slate">
-      {isLoading || !seller ? (
-        <StatePanel message="Loading seller details..." />
-      ) : (
-        <div className="space-y-8">
-          <div>
-            <Link to="/admin/sellers" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
-              <ChevronLeft size={16} /> Back to sellers
-            </Link>
-            <h1 className="mt-4 text-3xl font-black text-slate-900">{seller.businessName}</h1>
-            <p className="mt-2 text-slate-500">Detail screen for `api/admin/sellers/{userId}` so admins can inspect seller onboarding data.</p>
+    <div className="space-y-12 pb-20">
+      {/* Editorial Navigation */}
+      <nav className="flex items-center justify-between">
+        <Link 
+          to="/admin/sellers" 
+          className="group flex items-center gap-3 text-sm font-bold text-[var(--color-text-muted)] hover:text-[var(--color-primary-dark)] transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-stone)]/10 flex items-center justify-center shadow-sm group-hover:bg-[var(--color-sand)]/20 transition-all">
+            <ChevronLeft size={18} />
           </div>
+          Back to Directory
+        </Link>
+      </nav>
 
-          <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
-            <SurfaceCard>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Approval Status</div>
-                    <div className="mt-3"><StatusPill value={seller.status} /></div>
-                  </div>
-                  <div className="rounded-3xl bg-slate-900 px-4 py-3 text-white">Seller</div>
-                </div>
-                <DetailRow icon={<Phone size={18} />} label="Phone Number" value={seller.phoneNumber || 'Not provided'} />
-                <DetailRow icon={<MapPin size={18} />} label="Address" value={seller.address || 'Not provided'} />
-                <DetailRow icon={<FileCheck2 size={18} />} label="GST Number" value={seller.gstNumber || 'Not provided'} />
+      {isLoading ? (
+        <div className="space-y-12">
+          <div className="h-48 animate-pulse rounded-[3rem] bg-[var(--color-sand)]/20" />
+          <div className="grid gap-12 lg:grid-cols-[1fr,400px]">
+            <div className="h-96 animate-pulse rounded-[3rem] bg-[var(--color-sand)]/20" />
+            <div className="h-96 animate-pulse rounded-[3rem] bg-[var(--color-sand)]/20" />
+          </div>
+        </div>
+      ) : error || !seller ? (
+        <StatePanel
+          className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
+          message={(
+            <div className="text-center">
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Artisan profile not found.</p>
+              <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+            </div>
+          )}
+        />
+      ) : (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-12"
+        >
+          {/* Artisan Hero Card */}
+          <section className="relative overflow-hidden rounded-[4rem] bg-[var(--color-primary-dark)] p-12 text-white shadow-2xl">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
+            <div className="relative flex flex-col lg:flex-row items-center gap-10">
+              <div className="w-32 h-32 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-5xl font-['Fraunces'] font-bold text-[var(--color-accent)] shadow-2xl">
+                {(seller.businessName || 'S').charAt(0).toUpperCase()}
               </div>
-            </SurfaceCard>
-
-            <div className="space-y-8">
-              <SurfaceCard>
-                <h2 className="text-xl font-black text-slate-900">Verification Documents</h2>
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <DocumentLink label="Business Proof" href={seller.businessProofUrl} />
-                  <DocumentLink label="Identity Proof" href={seller.identityProofUrl} />
+              <div className="flex-1 text-center lg:text-left">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-4">
+                  <h1 className="text-5xl font-['Fraunces'] font-semibold leading-tight">{seller.businessName}</h1>
+                  <StatusPill value={seller.status || 'Pending'} />
                 </div>
-              </SurfaceCard>
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-white/60 font-medium">
+                  <span className="flex items-center gap-2"><MapPin size={16} /> {seller.address || 'Location Unverified'}</span>
+                  <span className="flex items-center gap-2 text-[var(--color-accent)] uppercase tracking-widest text-[10px] font-bold">Partner ID: {String(userId).slice(-8)}</span>
+                </div>
+              </div>
+            </div>
+          </section>
 
-              <SurfaceCard>
-                <h2 className="text-xl font-black text-slate-900">Moderation Notes</h2>
-                <div className="mt-5 rounded-[24px] bg-slate-50 p-5">
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Rejection Reason</div>
-                  <p className="mt-3 text-sm text-slate-700">{seller.rejectionReason || 'No rejection reason recorded.'}</p>
+          <div className="grid gap-12 lg:grid-cols-[1fr,400px]">
+            <div className="space-y-12">
+              {/* Business Credentials Grid */}
+              <div className="grid gap-6 sm:grid-cols-2">
+                <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 shadow-xl hover:border-[var(--color-accent)]/20 transition-all rounded-[3rem]">
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--color-forest-light)]/20 text-[var(--color-primary)] flex items-center justify-center mb-6">
+                    <Users size={24} />
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2">Legal Representative</div>
+                  <div className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{seller.name}</div>
+                </SurfaceCard>
+
+                <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 shadow-xl hover:border-[var(--color-accent)]/20 transition-all rounded-[3rem]">
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/30 text-[var(--color-primary-dark)] flex items-center justify-center mb-6">
+                    <Mail size={24} />
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2">Communication Hub</div>
+                  <div className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] truncate">{seller.email}</div>
+                </SurfaceCard>
+
+                <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 shadow-xl hover:border-[var(--color-accent)]/20 transition-all rounded-[3rem]">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mb-6">
+                    <Phone size={24} />
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2">Primary Contact</div>
+                  <div className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{seller.phoneNumber}</div>
+                </SurfaceCard>
+
+                <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 shadow-xl hover:border-[var(--color-accent)]/20 transition-all rounded-[3rem]">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-6">
+                    <FileCheck2 size={24} />
+                  </div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2">Tax Identification</div>
+                  <div className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{seller.gstNumber || 'Exempt / Not Filed'}</div>
+                </SurfaceCard>
+              </div>
+
+              {/* Verification Vault */}
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-12 shadow-xl rounded-[3rem]">
+                <div className="flex items-center justify-between mb-10">
+                  <div>
+                    <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Verification Vault</h2>
+                    <p className="mt-2 text-[var(--color-text-muted)] font-medium">Review secure documentation provided for artisan onboarding.</p>
+                  </div>
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
+                    <ShieldCheck size={32} />
+                  </div>
+                </div>
+
+                <div className="grid gap-8 md:grid-cols-2">
+                  <DocumentVaultCard 
+                    icon={<Briefcase size={20} />}
+                    label="Business Proof"
+                    href={sanitizeDocUrl(seller.businessProofUrl)}
+                    desc="License or Registration"
+                  />
+                  <DocumentVaultCard 
+                    icon={<IdCard size={20} />}
+                    label="Identity Proof"
+                    href={sanitizeDocUrl(seller.identityProofUrl)}
+                    desc="Government Issued ID"
+                  />
                 </div>
               </SurfaceCard>
             </div>
-          </div>
-        </div>
-      )}
-    </WorkspaceShell>
-  );
-}
 
-function DetailRow({ icon, label, value }) {
-  return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      <div className="flex items-center gap-3 text-slate-500">
-        {icon}
-        <span className="text-xs font-bold uppercase tracking-widest">{label}</span>
-      </div>
-      <div className="mt-3 text-sm font-bold text-slate-900">{value}</div>
+            <aside className="space-y-12">
+              {/* Moderation Controls */}
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[3rem] sticky top-8">
+                <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-8 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                    <AlertCircle size={20} />
+                  </div>
+                  Curation Actions
+                </h3>
+                
+                <div className="space-y-4">
+                  <button
+                    onClick={() => approveMutation.mutate()}
+                    disabled={approveMutation.isPending || seller.status === 'Approved'}
+                    className="w-full group flex items-center justify-between px-6 py-5 rounded-2xl bg-emerald-600 text-white font-bold transition-all hover:bg-emerald-700 disabled:opacity-30 shadow-lg shadow-emerald-900/10"
+                  >
+                    <span>Approve Studio</span>
+                    <CheckCircle2 size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      const reason = window.prompt('Specify the curation feedback for rejection:');
+                      if (reason) rejectMutation.mutate(reason);
+                    }}
+                    disabled={rejectMutation.isPending || seller.status === 'Rejected'}
+                    className="w-full group flex items-center justify-between px-6 py-5 rounded-2xl bg-white border-2 border-rose-100 text-rose-600 font-bold transition-all hover:bg-rose-50 disabled:opacity-30"
+                  >
+                    <span>Reject Application</span>
+                    <XCircle size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+
+                {seller.rejectionReason && (
+                  <div className="mt-8 p-6 rounded-2xl bg-rose-50 border border-rose-100">
+                    <div className="flex items-center gap-2 text-rose-600 text-[10px] font-bold uppercase tracking-widest mb-3">
+                      <History size={14} /> Audit Note
+                    </div>
+                    <p className="text-sm text-rose-800/80 italic leading-relaxed">
+                      "{seller.rejectionReason}"
+                    </p>
+                  </div>
+                )}
+              </SurfaceCard>
+            </aside>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
 
-function DocumentLink({ label, href }) {
+function DocumentVaultCard({ icon, label, href, desc }) {
   return (
     <a
       href={href || '#'}
       target="_blank"
       rel="noreferrer"
-      className={`rounded-[24px] border p-5 transition ${href ? 'border-slate-200 hover:border-slate-300 hover:bg-slate-50' : 'border-slate-100 bg-slate-50 text-slate-400 pointer-events-none'}`}
+      className={`group relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-500 ${
+        href 
+          ? 'bg-white border-[var(--color-stone)]/10 hover:border-[var(--color-accent)] hover:shadow-2xl' 
+          : 'bg-stone-50 border-transparent cursor-not-allowed opacity-50'
+      }`}
     >
-      <div className="text-xs font-bold uppercase tracking-widest text-slate-400">{label}</div>
-      <div className="mt-3 font-bold text-slate-900">{href ? 'Open document' : 'Not available'}</div>
+      <div className="flex items-center justify-between mb-8">
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${href ? 'bg-[var(--color-sand)]/30 text-[var(--color-primary-dark)] group-hover:bg-[var(--color-accent)] group-hover:text-white' : 'bg-stone-200 text-stone-400'}`}>
+          {icon}
+        </div>
+        {href && (
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+            <ExternalLink size={18} />
+          </div>
+        )}
+      </div>
+      
+      <div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-2">{label}</div>
+        <div className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-2">
+          {href ? 'Digital Copy' : 'Unsubmitted'}
+        </div>
+        <p className="text-sm text-[var(--color-text-muted)] font-medium leading-relaxed">{desc}</p>
+      </div>
+
+      {href && (
+        <div className="mt-8 flex items-center gap-2 text-sm font-bold text-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+          Review Attachment <ArrowRight size={14} />
+        </div>
+      )}
     </a>
   );
 }

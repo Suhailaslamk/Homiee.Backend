@@ -1,4 +1,4 @@
-﻿namespace Homiee.Infrastructure.SignalR
+namespace Homiee.Infrastructure.SignalR
 {
     public class UserConnectionManager
     {
@@ -42,6 +42,17 @@
         {
             lock (_lock)
                 return _connections.ContainsKey(userId);
+        }
+
+        public object GetAllConnections()
+        {
+            lock (_lock)
+            {
+                return _connections.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.ToList()
+                );
+            }
         }
     }
 }
