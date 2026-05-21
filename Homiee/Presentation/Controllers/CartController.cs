@@ -1,4 +1,4 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,10 +47,10 @@ namespace Homiee.Presentation.Controllers
         }
 
         [HttpDelete("remove/{productId}")]
-        public async Task<IActionResult> RemoveFromCart(int productId)
+        public async Task<IActionResult> RemoveFromCart(int productId, [FromQuery] int? variantId = null)
         {
             var userId = GetUserId();
-            var result = await _cartService.RemoveFromCart(userId, productId);
+            var result = await _cartService.RemoveFromCart(userId, productId, variantId);
             return StatusCode(result.StatusCode, result);
         }
     }

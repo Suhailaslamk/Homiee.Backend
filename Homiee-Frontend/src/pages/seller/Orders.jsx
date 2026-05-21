@@ -63,17 +63,17 @@ export default function SellerOrders() {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
       queryClient.invalidateQueries({ queryKey: ['seller-order'] });
-      toast.success(response?.message || 'Fulfillment state advanced.');
+      toast.success(response?.message || 'Order status updated.');
     },
     onError: (errorResponse) => {
-      toast.error(errorResponse.response?.data?.message || 'Unable to advance state.');
+      toast.error(errorResponse.response?.data?.message || 'Failed to update status.');
     },
   });
 
   return (
     <div className="space-y-12 pb-20">
-      {/* Fulfillment Hero */}
-      <section className="relative overflow-hidden rounded-[4rem] bg-[var(--color-primary-dark)] p-12 text-white shadow-2xl">
+      {/* Orders Header */}
+      <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[4rem] bg-[var(--color-primary-dark)] p-8 sm:p-12 text-white shadow-2xl">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
         <div className="relative flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="flex items-center gap-8">
@@ -81,14 +81,14 @@ export default function SellerOrders() {
               <ClipboardList size={32} className="text-[var(--color-accent)]" />
             </div>
             <div>
-              <h1 className="text-5xl font-['Fraunces'] font-semibold leading-tight">Fulfillment Ledger</h1>
-              <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">Orchestrating your creative acquisitions</p>
+              <h1 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold leading-tight">Orders</h1>
+              <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">Manage and fulfill your customer orders.</p>
             </div>
           </div>
           
           <div className="flex flex-col items-center lg:items-end bg-white/5 backdrop-blur-md p-6 px-10 rounded-[2.5rem] border border-white/10">
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Total Registry</div>
-            <div className="text-4xl font-['Fraunces'] font-bold text-[var(--color-accent)]">{meta.totalCount || 0} Acquisitions</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Total Orders</div>
+            <div className="text-4xl font-['Fraunces'] font-bold text-[var(--color-accent)]">{meta.totalCount || 0} Orders</div>
           </div>
         </div>
       </section>
@@ -126,16 +126,16 @@ export default function SellerOrders() {
           className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync fulfillment ledger.</p>
-              <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load orders.</p>
+              <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
       ) : orders.length === 0 ? (
-        <div className="py-24 text-center bg-[var(--color-sand)]/10 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[4rem]">
+        <div className="py-24 text-center bg-[var(--color-sand)]/10 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[2rem] sm:rounded-[4rem]">
           <ShoppingBag size={64} className="mx-auto text-[var(--color-stone)]/20 mb-6" />
-          <p className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Registry Quiescent</p>
-          <p className="mt-2 text-[var(--color-text-muted)] italic">"No acquisitions found in this status category."</p>
+          <p className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Orders Found</p>
+          <p className="mt-2 text-[var(--color-text-muted)] italic">"No orders found for this status."</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -198,7 +198,7 @@ function OrderLedgerItem({ order, mutation }) {
   const isMutating = Number(mutation.variables?.id) === Number(order.id) && mutation.isPending;
 
   return (
-    <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-0 overflow-hidden shadow-xl rounded-[3.5rem] group transition-all hover:shadow-2xl hover:border-[var(--color-accent)]/10">
+    <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-0 overflow-hidden shadow-xl rounded-[2.5rem] sm:rounded-[3.5rem] group transition-all hover:shadow-2xl hover:border-[var(--color-accent)]/10">
       <div className="flex flex-col xl:flex-row">
         {/* Order Dossier */}
         <div className="flex-1 p-10 xl:p-12">
@@ -224,14 +224,14 @@ function OrderLedgerItem({ order, mutation }) {
             </div>
             
             <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Acquisition Value</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Total Amount</p>
               <p className="text-3xl font-bold text-[var(--color-primary-dark)]">{formatCurrency(order.totalAmount)}</p>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             {(order.items ?? []).map((item, i) => (
-              <div key={`${order.id}-${i}`} className="flex items-center gap-5 p-5 rounded-[2rem] bg-[var(--color-sand)]/10 border border-transparent hover:border-[var(--color-accent)]/10 transition-all">
+              <div key={`${order.id}-${i}`} className="flex items-center gap-5 p-4 sm:p-5 rounded-[2rem] bg-[var(--color-sand)]/10 border border-transparent hover:border-[var(--color-accent)]/10 transition-all">
                 <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-[var(--color-primary-dark)] shadow-sm">
                   <Package size={20} />
                 </div>
@@ -256,24 +256,24 @@ function OrderLedgerItem({ order, mutation }) {
                   {order.customerName?.[0] || 'C'}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-[var(--color-primary-dark)] truncate">{order.customerName || 'Private Collector'}</p>
+                  <p className="font-bold text-[var(--color-primary-dark)] truncate">{order.customerName || 'Customer'}</p>
                   <Link 
                     to={`/chat/${order.customerId}`} 
                     className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-widest flex items-center gap-2 hover:underline mt-1"
                   >
-                    <MessageSquare size={12} /> Open Transmission
+                    <MessageSquare size={12} /> Send Message
                   </Link>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-4">Advance State</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-4">Update Status</h3>
               <div className="grid gap-3">
                 {nextActions.length === 0 ? (
                   <div className="p-6 rounded-2xl bg-white border border-[var(--color-stone)]/10 text-center">
                     <CheckCircle2 size={24} className="mx-auto text-[var(--color-primary)] mb-2" />
-                    <p className="text-xs font-bold text-[var(--color-text-muted)]">Fulfillment Finalized</p>
+                    <p className="text-xs font-bold text-[var(--color-text-muted)]">Order Completed</p>
                   </div>
                 ) : (
                   nextActions.map((action) => (
@@ -296,7 +296,7 @@ function OrderLedgerItem({ order, mutation }) {
             to={`/seller/orders/${order.id}`}
             className="mt-10 flex items-center justify-center gap-2 text-[10px] font-bold text-[var(--color-primary-dark)] uppercase tracking-widest hover:text-[var(--color-accent)] transition-colors py-4 border-t border-[var(--color-stone)]/10"
           >
-            Examine Detailed Dossier <ArrowUpRight size={14} />
+            View Full Details <ArrowUpRight size={14} />
           </Link>
         </div>
       </div>
@@ -335,27 +335,27 @@ function getNextSellerActions(status) {
   if (isPlaced) {
     return [
       { value: 'Accepted', label: 'Accept Order', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-primary-dark)] text-white hover:bg-[var(--color-primary)]' },
-      { value: 'Processing', label: 'Direct to Processing', icon: <Clock size={18} />, className: 'bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)]' },
+      { value: 'Processing', label: 'Mark as Processing', icon: <Clock size={18} />, className: 'bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)]' },
       { value: 'Rejected', label: 'Reject Order', icon: <XCircle size={18} />, className: 'bg-rose-50 text-rose-600 hover:bg-rose-100' },
     ];
   }
 
   if (isAccepted) {
     return [
-      { value: 'Processing', label: 'Begin Processing', icon: <Clock size={18} />, className: 'bg-[var(--color-primary-dark)] text-white shadow-lg' },
-      { value: 'Shipped', label: 'Dispatch (Skip Processing)', icon: <Truck size={18} />, className: 'bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)]' },
+      { value: 'Processing', label: 'Start Processing', icon: <Clock size={18} />, className: 'bg-[var(--color-primary-dark)] text-white shadow-lg' },
+      { value: 'Shipped', label: 'Ship Order', icon: <Truck size={18} />, className: 'bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)]' },
     ];
   }
 
   if (isProcessing) {
     return [
-      { value: 'Shipped', label: 'Dispatch Order', icon: <Truck size={18} />, className: 'bg-[var(--color-primary-dark)] text-white shadow-lg' },
+      { value: 'Shipped', label: 'Ship Order', icon: <Truck size={18} />, className: 'bg-[var(--color-primary-dark)] text-white shadow-lg' },
     ];
   }
 
   if (isShipped) {
     return [
-      { value: 'Delivered', label: 'Confirm Arrival', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-primary-dark)] text-white' },
+      { value: 'Delivered', label: 'Mark as Delivered', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-primary-dark)] text-white' },
     ];
   }
 

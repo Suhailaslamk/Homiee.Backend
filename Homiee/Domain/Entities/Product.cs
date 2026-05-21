@@ -1,4 +1,4 @@
-﻿namespace Homiee.Domain.Entities
+namespace Homiee.Domain.Entities
 {
     public class Product : BaseEntity
     {
@@ -17,6 +17,9 @@
         public Seller Seller { get; set; }
         public Category Category { get; set; }
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+
+        public bool HasVariants => Variants.Any(v => !v.IsDeleted);
 
         public Product(int sellerId, string name, string description, decimal price, int stock, int categoryId)
         {

@@ -46,15 +46,9 @@ namespace Homiee.Presentation.Hubs
 
             var msgDto = await _chatService.SendMessageAsync(senderId, receiverId, message);
 
-            // ❌ Was missing — sender tab must also receive the message
-            await Clients.Caller.SendAsync("ReceiveMessage", msgDto);
-
-            // Send to ALL receiver connections (multi-tab support)
-            var receiverConns = _manager.GetConnections(receiverId);
-            foreach (var conn in receiverConns)
-            {
-                await Clients.Client(conn).SendAsync("ReceiveMessage", msgDto);
-            }
+            // 🔥 Send to both sender and receiver (multi-tab support)
+            await Clients.User(senderId.ToString()).SendAsync("ReceiveMessage", msgDto);
+            await Clients.User(receiverId.ToString()).SendAsync("ReceiveMessage", msgDto);
         }
 
         private int GetUserId() =>

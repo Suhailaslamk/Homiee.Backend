@@ -168,9 +168,11 @@ export default function Chat() {
   useSignalR(
     getHubUrl('/chatHub'),
     (incoming) => {
+      console.log('[SignalR] Incoming Signal Received:', incoming);
       const normalizedMessage = normalizeMessage(incoming);
       
       if (!normalizedMessage) {
+        console.warn('[SignalR] Failed to normalize incoming message:', incoming);
         return;
       }
       
@@ -195,12 +197,15 @@ export default function Chat() {
         markReadMutation.mutate(otherUserId);
       }
     },
-    { enabled: canUseChat && !isAdminRole() }
+    { 
+      enabled: canUseChat && !isAdminRole(),
+      onStatusChange: (status) => console.log('[SignalR] Connection Status:', status)
+    }
   );
 
   useEffect(() => {
     if (hasSelectedUser && Number(selectedUserId) === Number(currentUserId)) {
-      toast.warning("Self-transmission is disabled for studio integrity.");
+      toast.warning("You cannot message yourself.");
       navigate('/chat', { replace: true });
     }
   }, [hasSelectedUser, selectedUserId, currentUserId, navigate, toast]);
@@ -256,14 +261,14 @@ export default function Chat() {
               <div className="w-10 h-10 rounded-xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)] group-hover:bg-[var(--color-accent)] group-hover:text-white transition-all">
                 <ArrowLeft size={18} />
               </div>
-              <span className="hidden sm:inline text-xs font-black uppercase tracking-[0.2em] text-[var(--color-text-muted)] group-hover:text-[var(--color-primary-dark)] transition-colors">Return to Marketplace</span>
+              <span className="hidden sm:inline text-xs font-black uppercase tracking-[0.2em] text-[var(--color-text-muted)] group-hover:text-[var(--color-primary-dark)] transition-colors">Back to Marketplace</span>
             </Link>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3 px-6 py-2.5 bg-emerald-50 rounded-full border border-emerald-100">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Secure Transmission Link</span>
+              <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Secure Chat</span>
             </div>
           </div>
         </nav>
@@ -277,8 +282,8 @@ export default function Chat() {
             <div className="p-8 border-b border-[var(--color-stone)]/5 bg-white/30 shrink-0">
               <div className="flex items-center justify-between gap-4 mb-6">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Transmission Registry</p>
-                  <h2 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Recent Chats</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Messages</p>
+                  <h2 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Recent Messages</h2>
                 </div>
                 <button 
                   onClick={refetchConversations}
@@ -293,7 +298,7 @@ export default function Chat() {
                   type="text" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Identify transmission..." 
+                  placeholder="Search messages..." 
                   className="w-full bg-white border border-[var(--color-stone)]/5 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/20 transition-all shadow-inner"
                 />
               </div>
@@ -307,9 +312,9 @@ export default function Chat() {
                   <div className="w-16 h-16 rounded-[1.5rem] bg-[var(--color-sand)]/20 flex items-center justify-center text-[var(--color-stone)]/30 mb-6">
                     <MessageCircle size={32} />
                   </div>
-                  <p className="text-lg font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Registry Empty</p>
+                  <p className="text-lg font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No messages yet</p>
                   <p className="mt-2 text-xs text-[var(--color-text-muted)] italic leading-relaxed">
-                    "Start a transmission by visiting an artisan studio storefront."
+                    "Start a conversation by visiting a seller's shop."
                   </p>
                 </div>
               ) : (
@@ -337,7 +342,7 @@ export default function Chat() {
             
             {totalUnread > 0 && (
               <div className="p-4 bg-[var(--color-accent)]/10 text-[var(--color-primary-dark)] text-center text-[10px] font-bold uppercase tracking-widest shrink-0">
-                {totalUnread} Unprocessed Transmissions Awaiting Signal
+                {totalUnread} Unread Messages
               </div>
             )}
           </div>
@@ -364,7 +369,7 @@ export default function Chat() {
                         </h2>
                         <div className="mt-1 flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Active Signal</span>
+                          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Online</span>
                         </div>
                       </div>
                     </div>
@@ -389,15 +394,15 @@ export default function Chat() {
                         <div className="w-20 h-20 rounded-[2.5rem] bg-rose-50 flex items-center justify-center text-rose-500 mb-8 shadow-xl">
                           <Zap size={40} />
                         </div>
-                        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Signal Interrupted</h3>
+                        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Failed to connect</h3>
                         <p className="mt-4 text-sm text-[var(--color-text-muted)] italic leading-relaxed">
-                          "Unable to synchronize with the transmission registry. Please re-initiate the signal."
+                          "Could not load messages. Please try again."
                         </p>
                         <button 
                           onClick={() => refetchMessages()}
                           className="mt-8 px-8 py-3 bg-[var(--color-primary-dark)] text-white rounded-xl font-bold text-xs uppercase tracking-widest"
                         >
-                          Retry Synchronization
+                          Retry
                         </button>
                       </div>
                     ) : messages.length === 0 ? (
@@ -405,9 +410,9 @@ export default function Chat() {
                         <div className="w-20 h-20 rounded-[2.5rem] bg-[var(--color-sand)]/20 flex items-center justify-center text-[var(--color-accent)] mb-8 shadow-xl">
                           <Sparkles size={40} />
                         </div>
-                        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Initiate Transmission</h3>
+                        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Start Chatting</h3>
                         <p className="mt-4 text-sm text-[var(--color-text-muted)] italic leading-relaxed">
-                          "Ask about material origins, studio availability, or logistical orchestration."
+                          "Ask about products, delivery, or anything else."
                         </p>
                       </div>
                     ) : (
@@ -487,9 +492,9 @@ export default function Chat() {
                 <div className="w-24 h-24 rounded-[3rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-stone)]/40 mb-10 shadow-2xl border border-white/50">
                   <MessageSquare size={48} />
                 </div>
-                <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Signal Synchronized</h3>
+                <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Select a Chat</h3>
                 <p className="mt-6 text-lg text-[var(--color-text-muted)] italic leading-relaxed">
-                  "Select a transmission channel from the registry to engage in direct studio communication."
+                  "Choose a conversation to start messaging."
                 </p>
               </div>
             )}
@@ -498,7 +503,7 @@ export default function Chat() {
       </div>
     </div>
   </div>
-  );
+);
 }
 
 function ConversationItem({ conversation, isActive, onClick }) {
@@ -523,7 +528,7 @@ function ConversationItem({ conversation, isActive, onClick }) {
           </div>
           <div className="flex items-center justify-between gap-4">
             <p className={`truncate text-xs font-medium italic ${isActive ? 'text-white/60' : 'text-[var(--color-text-muted)]'}`}>
-              {conversation.lastMessage || conversation.subtitle || 'Initiate transmission...'}
+              {conversation.lastMessage || conversation.subtitle || 'Start a conversation...'}
             </p>
             {Number(conversation.unreadCount || 0) > 0 && (
               <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-primary-dark)] text-[10px] font-black shadow-lg">
@@ -710,7 +715,7 @@ function formatMessageTime(value) {
 }
 
 function formatDateTime(value) {
-  if (!value) return 'Genesis';
+  if (!value) return 'Date';
   return new Intl.DateTimeFormat('en-IN', {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -725,4 +730,3 @@ function getInitials(value = '') {
     .map((part) => part[0]?.toUpperCase())
     .join('') || 'H';
 }
-

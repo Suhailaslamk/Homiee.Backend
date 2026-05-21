@@ -56,6 +56,7 @@ export default function ProductForm() {
   const [primaryImage, setPrimaryImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [variants, setVariants] = useState([]);
 
   const {
     register,
@@ -101,17 +102,18 @@ export default function ProductForm() {
       categoryId: product.categoryId ?? '',
     });
     setExistingImages(product.images ?? []);
+    setVariants(product.variants ?? []);
   }, [isEdit, product, reset]);
 
   const createMutation = useMutation({
     mutationFn: (formData) => createSellerProduct(formData),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['seller-inventory'] });
-      toast.success(response?.message || 'Creation listed in studio catalog.');
+      toast.success(response?.message || 'Product added successfully.');
       navigate('/seller/inventory');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to list creation.');
+      toast.error(error.response?.data?.message || 'Failed to add product.');
     },
   });
 
@@ -128,11 +130,11 @@ export default function ProductForm() {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['seller-inventory'] });
       queryClient.invalidateQueries({ queryKey: ['seller-product', productId] });
-      toast.success(response?.message || 'Creation refined successfully.');
+      toast.success(response?.message || 'Product updated successfully.');
       navigate('/seller/inventory');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to refine creation.');
+      toast.error(error.response?.data?.message || 'Failed to update product.');
     },
   });
 
@@ -140,10 +142,10 @@ export default function ProductForm() {
     mutationFn: deleteSellerProductImage,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-product', productId] });
-      toast.success('Visual removed from dossier.');
+      toast.success('Image removed.');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to remove visual.');
+      toast.error(error.response?.data?.message || 'Failed to remove image.');
     }
   });
 
@@ -151,10 +153,10 @@ export default function ProductForm() {
     mutationFn: setSellerProductPrimaryImage,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-product', productId] });
-      toast.success('Primary aesthetic updated.');
+      toast.success('Main image updated.');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to update primary visual.');
+      toast.error(error.response?.data?.message || 'Failed to update main image.');
     }
   });
 
@@ -179,7 +181,7 @@ export default function ProductForm() {
 
   const onSubmit = handleSubmit((values) => {
     if (!isEdit && !primaryImage) {
-      toast.error('Please curation a primary aesthetic image for your piece.');
+      toast.error('Please select a main product image.');
       return;
     }
 
@@ -190,6 +192,13 @@ export default function ProductForm() {
           description: values.description.trim(),
           price: Number(values.price),
           stock: Number(values.stock),
+          variants: variants.map(v => ({
+            id: v.id || 0,
+            label: v.label.trim(),
+            price: Number(v.price),
+            stock: Number(v.stock),
+            sku: v.sku?.trim()
+          }))
         },
         newGalleryImages: galleryImages,
       });
@@ -204,6 +213,13 @@ export default function ProductForm() {
     formData.append('categoryId', String(values.categoryId));
     formData.append('image', primaryImage);
 
+    variants.forEach((v, index) => {
+      formData.append(`variants[${index}].label`, v.label.trim());
+      formData.append(`variants[${index}].price`, String(v.price));
+      formData.append(`variants[${index}].stock`, String(v.stock));
+      if (v.sku) formData.append(`variants[${index}].sku`, v.sku.trim());
+    });
+
     createMutation.mutate(formData);
   });
 
@@ -216,8 +232,8 @@ export default function ProductForm() {
           className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync creation dossier.</p>
-              <button onClick={() => refetchProduct()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load product details.</p>
+              <button onClick={() => refetchProduct()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
@@ -235,11 +251,11 @@ export default function ProductForm() {
             <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-stone)]/10 flex items-center justify-center group-hover:bg-[var(--color-sand)]/20 transition-all">
               <ChevronLeft size={18} />
             </div>
-            Back to Studio Inventory
+            Back to Inventory
           </Link>
 
-          {/* Creation Hero */}
-          <section className="relative overflow-hidden rounded-[4rem] bg-[var(--color-primary-dark)] p-12 text-white shadow-2xl">
+          {/* Product Header */}
+          <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[4rem] bg-[var(--color-primary-dark)] p-8 sm:p-12 text-white shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
             <div className="relative flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="flex items-center gap-8">
@@ -247,8 +263,8 @@ export default function ProductForm() {
                   {isEdit ? <Layers size={40} className="text-[var(--color-accent)]" /> : <PlusCircle size={40} className="text-[var(--color-accent)]" />}
                 </div>
                 <div>
-                  <h1 className="text-5xl font-['Fraunces'] font-semibold leading-tight">{isEdit ? 'Refine Creation' : 'Studio Creation'}</h1>
-                  <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">Orchestrating a new piece for your collection</p>
+                  <h1 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold leading-tight">{isEdit ? 'Edit Product' : 'Add New Product'}</h1>
+                  <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">List a new product on the platform.</p>
                 </div>
               </div>
               
@@ -266,61 +282,61 @@ export default function ProductForm() {
                   <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                     <Zap size={24} />
                   </div>
-                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Creation Details</h2>
+                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Basic Information</h2>
                 </div>
 
                 <div className="grid gap-10 md:grid-cols-2">
                   <div className="md:col-span-2">
-                    <FormField label="Exhibition Title" error={errors.name?.message}>
+                    <FormField label="Product Name" error={errors.name?.message}>
                       <input
-                        {...register('name', { required: 'Registry title is required.' })}
+                        {...register('name', { required: 'Product name is required.' })}
                         placeholder="e.g. Hand-poured Botanical Candle"
                         className={inputClass(errors.name)}
                       />
                     </FormField>
                   </div>
 
-                  <FormField label="Valuation (₹)" error={errors.price?.message}>
+                  <FormField label="Price (₹)" error={errors.price?.message}>
                     <div className="relative group">
                       <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--color-stone)] group-focus-within:text-[var(--color-accent)] transition-colors font-bold">₹</div>
                       <input
                         type="number"
                         step="0.01"
-                        {...register('price', { required: 'Valuation is required.', min: 1 })}
+                        {...register('price', { required: 'Price is required.', min: 1 })}
                         placeholder="0.00"
                         className={inputClass(errors.price, true)}
                       />
                     </div>
                   </FormField>
 
-                  <FormField label="Studio Volume" error={errors.stock?.message}>
+                  <FormField label="Stock Quantity" error={errors.stock?.message}>
                     <input
                       type="number"
-                      {...register('stock', { required: 'Units available are required.', min: 0 })}
+                      {...register('stock', { required: 'Stock quantity is required.', min: 0 })}
                       placeholder="Units available"
                       className={inputClass(errors.stock)}
                     />
                   </FormField>
 
                   <div className="md:col-span-2">
-                    <FormField label="The Narrative" error={errors.description?.message}>
+                    <FormField label="Description" error={errors.description?.message}>
                       <textarea
                         rows="8"
-                        {...register('description', { required: 'The piece narrative is required.' })}
-                        placeholder="Tell the story of your creation, the materials used, and your artisanal process..."
+                        {...register('description', { required: 'Product description is required.' })}
+                        placeholder="Describe your product, materials used, and your process..."
                         className={inputClass(errors.description)}
                       />
                     </FormField>
                   </div>
 
-                  <FormField label="Collection Category" error={errors.categoryId?.message}>
+                  <FormField label="Category" error={errors.categoryId?.message}>
                     <div className="relative">
                       <select
-                        {...register('categoryId', { required: 'Category is required.' })}
+                        {...register('categoryId', { required: 'Please select a category.' })}
                         disabled={categoriesLoading || isEdit}
                         className={`${inputClass(errors.categoryId)} appearance-none`}
                       >
-                        <option value="">Select a Collection</option>
+                        <option value="">Select a Category</option>
                         {categories.map((c) => (
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
@@ -332,13 +348,116 @@ export default function ProductForm() {
                   </FormField>
                 </div>
 
+                {/* VARIANTS SECTION */}
+                <div className="mt-16 pt-12 border-t border-[var(--color-stone)]/5 space-y-10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
+                        <Layers size={24} />
+                      </div>
+                      <div>
+                        <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Product Options</h2>
+                        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1 italic">Add different sizes, colors, or weights (Optional)</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setVariants([...variants, { label: '', price: '', stock: '', sku: '' }])}
+                      className="px-6 py-3 bg-[var(--color-accent)] text-[var(--color-primary-dark)] rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <Plus size={16} /> Add Option
+                    </button>
+                  </div>
+
+                  {variants.length > 0 ? (
+                    <div className="grid gap-6">
+                      {variants.map((v, index) => (
+                        <motion.div 
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-8 bg-[var(--color-sand)]/5 rounded-[2.5rem] border border-[var(--color-stone)]/5 relative group"
+                        >
+                          <div className="grid gap-6 md:grid-cols-4">
+                            <div className="md:col-span-1">
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 block ml-2 italic">Label</label>
+                              <input
+                                value={v.label}
+                                onChange={(e) => {
+                                  const newVariants = [...variants];
+                                  newVariants[index].label = e.target.value;
+                                  setVariants(newVariants);
+                                }}
+                                placeholder="e.g. 1 KG"
+                                className="w-full rounded-xl border-2 border-transparent bg-white px-4 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/30 transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 block ml-2 italic">Price (₹)</label>
+                              <input
+                                type="number"
+                                value={v.price}
+                                onChange={(e) => {
+                                  const newVariants = [...variants];
+                                  newVariants[index].price = e.target.value;
+                                  setVariants(newVariants);
+                                }}
+                                placeholder="0.00"
+                                className="w-full rounded-xl border-2 border-transparent bg-white px-4 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/30 transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 block ml-2 italic">Stock</label>
+                              <input
+                                type="number"
+                                value={v.stock}
+                                onChange={(e) => {
+                                  const newVariants = [...variants];
+                                  newVariants[index].stock = e.target.value;
+                                  setVariants(newVariants);
+                                }}
+                                placeholder="0"
+                                className="w-full rounded-xl border-2 border-transparent bg-white px-4 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/30 transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 block ml-2 italic">SKU (Opt)</label>
+                              <input
+                                value={v.sku}
+                                onChange={(e) => {
+                                  const newVariants = [...variants];
+                                  newVariants[index].sku = e.target.value;
+                                  setVariants(newVariants);
+                                }}
+                                placeholder="SKU-CODE"
+                                className="w-full rounded-xl border-2 border-transparent bg-white px-4 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/30 transition-all"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setVariants(variants.filter((_, i) => i !== index))}
+                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-[var(--color-stone)]/10 flex items-center justify-center text-rose-500 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white"
+                          >
+                            <X size={14} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-12 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[3rem] text-center">
+                      <p className="text-[var(--color-stone)] font-medium italic opacity-60">"No options added. This product will be listed as a single item."</p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="mt-16 pt-12 border-t border-[var(--color-stone)]/5 flex items-center gap-6">
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="flex-1 h-16 rounded-[1.5rem] bg-[var(--color-primary-dark)] text-white font-bold shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Syncing Dossier...' : isEdit ? 'Finalize Refinement' : 'Confirm Creation'}
+                    {isSubmitting ? 'Saving...' : isEdit ? 'Update Product' : 'Add Product'}
                   </button>
                   <Link
                     to="/seller/inventory"
@@ -357,14 +476,14 @@ export default function ProductForm() {
                   <div className="w-10 h-10 rounded-xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                     <Camera size={18} />
                   </div>
-                  <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Visual Studio</h3>
+                  <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Product Images</h3>
                 </div>
 
                 <div className="space-y-8">
                   {!isEdit && (
                     <ImagePicker
-                      title="Primary Exhibit"
-                      description="The hero visual for your piece."
+                      title="Main Product Image"
+                      description="This will be the main image shown to customers."
                       onFilesSelected={(files) => setPrimaryImage(files[0])}
                     />
                   )}
@@ -397,7 +516,7 @@ export default function ProductForm() {
                              <button 
                                type="button"
                                onClick={() => setPrimaryImageMutation.mutate(img.id)}
-                               title="Set as Primary"
+                               title="Set as Main Image"
                                className={`w-8 h-8 rounded-lg bg-white/90 shadow-sm flex items-center justify-center ${img.isPrimary ? 'text-amber-500' : 'text-slate-400 hover:text-amber-500'} transition-all`}
                              >
                                <Star size={14} className={img.isPrimary ? 'fill-amber-500' : ''} />
@@ -405,7 +524,7 @@ export default function ProductForm() {
                              <button 
                                type="button"
                                onClick={() => {
-                                 if (window.confirm('Remove this visual from your piece dossier?')) {
+                                 if (window.confirm('Are you sure you want to remove this image?')) {
                                    deleteImageMutation.mutate(img.id);
                                  }
                                }}
@@ -421,8 +540,8 @@ export default function ProductForm() {
 
                   <div className="pt-4 border-t border-[var(--color-stone)]/5">
                     <ImagePicker
-                      title="Gallery Additions"
-                      description={isEdit ? "Enhance the visual dossier." : "Enabled after initial curation."}
+                      title="Additional Images"
+                      description={isEdit ? "Add more images of your product." : "Enabled after initial creation."}
                       acceptMultiple
                       onFilesSelected={setGalleryImages}
                       disabled={!isEdit}
@@ -453,12 +572,12 @@ export default function ProductForm() {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-6">
                     <Info size={18} className="text-[var(--color-accent)]" />
-                    <h3 className="text-sm font-bold uppercase tracking-widest">Curation Insights</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest">Selling Tips</h3>
                   </div>
                   <ul className="space-y-4">
-                    <InsightTip text="Aesthetic consistency leads to higher collector trust." />
-                    <InsightTip text="Narratives with material origins resonate deeply." />
-                    <InsightTip text="High-fidelity visuals are the studio standard." />
+                    <InsightTip text="High-quality photos help build customer trust." />
+                    <InsightTip text="Detailed descriptions help customers make decisions." />
+                    <InsightTip text="Use clear, bright images for better visibility." />
                   </ul>
                 </div>
               </SurfaceCard>

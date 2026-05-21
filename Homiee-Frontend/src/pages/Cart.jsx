@@ -69,12 +69,16 @@ export default function Cart() {
   const enrichedItems = cartItems.map((item, index) => {
     const product = productQueries[index]?.data?.data;
     const seller = sellerMap[item.sellerId];
+    const variant = product?.variants?.find(v => v.id === item.productVariantId);
+
+    const price = variant ? variant.price : (product?.price ?? 0);
 
     return {
       ...item,
       product,
       seller,
-      itemTotal: (product?.price ?? 0) * item.quantity,
+      variant,
+      itemTotal: price * item.quantity,
     };
   });
 
@@ -99,34 +103,34 @@ export default function Cart() {
   const totalItems = enrichedItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const removeMutation = useMutation({
-    mutationFn: removeFromCart,
+    mutationFn: ({ productId, variantId }) => removeFromCart(productId, variantId),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Piece removed from acquisition bag.');
+      toast.success('Product removed from cart.');
     },
     onError: (mutationError) => {
-      toast.error(mutationError.response?.data?.message || 'Unable to remove piece.');
+      toast.error(mutationError.response?.data?.message || 'Failed to remove item.');
     },
   });
 
   const updateQuantityMutation = useMutation({
-    mutationFn: async ({ productId, desiredQuantity }) => {
+    mutationFn: async ({ productId, variantId, desiredQuantity }) => {
       if (desiredQuantity <= 0) {
-        return removeFromCart(productId);
+        return removeFromCart(productId, variantId);
       }
 
-      await removeFromCart(productId);
-      return addToCart({ productId, quantity: desiredQuantity });
+      await removeFromCart(productId, variantId);
+      return addToCart({ productId, productVariantId: variantId, quantity: desiredQuantity });
     },
     onSuccess: (response, variables) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       if (variables.desiredQuantity <= 0) {
-        toast.success('Piece removed from bag.');
+        toast.success('Product removed from cart.');
         return;
       }
     },
     onError: (mutationError) => {
-      toast.error(mutationError.response?.data?.message || 'Unable to update quantity.');
+      toast.error(mutationError.response?.data?.message || 'Failed to update quantity.');
     },
   });
 
@@ -141,11 +145,11 @@ export default function Cart() {
     return (
       <div className="min-h-screen bg-[var(--color-sand)]/10 pt-32 pb-24 px-6 flex items-center justify-center">
         <StatePanel
-          className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
+          className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[2rem] sm:rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync acquisition bag.</p>
-              <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load cart.</p>
+              <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
@@ -165,13 +169,13 @@ export default function Cart() {
             <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-stone)]/10 flex items-center justify-center group-hover:bg-[var(--color-sand)]/20 transition-all">
               <ChevronLeft size={18} />
             </div>
-            Continue Discovery
+            Back to Marketplace
           </Link>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">Acquisition Bag</h1>
+              <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">Your Cart</h1>
               <p className="mt-4 text-xl text-[var(--color-text-muted)] font-medium italic leading-relaxed">
-                "Curating your chosen artisanal finds before they transition to your permanent collection."
+                "Review the items in your cart before checking out."
               </p>
             </div>
             <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-6 px-10 rounded-[2.5rem] border border-white shadow-xl">
@@ -179,8 +183,8 @@ export default function Cart() {
                 <ShoppingBasket size={24} />
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">Bag Volume</div>
-                <div className="text-2xl font-bold text-[var(--color-primary-dark)]">{totalItems} Curations</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">Cart Status</div>
+                <div className="text-2xl font-bold text-[var(--color-primary-dark)]">{totalItems} Products</div>
               </div>
             </div>
           </div>
@@ -191,19 +195,19 @@ export default function Cart() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <SurfaceCard className="max-w-3xl mx-auto py-24 text-center bg-white border-[var(--color-stone)]/5 shadow-2xl rounded-[4rem]">
+            <SurfaceCard className="max-w-3xl mx-auto py-24 text-center bg-white border-[var(--color-stone)]/5 shadow-2xl rounded-[2rem] sm:rounded-[4rem]">
               <div className="w-24 h-24 bg-[var(--color-sand)]/20 rounded-[2rem] flex items-center justify-center mx-auto mb-10 border border-[var(--color-stone)]/5 shadow-inner text-[var(--color-primary-dark)]">
                 <Package2 size={40} />
               </div>
-              <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Bag Quiescent</h2>
+              <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Your cart is empty</h2>
               <p className="text-[var(--color-text-muted)] mt-6 text-lg leading-relaxed px-12 italic">
-                "Your acquisition bag is currently empty. Revisit the marketplace to discover pieces that resonate with your curated lifestyle."
+                "You haven't added any items to your cart yet. Revisit the marketplace to discover products you love."
               </p>
               <Link
                 to="/discovery"
                 className="mt-12 inline-flex items-center gap-4 bg-[var(--color-primary-dark)] text-white px-12 py-6 rounded-[2rem] font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-[var(--color-primary-dark)]/20"
               >
-                Begin Discovery
+                Browse Products
                 <ArrowRight size={20} />
               </Link>
             </SurfaceCard>
@@ -228,19 +232,23 @@ export default function Cart() {
                       <div>
                         <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">{group.sellerName}</h2>
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
-                          Artisan Collective • Studio Subtotal: <span className="text-[var(--color-accent)] font-black">{formatCurrency(group.subtotal)}</span>
+                          Marketplace Store • Subtotal: <span className="text-[var(--color-accent)] font-black">{formatCurrency(group.subtotal)}</span>
                         </p>
                       </div>
                     </div>
 
                     <div className="grid gap-6">
                       {group.items.map((item, itemIdx) => {
-                        const isUpdating = updateQuantityMutation.isPending && updateQuantityMutation.variables?.productId === item.productId;
-                        const isRemoving = removeMutation.isPending && removeMutation.variables === item.productId;
+                        const isUpdating = updateQuantityMutation.isPending && 
+                                          updateQuantityMutation.variables?.productId === item.productId &&
+                                          updateQuantityMutation.variables?.variantId === item.productVariantId;
+                        const isRemoving = removeMutation.isPending && 
+                                           removeMutation.variables?.productId === item.productId &&
+                                           removeMutation.variables?.variantId === item.productVariantId;
 
                         return (
                           <motion.div 
-                            key={item.productId}
+                            key={`${item.productId}-${item.productVariantId}`}
                             layout
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -265,12 +273,17 @@ export default function Cart() {
                                       <Link to={`/product/${item.productId}`}>
                                         <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors leading-tight truncate">{item.product?.name || `Registry #${item.productId}`}</h3>
                                       </Link>
-                                      <div className="mt-3 flex items-center gap-4">
+                                      <div className="mt-3 flex flex-wrap items-center gap-4">
                                         <span className="text-xs font-bold text-[var(--color-text-muted)] italic">By {group.sellerName}</span>
+                                        {item.variant && (
+                                          <div className="px-3 py-1 bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-[8px] font-black uppercase tracking-widest rounded-lg border border-[var(--color-accent)]/10">
+                                            {item.variant.label}
+                                          </div>
+                                        )}
                                         <div className="flex items-center gap-1.5">
-                                          <div className={`w-1.5 h-1.5 rounded-full ${item.product?.stock > 0 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                          <div className={`w-1.5 h-1.5 rounded-full ${(item.variant?.stock ?? item.product?.stock) > 0 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                                           <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
-                                            {item.product?.stock > 0 ? 'Inventory Verified' : 'Allocation Depleted'}
+                                            {(item.variant?.stock ?? item.product?.stock) > 0 ? 'In Stock' : 'Out of Stock'}
                                           </span>
                                         </div>
                                       </div>
@@ -278,10 +291,10 @@ export default function Cart() {
 
                                     <button
                                       type="button"
-                                      onClick={() => removeMutation.mutate(item.productId)}
+                                      onClick={() => removeMutation.mutate({ productId: item.productId, variantId: item.productVariantId })}
                                       disabled={isRemoving}
                                       className="w-14 h-14 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-500 transition-all hover:bg-rose-500 hover:text-white shadow-sm"
-                                      title="Remove from bag"
+                                      title="Remove from cart"
                                     >
                                       <Trash2 size={22} />
                                     </button>
@@ -290,11 +303,11 @@ export default function Cart() {
                                   <div className="mt-10 flex flex-wrap items-end justify-between gap-8">
                                     {/* Quantity Orchestrator */}
                                     <div className="flex flex-col gap-3">
-                                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] pl-1">Allocation Volume</span>
+                                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] pl-1">Quantity</span>
                                       <div className="flex items-center bg-[var(--color-sand)]/20 rounded-[1.5rem] border border-[var(--color-stone)]/5 p-1.5 shadow-inner">
                                         <button
                                           type="button"
-                                          onClick={() => updateQuantityMutation.mutate({ productId: item.productId, desiredQuantity: item.quantity - 1 })}
+                                          onClick={() => updateQuantityMutation.mutate({ productId: item.productId, variantId: item.productVariantId, desiredQuantity: item.quantity - 1 })}
                                           disabled={isUpdating || item.quantity <= 1}
                                           className="w-12 h-12 flex items-center justify-center text-[var(--color-stone)] hover:bg-white hover:text-[var(--color-primary-dark)] rounded-[1.2rem] transition-all disabled:opacity-30"
                                         >
@@ -305,8 +318,8 @@ export default function Cart() {
                                         </span>
                                         <button
                                           type="button"
-                                          onClick={() => updateQuantityMutation.mutate({ productId: item.productId, desiredQuantity: item.quantity + 1 })}
-                                          disabled={isUpdating || item.quantity >= (item.product?.stock ?? item.quantity)}
+                                          onClick={() => updateQuantityMutation.mutate({ productId: item.productId, variantId: item.productVariantId, desiredQuantity: item.quantity + 1 })}
+                                          disabled={isUpdating || item.quantity >= (item.variant?.stock ?? item.product?.stock ?? item.quantity)}
                                           className="w-12 h-12 flex items-center justify-center text-[var(--color-stone)] hover:bg-white hover:text-[var(--color-primary-dark)] rounded-[1.2rem] transition-all disabled:opacity-30"
                                         >
                                           <Plus size={20} />
@@ -316,7 +329,7 @@ export default function Cart() {
 
                                     {/* Valuation Display */}
                                     <div className="text-right">
-                                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Item Valuation</p>
+                                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Total Price</p>
                                       <div className="flex items-baseline gap-1 text-[var(--color-primary-dark)]">
                                         <span className="text-sm font-bold text-[var(--color-accent)]">₹</span>
                                         <span className="text-4xl font-bold tracking-tighter">{item.itemTotal.toLocaleString('en-IN')}</span>
@@ -338,7 +351,7 @@ export default function Cart() {
             {/* Summary Sidebar */}
             <aside className="relative">
               <div className="sticky top-32 space-y-8">
-                <SurfaceCard className="bg-[var(--color-primary-dark)] text-white border-transparent p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[4rem] relative overflow-hidden group">
+                <SurfaceCard className="bg-[var(--color-primary-dark)] text-white border-transparent p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] sm:rounded-[4rem] relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 blur-3xl rounded-full -mr-20 -mt-20 group-hover:bg-white/10 transition-all duration-700" />
                   
                   <div className="relative z-10">
@@ -346,17 +359,17 @@ export default function Cart() {
                       <div className="w-14 h-14 rounded-[1.5rem] bg-white/10 backdrop-blur-md flex items-center justify-center text-[var(--color-accent)] shadow-xl border border-white/10">
                         <Zap size={28} />
                       </div>
-                      <h2 className="text-2xl font-['Fraunces'] font-semibold">Settlement Summary</h2>
+                      <h2 className="text-2xl font-['Fraunces'] font-semibold">Order Summary</h2>
                     </div>
 
                     <div className="space-y-6">
-                      <SummaryRow label="Bag Curation" value={`${totalItems} Units`} inverse />
-                      <SummaryRow label="Artisan Studios" value={`${sellerGroups.length} Collectives`} inverse />
-                      <SummaryRow label="Fulfillment Ledger" value="Calculated at checkout" inverse />
+                      <SummaryRow label="Items" value={`${totalItems} Units`} inverse />
+                      <SummaryRow label="Sellers" value={`${sellerGroups.length} Stores`} inverse />
+                      <SummaryRow label="Shipping" value="Calculated at checkout" inverse />
                       
                       <div className="pt-10 border-t border-white/5 mt-10">
                         <div className="flex flex-col gap-2">
-                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em]">Total Bag Valuation</span>
+                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em]">Order Total</span>
                           <div className="flex items-baseline justify-between gap-4">
                             <span className="text-sm font-bold text-[var(--color-accent)]">INR</span>
                             <span className="text-5xl font-['Fraunces'] font-bold tracking-tighter">{formatCurrency(cartTotal).replace('₹', '')}</span>
@@ -370,14 +383,14 @@ export default function Cart() {
                       onClick={() => navigate('/checkout')}
                       className="mt-12 w-full flex items-center justify-center gap-4 bg-[var(--color-accent)] text-[var(--color-primary-dark)] py-6 rounded-[2rem] font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-[var(--color-accent)]/20 group/btn"
                     >
-                      Begin Checkout Journey
+                      Checkout
                       <ArrowRight size={22} className="group-hover/btn:translate-x-1 transition-transform" />
                     </button>
 
                     <div className="mt-10 p-6 rounded-[2rem] bg-white/5 border border-white/10 flex items-start gap-4">
                       <ShieldCheck size={20} className="shrink-0 text-[var(--color-accent)]" />
                       <p className="text-[10px] leading-relaxed text-white/50 font-medium uppercase tracking-wider">
-                        Secure transaction layer active. Acquisition grouped by artisan studios for parallel fulfillment orchestration.
+                        Your transaction is secure and protected. Checkout items are grouped by store for faster shipping.
                       </p>
                     </div>
                   </div>
@@ -387,16 +400,16 @@ export default function Cart() {
                 <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 rounded-[2.5rem] shadow-xl">
                   <div className="flex items-center gap-3 mb-6">
                     <CheckCircle2 size={18} className="text-[var(--color-accent)]" />
-                    <h3 className="text-sm font-bold text-[var(--color-primary-dark)] uppercase tracking-widest">Guaranteed Integrity</h3>
+                    <h3 className="text-sm font-bold text-[var(--color-primary-dark)] uppercase tracking-widest">Order Details</h3>
                   </div>
                   <ul className="space-y-4">
                     <li className="flex gap-3 text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-widest leading-relaxed italic">
                       <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] mt-1.5 shrink-0" />
-                      Direct Studio Logistics
+                      Direct Seller Shipping
                     </li>
                     <li className="flex gap-3 text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-widest leading-relaxed italic">
                       <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] mt-1.5 shrink-0" />
-                      Artisanal Authenticity
+                      Quality Guaranteed
                     </li>
                   </ul>
                 </SurfaceCard>
@@ -411,7 +424,7 @@ export default function Cart() {
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-stone)]/5 bg-white/90 p-8 pb-12 backdrop-blur-2xl lg:hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Total Valuation</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Total Price</p>
               <p className="text-3xl font-bold text-[var(--color-primary-dark)]">{formatCurrency(cartTotal)}</p>
             </div>
             <button

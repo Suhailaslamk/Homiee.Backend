@@ -1,4 +1,4 @@
-﻿using Homiee.Application.Interfaces.IRepository;
+using Homiee.Application.Interfaces.IRepository;
 using Homiee.Domain.Entities;
 using Homiee.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +45,10 @@ namespace Homiee.Infrastructure.Repositories
         {
             _context.CartItems.Remove(item);
             await _context.SaveChangesAsync();
+        }
+        public IQueryable<CartItem> Query()
+        {
+            return _context.CartItems;
         }
     }
 }

@@ -50,20 +50,20 @@ function SellerHomeView({ navigate }) {
           className="max-w-3xl"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-stone)]/30 bg-white/50 backdrop-blur-md px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-accent)] mb-8 shadow-sm">
-            <Sparkles size={14} className="fill-[var(--color-accent)]" /> Artisan Dashboard Entry
+            <Sparkles size={14} className="fill-[var(--color-accent)]" /> Seller Dashboard
           </div>
-          <h1 className="text-6xl sm:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-8 leading-tight">
-            Welcome back to your <i className="text-[var(--color-accent)]">Studio.</i>
+          <h1 className="text-4xl sm:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-8 leading-tight">
+            Welcome back to your <i className="text-[var(--color-accent)]">shop.</i>
           </h1>
-          <p className="text-xl leading-relaxed text-[var(--color-text-muted)] mb-12 font-medium max-w-2xl">
-            Your exhibits are being synchronized. Check your current orchestration state or manage your inventory registry.
+          <p className="text-lg sm:text-xl leading-relaxed text-[var(--color-text-muted)] mb-12 font-medium max-w-2xl">
+            Your products are being updated. Manage your shop, check your orders, and grow your business.
           </p>
           <div className="flex flex-col sm:flex-row gap-6">
             <button 
               onClick={() => navigate('/seller/dashboard')}
               className="px-10 py-5 bg-[var(--color-primary-dark)] text-white rounded-full font-bold text-lg shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
             >
-              Enter Workspace <ArrowRight size={20} />
+              Go to Dashboard <ArrowRight size={20} />
             </button>
             <button 
               onClick={() => navigate('/seller/orders')}
@@ -78,20 +78,20 @@ function SellerHomeView({ navigate }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-24">
           <QuickActionCard 
             icon={<Palette size={32} />} 
-            title="Curate Inventory" 
-            desc="Add new exhibits or update existing stock levels."
+            title="Manage Products" 
+            desc="Add new products or update your inventory levels."
             onClick={() => navigate('/seller/inventory')}
           />
           <QuickActionCard 
             icon={<ShoppingBag size={32} />} 
-            title="Active Requests" 
-            desc="Review and acknowledge pending customer transmissions."
+            title="Pending Orders" 
+            desc="Review and manage your latest customer orders."
             onClick={() => navigate('/seller/orders')}
           />
           <QuickActionCard 
             icon={<Store size={32} />} 
-            title="Public Identity" 
-            desc="View how patrons see your studio exhibits."
+            title="View Store" 
+            desc="See how customers view your shop and products."
             onClick={() => navigate(`/store/${currentUserId}`)} 
           />
         </div>
@@ -113,15 +113,15 @@ function AdminHomeView({ navigate }) {
           <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-accent)] mb-10">
             <User size={14} /> System Administrator
           </div>
-          <h1 className="text-6xl font-['Fraunces'] font-semibold mb-8">Platform Orchestration</h1>
+          <h1 className="text-5xl sm:text-6xl font-['Fraunces'] font-semibold mb-8">Admin Dashboard</h1>
           <p className="text-xl text-white/60 mb-12 leading-relaxed">
-            Manage global sellers, monitor marketplace health, and curate the platform taxonomy.
+            Manage sellers, monitor marketplace activity, and update platform categories.
           </p>
           <button 
             onClick={() => navigate('/admin/dashboard')}
             className="px-12 py-6 bg-[var(--color-accent)] text-white rounded-full font-black text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all"
           >
-            Launch Command Suite
+            Go to Admin Panel
           </button>
         </motion.div>
       </div>
@@ -183,7 +183,7 @@ function GuestHomeView({ navigate }) {
                 <Star size={14} className="text-[var(--color-accent)] fill-[var(--color-accent)]" />
                 Premium Local Marketplace
               </div>
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-['Fraunces'] font-semibold tracking-tight text-[var(--color-primary-dark)] mb-8 leading-[1.05]">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-['Fraunces'] font-semibold tracking-tight text-[var(--color-primary-dark)] mb-8 leading-[1.05]">
                 Where home businesses <i className="text-[var(--color-accent)] font-medium">bloom.</i>
               </h1>
               <p className="text-lg leading-relaxed text-[var(--color-text-muted)] mb-12 max-w-xl font-medium">
@@ -232,10 +232,10 @@ function GuestHomeView({ navigate }) {
         </div>
       </section>
 
-      <section className="py-32 px-6">
+      <section className="py-20 md:py-32 px-6">
         <div className="mx-auto max-w-7xl">
           <h2 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-16">
-            Explore <i className="text-[var(--color-accent)]">Exhibits</i>
+            Shop by <i className="text-[var(--color-accent)]">Category</i>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {categories.map((cat, idx) => {

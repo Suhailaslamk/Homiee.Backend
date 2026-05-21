@@ -33,8 +33,8 @@ export default function BusinessDetails() {
         <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-[28px] flex items-center justify-center mb-6">
           <Info size={32} />
         </div>
-        <h2 className="text-2xl font-black text-stone-800 mb-2">Vault Entry Failed</h2>
-        <p className="text-stone-500 mb-8 max-w-sm">We couldn't retrieve this seller's identity from the blockchain.</p>
+        <h2 className="text-2xl font-black text-stone-800 mb-2">Seller Not Found</h2>
+        <p className="text-stone-500 mb-8 max-w-sm">We couldn't find this seller's profile. It may have been removed or the link is incorrect.</p>
         <button onClick={() => navigate('/discovery')} className="bg-[#b85c38] text-white px-8 py-4 rounded-2xl font-black shadow-lg">Return to Marketplace</button>
       </div>
     );
@@ -69,17 +69,17 @@ export default function BusinessDetails() {
                 {business.businessName?.[0] ?? 'S'}
               </div>
               
-              <h1 className="text-3xl font-black text-stone-900 tracking-tight leading-tight mb-2">{business.businessName}</h1>
-              <p className="text-[#b85c38] font-black uppercase tracking-[0.2em] text-[10px] mb-8">Verified Neighborhood Creator</p>
+              <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight leading-tight mb-2">{business.businessName}</h1>
+              <p className="text-[#b85c38] font-black uppercase tracking-[0.2em] text-[10px] mb-8">Verified Seller</p>
               
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#eef4ef] text-[#3f5143] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#d1e2d4]">
-                <ShieldCheck size={14} /> Identity Verified
+               <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#eef4ef] text-[#3f5143] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#d1e2d4]">
+                <ShieldCheck size={14} /> Verified
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-12 pt-10 border-t border-[#e8c9ba]/50">
                 <div>
                   <div className="text-3xl font-black text-stone-900">{previewProducts.length}</div>
-                  <div className="text-[9px] text-stone-400 uppercase font-black tracking-widest mt-1">Catalog Items</div>
+                   <div className="text-[9px] text-stone-400 uppercase font-black tracking-widest mt-1">Products</div>
                 </div>
                 <div>
                   <div className="text-3xl font-black text-[#3f5143]">Active</div>
@@ -93,12 +93,12 @@ export default function BusinessDetails() {
                 <div className="w-8 h-8 rounded-xl bg-[#fff1eb] flex items-center justify-center text-[#b85c38]">
                   <Phone size={14} />
                 </div>
-                Communication
+                 Contact Information
               </h3>
               <div className="space-y-4">
-                <ContactInfo icon={<Mail size={16} />} label="In-App Messaging" value="Enabled via SignalR" />
-                <ContactInfo icon={<Phone size={16} />} label="Phone Support" value={business.phoneNumber || 'Not listed'} />
-                <ContactInfo icon={<MapPin size={16} />} label="Origin Base" value={business.address || 'Address unavailable'} />
+                 <ContactInfo icon={<Mail size={16} />} label="Chat" value="Available" />
+                <ContactInfo icon={<Phone size={16} />} label="Phone" value={business.phoneNumber || 'Not listed'} />
+                <ContactInfo icon={<MapPin size={16} />} label="Location" value={business.address || 'Address unavailable'} />
               </div>
             </div>
           </div>
@@ -118,15 +118,15 @@ export default function BusinessDetails() {
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InfoFeature 
+                 <InfoFeature 
                   icon={<Calendar size={24} />} 
-                  label="Registry ID" 
+                  label="Seller ID" 
                   value={`#${business.id?.toString().slice(0, 8).toUpperCase()}`} 
                 />
                 <InfoFeature 
                   icon={<Award size={24} />} 
-                  label="Storefront Access" 
-                  value="Open Public Catalog"
+                  label="Shop Access" 
+                  value="View Shop"
                   link={`/store/${business.id}`}
                   linkText="View Products"
                 />
@@ -135,19 +135,19 @@ export default function BusinessDetails() {
 
             {/* Verification Documents Section */}
             <div className="bg-white rounded-[40px] p-10 border border-[#e8c9ba] shadow-xl shadow-stone-200/10">
-              <h2 className="text-xl font-black text-stone-900 mb-8 uppercase tracking-widest text-[12px] opacity-40">Governance & Trust</h2>
+               <h2 className="text-xl font-black text-stone-900 mb-8 uppercase tracking-widest text-[12px] opacity-40">Verification</h2>
               <div className="p-8 border-2 border-[#eef4ef] bg-[#eef4ef]/30 rounded-[30px] flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 bg-white text-[#3f5143] rounded-[22px] flex items-center justify-center shadow-sm border border-[#d1e2d4]">
                     <ShieldCheck size={32} />
                   </div>
-                  <div>
-                    <h4 className="font-black text-stone-900 text-xl tracking-tight">Enterprise Verified</h4>
-                    <p className="text-stone-500 text-sm mt-1 font-medium">This boutique's tax and identity credentials have been audited by Homiee Governance.</p>
+                   <div>
+                    <h4 className="font-black text-stone-900 text-xl tracking-tight">Verified Seller</h4>
+                    <p className="text-stone-500 text-sm mt-1 font-medium">This seller's identity and business documents have been verified by Homiee.</p>
                   </div>
                 </div>
-                <Link to={`/store/${business.id}`} className="w-full sm:w-auto px-8 py-4 bg-[#3f5143] text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-[#2c392f] transition-all active:scale-95">
-                  Visit Boutique <ExternalLink size={18} />
+                 <Link to={`/store/${business.id}`} className="w-full sm:w-auto px-8 py-4 bg-[#3f5143] text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-[#2c392f] transition-all active:scale-95">
+                  Visit Shop <ExternalLink size={18} />
                 </Link>
               </div>
             </div>

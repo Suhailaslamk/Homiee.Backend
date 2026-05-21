@@ -42,9 +42,9 @@ export default function Success() {
           <CheckCircle2 size={64} />
         </motion.div>
         
-        <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6 tracking-tight">Acquisition Genesis</h1>
-        <p className="text-xl text-[var(--color-text-muted)] font-medium mb-12 italic leading-relaxed px-12">
-          "Your chosen artisanal treasures have begun their orchestrated journey from studio to your personal vault."
+        <h1 className="text-4xl sm:text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6 tracking-tight">Order Placed Successfully!</h1>
+        <p className="text-lg sm:text-xl text-[var(--color-text-muted)] font-medium mb-12 italic leading-relaxed px-6 sm:px-12">
+          "Your order has been placed and is being processed. We'll notify you once your items are on their way."
         </p>
 
         <motion.div 
@@ -61,9 +61,9 @@ export default function Success() {
                 <div className="w-8 h-8 rounded-lg bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
                   <ShieldCheck size={16} />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Registry Reference</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Order Number</span>
               </div>
-              <span className="font-bold text-[var(--color-primary-dark)] bg-white px-5 py-2 rounded-xl border border-[var(--color-stone)]/5 shadow-sm">#{Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
+              <span className="font-bold text-sm sm:text-base text-[var(--color-primary-dark)] bg-white px-5 py-2 rounded-xl border border-[var(--color-stone)]/5 shadow-sm">#{Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
             </div>
             
             <div className="flex justify-between items-center">
@@ -71,9 +71,9 @@ export default function Success() {
                 <div className="w-8 h-8 rounded-lg bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
                   <Sparkles size={16} />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Estimated Orchestration</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Estimated Delivery</span>
               </div>
-              <span className="font-bold text-[var(--color-accent)]">3 - 7 Orbital Days</span>
+              <span className="font-bold text-[var(--color-accent)]">3 - 7 Business Days</span>
             </div>
           </div>
         </motion.div>
@@ -83,13 +83,13 @@ export default function Success() {
             to="/orders" 
             className="group w-full bg-[var(--color-primary-dark)] text-white py-6 rounded-[2rem] font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 shadow-2xl shadow-[var(--color-primary-dark)]/20"
           >
-            Observe Journey <Package size={22} className="group-hover:translate-x-1 transition-transform" />
+            Track Order <Package size={22} className="group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link 
             to="/discovery" 
             className="group w-full bg-white border border-[var(--color-stone)]/10 text-[var(--color-primary-dark)] py-6 rounded-[2rem] font-bold text-lg hover:bg-[var(--color-sand)]/20 active:scale-95 transition-all flex items-center justify-center gap-4 shadow-xl"
           >
-            Continue Discovery <Compass size={22} className="group-hover:rotate-45 transition-transform duration-700" />
+            Continue Shopping <Compass size={22} className="group-hover:rotate-45 transition-transform duration-700" />
           </Link>
         </div>
 
@@ -100,7 +100,7 @@ export default function Success() {
           className="mt-16 flex items-center justify-center gap-3 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.3em]"
         >
           <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          Transmission Encrypted & Secured
+          Payment & Order Secured
         </motion.div>
       </motion.div>
     </div>

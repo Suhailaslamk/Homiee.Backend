@@ -10,8 +10,9 @@ export const addToCart = async (payload) => {
   return response.data;
 };
 
-export const removeFromCart = async (productId) => {
-  const response = await api.delete(`/cart/remove/${productId}`);
+export const removeFromCart = async (productId, variantId = null) => {
+  const url = variantId ? `/cart/remove/${productId}?variantId=${variantId}` : `/cart/remove/${productId}`;
+  const response = await api.delete(url);
   return response.data;
 };
 

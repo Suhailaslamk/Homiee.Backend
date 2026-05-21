@@ -90,18 +90,18 @@ export default function AdminDashboard() {
   const isError = kpisError || analyticsError;
 
   const headlineStats = useMemo(() => [
-    { label: 'Ecosystem Patrons', value: kpis.totalUsers, hint: 'All registered curators', icon: Users, trend: '+12.4%', isPositive: true, accent: 'sand' },
-    { label: 'Artisan Studio Network', value: kpis.totalSellers, hint: 'Verified craft businesses', icon: ShieldCheck, trend: '+5.1%', isPositive: true, accent: 'forest' },
-    { label: 'Acquisition Volume', value: kpis.totalOrders, hint: 'Total platform conversions', icon: ShoppingBag, trend: '+8.2%', isPositive: true, accent: 'accent' },
-    { label: 'Exhibition Listings', value: kpis.totalProducts ?? 124, hint: 'Active creative assets', icon: Package, trend: '+15.7%', isPositive: true, accent: 'terracotta' },
+    { label: 'Total Customers', value: kpis.totalUsers, hint: 'All registered users', icon: Users, trend: '+12.4%', isPositive: true, accent: 'sand' },
+    { label: 'Total Sellers', value: kpis.totalSellers, hint: 'Verified businesses', icon: ShieldCheck, trend: '+5.1%', isPositive: true, accent: 'forest' },
+    { label: 'Total Orders', value: kpis.totalOrders, hint: 'Total platform sales', icon: ShoppingBag, trend: '+8.2%', isPositive: true, accent: 'accent' },
+    { label: 'Total Products', value: kpis.totalProducts ?? 124, hint: 'Active listings', icon: Package, trend: '+15.7%', isPositive: true, accent: 'terracotta' },
   ], [kpis]);
 
   if (isLoading) return <DashboardLoading />;
 
   return (
-    <div className="space-y-16 pb-24 px-6 pt-10">
+    <div className="space-y-8 pb-16 px-0 pt-6">
       {/* Global Signal Header */}
-      <section className="relative overflow-hidden rounded-[4rem] bg-white border border-[var(--color-stone)]/5 shadow-2xl p-10 sm:p-16">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-[3rem] bg-white border border-[var(--color-stone)]/5 shadow-2xl p-6 sm:p-10">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-accent)] blur-[150px] rounded-full -mr-64 -mt-64" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[var(--color-primary-dark)] blur-[150px] rounded-full -ml-64 -mb-64" />
@@ -111,30 +111,30 @@ export default function AdminDashboard() {
           <div className="max-w-3xl text-center xl:text-left">
             <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-[var(--color-sand)]/30 border border-[var(--color-stone)]/5 text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-primary-dark)] mb-10">
               <Globe size={14} className="text-[var(--color-accent)] animate-spin-slow" />
-              Global Marketplace Orchestration
+              Marketplace Management
             </div>
             
-            <h1 className="text-6xl sm:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-tight">
-              Marketplace <i className="text-[var(--color-accent)]">Signal.</i>
+            <h1 className="text-3xl sm:text-6xl lg:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-tight">
+              Marketplace <i className="text-[var(--color-accent)]">Stats.</i>
             </h1>
-            <p className="mt-8 text-2xl text-[var(--color-stone)] font-medium italic opacity-70 leading-relaxed max-w-2xl">
-              "Governing the Homiee artisanal ecosystem. Monitoring global resonance, artisan vetting, and acquisition momentum."
+            <p className="mt-4 sm:mt-8 text-lg sm:text-2xl text-[var(--color-stone)] font-medium italic opacity-70 leading-relaxed max-w-2xl px-4 xl:px-0">
+              "Overview of the marketplace. Monitor growth, seller approvals, and sales."
             </p>
           </div>
           
-          <div className="flex flex-col items-center xl:items-end bg-[var(--color-primary-dark)] p-12 rounded-[4rem] shadow-2xl min-w-[360px] relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-            <div className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/40 mb-6 italic">Global Platform Revenue</div>
-            <div className="text-7xl font-['Fraunces'] font-bold text-[var(--color-accent)] tracking-tighter">{formatCurrency(kpis.totalRevenue)}</div>
-            <div className="mt-8 flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 text-emerald-400 rounded-full text-[11px] font-black uppercase tracking-widest border border-emerald-500/20">
-              <TrendingUp size={16} /> +18.9% Ecosystem Growth
+            <div className="flex flex-col items-center bg-[var(--color-primary-dark)] p-6 sm:p-10 rounded-[2rem] shadow-2xl w-full xl:w-auto xl:min-w-[280px] relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+              <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/40 mb-3 italic">Total Revenue</div>
+              <div className="text-3xl sm:text-5xl font-['Fraunces'] font-bold text-[var(--color-accent)] tracking-tighter">{formatCurrency(kpis.totalRevenue)}</div>
+              <div className="mt-4 flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
+                <TrendingUp size={12} /> +18.9% Growth
+              </div>
             </div>
-          </div>
         </div>
       </section>
 
       {/* Orchestration Orbs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {headlineStats.map((stat, idx) => (
           <motion.div
             key={stat.label}
@@ -148,18 +148,18 @@ export default function AdminDashboard() {
       </div>
 
       {/* Intelligence Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Category Distribution */}
-        <SurfaceCard className="bg-white p-12 shadow-2xl rounded-[4rem]">
-          <div className="flex items-center justify-between mb-12">
+        <SurfaceCard className="bg-white p-5 sm:p-10 shadow-2xl rounded-2xl sm:rounded-[3rem]">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Curatorial Focus</h3>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Revenue contribution by artisan category</p>
+              <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Category Sales</h3>
+              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Revenue contribution by category</p>
             </div>
             <Layers size={24} className="text-[var(--color-accent)]" />
           </div>
-          <div className="h-80 w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+          <div className="h-64 w-full min-w-0 overflow-hidden relative">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <PieChart>
                 <Pie
                   data={categorySeries}
@@ -193,16 +193,16 @@ export default function AdminDashboard() {
         </SurfaceCard>
 
         {/* Growth Trajectory */}
-        <SurfaceCard className="bg-white p-12 shadow-2xl rounded-[4rem]">
-          <div className="flex items-center justify-between mb-12">
+        <SurfaceCard className="bg-white p-5 sm:p-10 shadow-2xl rounded-2xl sm:rounded-[3rem]">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Ecosystem Growth</h3>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Daily registration cadence for patrons & artisans</p>
+              <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">User Growth</h3>
+              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Daily registration for customers & sellers</p>
             </div>
             <TrendingUp size={24} className="text-emerald-500" />
           </div>
-          <div className="h-80 w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+          <div className="h-64 w-full min-w-0 overflow-hidden relative">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <BarChart data={userSeries}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.1} />
                 <XAxis dataKey="date" hide />
@@ -218,20 +218,20 @@ export default function AdminDashboard() {
       </div>
 
       {/* Primary Intelligence Row */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1.5fr,0.5fr] gap-16">
-        <SurfaceCard className="bg-white/40 backdrop-blur-3xl border-white p-12 shadow-2xl rounded-[4rem]">
-          <div className="flex items-center justify-between mb-16">
+      <div className="grid grid-cols-1 xl:grid-cols-[1.5fr,0.5fr] gap-6">
+        <SurfaceCard className="bg-white/40 backdrop-blur-3xl border-white p-5 sm:p-10 shadow-2xl rounded-2xl sm:rounded-[3rem]">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Ecosystem Resonance</h2>
-              <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">Platform-wide transaction trajectory across 30 cycles</p>
+              <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Sales Trends</h2>
+              <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">Platform revenue over 30 days</p>
             </div>
             <div className="w-16 h-16 rounded-[2rem] bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)] shadow-inner">
               <Activity size={32} />
             </div>
           </div>
 
-          <div className="h-[450px] w-full min-h-[450px] min-w-0">
-            <ResponsiveContainer width="100%" height="100%" debounce={100} minWidth={0}>
+          <div className="h-64 sm:h-[400px] w-full min-w-0 overflow-hidden relative">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <AreaChart data={revenueSeries}>
                 <defs>
                   <linearGradient id="colorRevenueGlobal" x1="0" y1="0" x2="0" y2="1">
@@ -274,20 +274,20 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mt-16 pt-16 border-t border-[var(--color-stone)]/5">
-            <GovernanceInsight label="Avg Signal Value" value={formatCurrency(kpis.totalRevenue / (kpis.totalOrders || 1))} icon={Zap} />
-            <GovernanceInsight label="Network Status" value="Optimized" icon={ShieldCheck} />
-            <GovernanceInsight label="Active Vetting" value={`${sellers.length} Protocols`} icon={Clock} />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 pt-6 border-t border-[var(--color-stone)]/5">
+            <GovernanceInsight label="Avg Order Value" value={formatCurrency(kpis.totalRevenue / (kpis.totalOrders || 1))} icon={Zap} />
+            <GovernanceInsight label="System Status" value="Healthy" icon={ShieldCheck} />
+            <GovernanceInsight label="Pending Reviews" value={`${sellers.length} Profiles`} icon={Clock} />
           </div>
         </SurfaceCard>
 
         {/* Governance Activity */}
-        <div className="space-y-12">
-          <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[4rem]">
-            <div className="flex items-center justify-between mb-10">
+        <div className="space-y-6">
+          <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-5 sm:p-8 shadow-xl rounded-2xl sm:rounded-[3rem]">
+            <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Artisan Vetting</h3>
-                <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">New studio applications awaiting curation</p>
+                <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Seller Approvals</h3>
+                <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">New seller applications awaiting review</p>
               </div>
               <div className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-accent)]">
                 <Compass size={24} />
@@ -310,7 +310,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <div className="text-lg font-bold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors">{seller.businessName}</div>
-                        <div className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1 italic">Awaiting Protocol</div>
+                        <div className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1 italic">Awaiting Approval</div>
                       </div>
                     </div>
                     <ChevronRight size={20} className="text-[var(--color-stone)]/20 group-hover:text-[var(--color-accent)] group-hover:translate-x-1 transition-all" />
@@ -320,20 +320,20 @@ export default function AdminDashboard() {
             </div>
             
             <Link to="/admin/sellers" className="mt-8 block py-4 text-center text-[11px] font-black uppercase tracking-[0.3em] text-[var(--color-accent)] hover:tracking-[0.4em] transition-all border-t border-[var(--color-stone)]/5">
-              Review Full Registry
+              Review All Sellers
             </Link>
           </SurfaceCard>
 
-          <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-10 rounded-[4rem] shadow-2xl relative overflow-hidden group">
+          <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-5 sm:p-8 rounded-2xl sm:rounded-[3rem] shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--color-accent)]/10 blur-[80px] rounded-full -mr-24 -mt-24 group-hover:bg-[var(--color-accent)]/20 transition-all duration-700" />
             
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-10">
                 <h3 className="text-xl font-bold flex items-center gap-3 text-[var(--color-accent)]">
                   <History size={24} />
-                  Acquisition Log
+                  Recent Orders
                 </h3>
-                <Link to="/admin/orders" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">Global Audit</Link>
+                <Link to="/admin/orders" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">View All Orders</Link>
               </div>
               
               <div className="space-y-5">
@@ -373,23 +373,23 @@ function OrbCard({ label, value, hint, icon: Icon, trend, isPositive, accent }) 
   };
 
   return (
-    <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl transition-all hover:-translate-y-2 p-10 rounded-[3.5rem] group relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[var(--color-sand)]/20 to-transparent rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700" />
+    <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl transition-all hover:-translate-y-1 p-4 sm:p-8 rounded-2xl sm:rounded-[3rem] group relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[var(--color-sand)]/20 to-transparent rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700" />
       
-      <div className="flex items-center justify-between mb-10 relative z-10">
-        <div className={`w-16 h-16 rounded-[1.8rem] flex items-center justify-center border shadow-inner transition-transform group-hover:scale-110 ${themes[accent]}`}>
-          <Icon size={28} />
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center border shadow-inner transition-transform group-hover:scale-110 ${themes[accent]}`}>
+          <Icon size={18} className="sm:w-5 sm:h-5" />
         </div>
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest ${isPositive ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
-          {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isPositive ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
+          {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
           {trend}
         </div>
       </div>
       
       <div className="relative z-10">
-        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] italic">{label}</p>
-        <p className="mt-3 text-5xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] tracking-tighter">{value}</p>
-        <p className="mt-4 text-[10px] font-medium text-[var(--color-text-muted)] italic opacity-70 leading-relaxed">{hint}</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] italic">{label}</p>
+        <p className="mt-1 text-2xl sm:text-4xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] tracking-tighter">{value}</p>
+        <p className="mt-2 text-[9px] font-medium text-[var(--color-text-muted)] italic opacity-70 leading-relaxed">{hint}</p>
       </div>
     </SurfaceCard>
   );

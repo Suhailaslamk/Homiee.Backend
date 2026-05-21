@@ -87,28 +87,28 @@ export default function SellerEarnings() {
 
   const summaryCards = [
     {
-      label: 'Studio Revenue',
+      label: 'Total Revenue',
       value: formatCurrency(earnings.totalEarned),
-      hint: 'Life-time gross acquisitions',
+      hint: 'Total platform sales',
       icon: Wallet,
       accent: 'terracotta',
     },
     {
-      label: 'Awaiting Settlement',
+      label: 'Pending Payout',
       value: formatCurrency(earnings.pendingAmount),
-      hint: 'Verifying with platform',
+      hint: 'Processing',
       icon: Clock,
       accent: 'amber',
     },
     {
-      label: 'Settled Credit',
+      label: 'Available to Withdraw',
       value: formatCurrency(earnings.availableAmount),
       hint: 'Ready for withdrawal',
       icon: HandCoins,
       accent: 'forest',
     },
     {
-      label: 'Liquidated Funds',
+      label: 'Paid Out',
       value: formatCurrency(earnings.paidOutAmount),
       hint: 'Transferred to account',
       icon: CreditCard,
@@ -125,8 +125,8 @@ export default function SellerEarnings() {
           className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync financial treasury.</p>
-              <button onClick={() => refetchEarnings()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load earnings.</p>
+              <button onClick={() => refetchEarnings()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
@@ -136,8 +136,8 @@ export default function SellerEarnings() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-12"
         >
-          {/* Treasury Hero */}
-          <section className="relative overflow-hidden rounded-[4rem] bg-[var(--color-primary-dark)] p-12 text-white shadow-2xl">
+          {/* Earnings Header */}
+          <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[4rem] bg-[var(--color-primary-dark)] p-8 sm:p-12 text-white shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
             <div className="relative flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="flex items-center gap-8">
@@ -145,15 +145,15 @@ export default function SellerEarnings() {
                   <BadgeIndianRupee size={40} className="text-[var(--color-accent)]" />
                 </div>
                 <div>
-                  <h1 className="text-5xl font-['Fraunces'] font-semibold leading-tight">Studio Treasury</h1>
-                  <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">Managing your artisanal financial legacy</p>
+                  <h1 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold leading-tight">Earnings</h1>
+                  <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">Track and manage your platform earnings.</p>
                 </div>
               </div>
               
-              <div className="flex flex-col items-center lg:items-end bg-white/5 backdrop-blur-md p-8 rounded-[3rem] border border-white/10">
+              <div className="flex flex-col items-center lg:items-end bg-white/5 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-white/10">
                 <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Available Balance</div>
                 <div className="text-5xl font-['Fraunces'] font-bold text-[var(--color-accent)]">{formatCurrency(earnings.availableAmount ?? 0)}</div>
-                <button className="mt-4 px-6 py-2 bg-[var(--color-accent)] text-white rounded-full text-xs font-bold shadow-lg shadow-[var(--color-accent)]/20 hover:scale-105 transition-transform">Withdraw Funds</button>
+                <button className="mt-4 px-6 py-2 bg-[var(--color-accent)] text-white rounded-full text-xs font-bold shadow-lg shadow-[var(--color-accent)]/20 hover:scale-105 transition-transform">Withdraw</button>
               </div>
             </div>
           </section>
@@ -177,8 +177,8 @@ export default function SellerEarnings() {
             <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[4rem]">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12">
                 <div>
-                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Wealth Trajectory</h2>
-                  <p className="text-[var(--color-text-muted)] font-medium mt-2">Analyzing revenue momentum across cycles.</p>
+                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Earnings Trend</h2>
+                  <p className="text-[var(--color-text-muted)] font-medium mt-2">Track your sales performance over time.</p>
                 </div>
                 <div className="flex items-center gap-1.5 p-1.5 bg-[var(--color-sand)]/20 rounded-2xl border border-[var(--color-stone)]/5">
                   <button
@@ -196,11 +196,11 @@ export default function SellerEarnings() {
                 </div>
               </div>
 
-              <div className="h-96 w-full min-w-0" style={{ minHeight: '400px' }}>
+              <div className="h-56 sm:h-80 w-full min-w-0 overflow-hidden relative">
                 {visibleRevenueSeries.length === 0 ? (
                   <EmptyBlock icon={TrendingUp} title="Chart initializing..." description="Your wealth trajectory will populate as acquisitions occur." />
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%" aspect={2.5} minWidth={0}>
+                  <ResponsiveContainer width="100%" height="100%" debounce={50}>
                     <AreaChart data={visibleRevenueSeries}>
                       <defs>
                         <linearGradient id="colorTreasury" x1="0" y1="0" x2="0" y2="1">
@@ -221,7 +221,7 @@ export default function SellerEarnings() {
                           padding: '20px'
                         }}
                         itemStyle={{ color: 'var(--color-primary-dark)', fontWeight: 'bold' }}
-                        formatter={(value) => [formatCurrency(value), 'Cycle Revenue']}
+                        formatter={(value) => [formatCurrency(value), 'Revenue']}
                       />
                       <Area 
                         type="monotone" 
@@ -238,21 +238,21 @@ export default function SellerEarnings() {
             </SurfaceCard>
 
             <div className="space-y-12">
-              {/* Security Insight */}
-              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+              {/* Security Policy */}
+              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--color-accent)]/10 blur-[80px] rounded-full -mr-24 -mt-24 group-hover:bg-[var(--color-accent)]/20 transition-all duration-700" />
                 <div className="relative z-10">
                   <h3 className="text-xl font-bold mb-8 flex items-center gap-3">
                     <Lock size={24} className="text-[var(--color-accent)]" />
-                    Security Pool
+                    Payout Policy
                   </h3>
                   <div className="space-y-6">
                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Pending Verification</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Pending Payout</p>
                       <p className="text-3xl font-['Fraunces'] font-bold text-[var(--color-accent)]">{formatCurrency(earnings.pendingAmount ?? 0)}</p>
                     </div>
                     <p className="text-xs text-white/40 leading-relaxed italic">
-                      "Funds are typically held for 3-5 days after fulfillment to ensure collector satisfaction."
+                      "Funds are held for a few days to ensure customer satisfaction."
                     </p>
                   </div>
                 </div>
@@ -268,7 +268,7 @@ export default function SellerEarnings() {
                   >
                     <div className="flex items-center gap-4">
                       <History size={18} className="group-hover:rotate-[-45deg] transition-transform" />
-                      <span>Order Ledger</span>
+                      <span>Order History</span>
                     </div>
                     <ChevronRight size={16} />
                   </Link>
@@ -281,17 +281,17 @@ export default function SellerEarnings() {
           <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[4rem]">
             <div className="flex items-center justify-between mb-12">
               <div>
-                <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Audit Trail</h2>
-                <p className="text-[var(--color-text-muted)] font-medium mt-2">Comprehensive log of per-order payout credits.</p>
+                <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Transaction History</h2>
+                <p className="text-[var(--color-text-muted)] font-medium mt-2">View all your order payouts.</p>
               </div>
               <div className="px-6 py-3 rounded-full bg-[var(--color-sand)]/20 text-[10px] font-bold text-[var(--color-primary-dark)] uppercase tracking-widest">
-                {earnings.totalCount || 0} Entries Registry
+                {earnings.totalCount || 0} Transactions
               </div>
             </div>
 
             <div className="space-y-6">
               {earningsItems.length === 0 ? (
-                <EmptyBlock icon={BadgeIndianRupee} title="Registry empty" description="Transaction history will populate as acquisitions are finalized." />
+                <EmptyBlock icon={BadgeIndianRupee} title="No history found" description="Your payout history will appear here." />
               ) : (
                 earningsItems.map((entry, idx) => (
                   <motion.div
@@ -299,7 +299,7 @@ export default function SellerEarnings() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="flex flex-col lg:flex-row lg:items-center justify-between p-8 rounded-[2.5rem] bg-[var(--color-sand)]/10 border border-transparent hover:border-[var(--color-accent)]/20 hover:bg-white hover:shadow-xl transition-all group"
+                    className="flex flex-col lg:flex-row lg:items-center justify-between p-6 lg:p-8 rounded-[2.5rem] bg-[var(--color-sand)]/10 border border-transparent hover:border-[var(--color-accent)]/20 hover:bg-white hover:shadow-xl transition-all group"
                   >
                     <div className="flex items-center gap-6">
                       <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-[var(--color-primary-dark)] shadow-sm group-hover:scale-110 transition-transform">
@@ -307,25 +307,25 @@ export default function SellerEarnings() {
                       </div>
                       <div>
                         <div className="flex items-center gap-3">
-                          <p className="text-xl font-bold text-[var(--color-primary-dark)]">Acquisition #{String(entry.orderId).slice(-8)}</p>
+                          <p className="text-xl font-bold text-[var(--color-primary-dark)]">Order #{String(entry.orderId).slice(-8)}</p>
                           <StatusPill value={entry.status} />
                         </div>
                         <div className="mt-2 flex items-center gap-4 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest">
                           <span>Credited {formatDate(entry.createdAt)}</span>
                           <span className="w-1 h-1 rounded-full bg-[var(--color-stone)]/30" />
-                          <span>Dossier: {String(entry.earningId).slice(-8)}</span>
+                          <span>Earning ID: {String(entry.earningId).slice(-8)}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-10 mt-6 lg:mt-0 lg:text-right">
+                    <div className="flex items-center gap-6 sm:gap-10 mt-6 lg:mt-0 lg:text-right">
                       <div className="hidden sm:block">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">State Arrival</p>
-                        <p className="text-sm font-bold text-[var(--color-primary-dark)]">{entry.paidAt ? `Finalized ${formatDate(entry.paidAt)}` : `Available ${formatDate(entry.availableAt)}`}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Status Details</p>
+                        <p className="text-sm font-bold text-[var(--color-primary-dark)]">{entry.paidAt ? `Paid on ${formatDate(entry.paidAt)}` : `Available on ${formatDate(entry.availableAt)}`}</p>
                       </div>
-                      <div className="min-w-[140px]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Net Credit</p>
-                        <p className="text-3xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors">{formatCurrency(entry.amount)}</p>
+                      <div className="min-w-[100px] sm:min-w-[140px]">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Amount</p>
+                        <p className="text-2xl sm:text-3xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors">{formatCurrency(entry.amount)}</p>
                       </div>
                       <ArrowRightCircle size={20} className="text-[var(--color-stone)]/20 group-hover:text-[var(--color-accent)] transition-colors" />
                     </div>

@@ -3,29 +3,19 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight,
-  Compass,
-  LayoutGrid,
   MapPin,
   RefreshCw,
   Search,
-  SlidersHorizontal,
   Star,
   Store,
   X,
-  ChevronDown,
-  Filter,
   Sparkles,
-  Zap,
-  ArrowUpRight,
-  Info,
-  Clock,
-  CheckCircle2,
-  Layers,
   ShoppingBag,
   ChevronLeft,
   ChevronRight,
   Heart,
-  HeartOff
+  ChevronDown,
+  Filter
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCategories, getProducts, getStores } from '../api/marketplace';
@@ -33,18 +23,28 @@ import { addToCart } from '../api/customer';
 import * as WishlistAPI from '../api/wishlist';
 const { addToWishlist, removeFromWishlist, getWishlist } = WishlistAPI;
 import SafeImage from '../components/SafeImage';
-import SurfaceCard from '../components/SurfaceCard';
 import StatePanel from '../components/StatePanel';
 import { getResponseData, getPagedItems, getPagedMeta } from '../utils/api';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/format';
-import { isAuthenticated, isCustomerRole, getCurrentRole } from '../utils/auth';
+import { isAuthenticated } from '../utils/auth';
+import CartDrawer from '../components/CartDrawer';
+
+const PRICE_RANGES = [
+  { label: 'Under ₹500', min: 0, max: 500 },
+  { label: '₹500 — ₹2,000', min: 500, max: 2000 },
+  { label: '₹2,000 — ₹5,000', min: 2000, max: 5000 },
+  { label: '₹5,000+', min: 5000, max: 100000 },
+];
 
 export default function Discovery() {
   const [viewType, setViewType] = useState('products');
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   const [productFilters, setProductFilters] = useState({
     page: 1,
     pageSize: 12,
@@ -57,6 +57,7 @@ export default function Discovery() {
     inStockOnly: false,
     minRating: '',
   });
+
   const [storeFilters, setStoreFilters] = useState({
     page: 1,
     pageSize: 9,
@@ -68,10 +69,10 @@ export default function Discovery() {
     lng: null,
     radiusKm: 10,
   });
+
   const [debouncedProductSearch, setDebouncedProductSearch] = useState('');
   const [debouncedStoreSearch, setDebouncedStoreSearch] = useState('');
   const [isLocating, setIsLocating] = useState(false);
-  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -120,6 +121,7 @@ export default function Discovery() {
       }
     }
   }, [location.search, categories.length]);
+
   const categoryMap = useMemo(
     () => Object.fromEntries(categories.map((category) => [category.id, category.name])),
     [categories]
@@ -156,14 +158,14 @@ export default function Discovery() {
     [debouncedStoreSearch, storeFilters]
   );
 
-  const { data: productsData, isLoading: productsLoading, isFetching: productsFetching, error: productsError, refetch: refetchProducts } = useQuery({
+  const { data: productsData, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useQuery({
     queryKey: ['marketplace-products', productQuery],
     queryFn: () => getProducts(productQuery),
     enabled: viewType === 'products',
     placeholderData: keepPreviousData,
   });
 
-  const { data: storesData, isLoading: storesLoading, isFetching: storesFetching, error: storesError, refetch: refetchStores } = useQuery({
+  const { data: storesData, isLoading: storesLoading, error: storesError, refetch: refetchStores } = useQuery({
     queryKey: ['marketplace-stores', storeQuery],
     queryFn: () => getStores(storeQuery),
     enabled: viewType === 'stores',
@@ -193,7 +195,7 @@ export default function Discovery() {
           lng: Number(position.coords.longitude.toFixed(6)),
         }));
         setIsLocating(false);
-        toast.success('Location added. Stores refined by proximity.');
+        toast.success('Location updated. Showing nearby shops.');
       },
       (error) => {
         setIsLocating(false);
@@ -205,155 +207,250 @@ export default function Discovery() {
 
   const clearLocation = () => {
     setStoreFilters((current) => ({ ...current, page: 1, lat: null, lng: null }));
-    toast.info('Location parameters cleared.');
+    toast.info('Location filters cleared.');
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-sand)]/10 pb-24 pt-32 px-6">
-      <div className="mx-auto max-w-7xl">
-        {/* Gallery Hero */}
-        <header className="mb-20">
-          <div className="max-w-4xl">
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-[var(--color-stone)]/5 shadow-sm text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-primary)] mb-8"
-            >
-              <Compass size={14} className="text-[var(--color-accent)]" />
-              Artisan Curation Engine Active
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-6xl sm:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-[1.05]"
-            >
-              Discover the <i className="text-[var(--color-accent)]">Soul</i> of independent craft.
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mt-8 text-xl text-[var(--color-text-muted)] font-medium max-w-2xl italic leading-relaxed"
-            >
-              "A hand-vetted collection of artisanal treasures and independent studios, curated for the modern collector."
-            </motion.p>
+    <div className="min-h-screen bg-[var(--color-background)] pb-24 pt-32 px-6 paper-texture">
+      <div className="mx-auto max-w-[1400px]">
+        {/* Breadcrumbs */}
+        <div className="mb-8 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--color-stone)]/60">
+          <Link to="/" className="hover:text-[var(--color-primary)] transition-colors">Home</Link>
+          <span>/</span>
+          <span className="text-[var(--color-primary-dark)]">Marketplace</span>
+        </div>
+
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16 pb-12 border-b border-[var(--color-stone)]/10">
+          <div className="max-w-2xl">
+            <h1 className="text-5xl sm:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">
+              Curated <i className="font-light italic text-[var(--color-accent)]">Provisions</i>
+            </h1>
+            <p className="mt-6 text-lg text-[var(--color-text-muted)] font-medium leading-relaxed italic">
+              "Artisanal delicacies and unique creations sourced from local independent sellers, 
+              prepared with patience and reverence for heritage flavors."
+            </p>
           </div>
 
-          <div className="mt-16 flex flex-col xl:flex-row items-center justify-between gap-10">
-            {/* View Orchestrator */}
-            <div className="relative flex p-2 bg-white/50 backdrop-blur-xl rounded-[2rem] border border-white shadow-xl w-full xl:w-auto">
-              <div className="absolute inset-2 flex pointer-events-none">
-                <motion.div 
-                  className="bg-[var(--color-primary-dark)] shadow-2xl rounded-[1.5rem] h-full"
-                  initial={false}
-                  animate={{ x: viewType === 'products' ? '0%' : '100%', width: '50%' }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                />
-              </div>
-              
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+             {/* View Switcher */}
+             <div className="flex bg-[var(--color-sand)]/20 p-1">
               <button
                 onClick={() => setViewType('products')}
-                className={`relative z-10 flex-1 xl:flex-none flex items-center justify-center gap-4 px-10 py-5 text-sm font-bold transition-all ${
-                  viewType === 'products' ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-primary)]'
+                className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                  viewType === 'products' ? 'bg-white text-[var(--color-primary-dark)] shadow-sm' : 'text-[var(--color-stone)]/50 hover:text-[var(--color-primary)]'
                 }`}
               >
-                <Layers size={18} /> Products
+                Products
               </button>
               <button
                 onClick={() => setViewType('stores')}
-                className={`relative z-10 flex-1 xl:flex-none flex items-center justify-center gap-4 px-10 py-5 text-sm font-bold transition-all ${
-                  viewType === 'stores' ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-primary)]'
+                className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                  viewType === 'stores' ? 'bg-white text-[var(--color-primary-dark)] shadow-sm' : 'text-[var(--color-stone)]/50 hover:text-[var(--color-primary)]'
                 }`}
               >
-                <Store size={18} /> Studios
+                Stores
               </button>
             </div>
 
-            {/* Global Search */}
-            <div className="relative w-full max-w-2xl group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-stone)]/40 group-focus-within:text-[var(--color-accent)] transition-colors" size={24} />
+            {/* Sort Dropdown */}
+            <div className="relative group w-full sm:w-64">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-stone)]/40 pointer-events-none">
+                <span className="text-[10px] font-black uppercase tracking-widest">Sort:</span>
+              </div>
+              <select
+                value={viewType === 'products' ? productFilters.sortBy : storeFilters.sortBy}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (viewType === 'products') setProductFilters(prev => ({ ...prev, page: 1, sortBy: val }));
+                  else setStoreFilters(prev => ({ ...prev, page: 1, sortBy: val }));
+                }}
+                className="w-full pl-16 pr-4 py-3.5 bg-white border border-[var(--color-stone)]/10 text-xs font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/30 transition-all cursor-pointer appearance-none shadow-sm"
+              >
+                {viewType === 'products' ? (
+                  <>
+                    <option value="newest">Newest First</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="rating">Top Rated</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="rating">Top Rated</option>
+                    <option value="newest">Newest First</option>
+                  </>
+                )}
+              </select>
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-stone)]/40 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 sm:gap-16 items-start">
+          
+          {/* Mobile Filter Toggle */}
+          <button 
+            onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+            className="lg:hidden flex items-center justify-center gap-3 w-full py-4 bg-[var(--color-primary-dark)] text-white font-bold text-sm shadow-xl"
+          >
+            <Filter size={18} /> {showMobileSidebar ? 'Hide Filters' : 'Show Filters'}
+          </button>
+
+          {/* Sidebar */}
+          <aside className={`${showMobileSidebar ? 'block' : 'hidden'} lg:block space-y-12`}>
+            {/* Search */}
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-stone)]/30 group-focus-within:text-[var(--color-accent)] transition-colors" size={18} />
               <input
                 type="text"
-                placeholder={viewType === 'products' ? "Search for an artisanal piece..." : "Identify a studio..."}
+                placeholder={viewType === 'products' ? "Search products..." : "Search stores..."}
                 value={viewType === 'products' ? productFilters.search : storeFilters.search}
                 onChange={(e) => {
                   const val = e.target.value;
                   if (viewType === 'products') setProductFilters(prev => ({ ...prev, search: val, page: 1 }));
                   else setStoreFilters(prev => ({ ...prev, search: val, page: 1 }));
                 }}
-                className="w-full pl-16 pr-8 py-6 bg-white border border-[var(--color-stone)]/5 rounded-[2.5rem] shadow-2xl focus:ring-8 focus:ring-[var(--color-accent)]/5 focus:border-[var(--color-accent)]/20 outline-none transition-all font-medium text-lg text-[var(--color-primary-dark)] placeholder:text-[var(--color-stone)]/30"
+                className="w-full pl-12 pr-4 py-4 bg-white border border-[var(--color-stone)]/10 outline-none focus:border-[var(--color-accent)]/30 transition-all font-bold text-sm text-[var(--color-primary-dark)] placeholder:text-[var(--color-stone)]/30 shadow-inner"
               />
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600">Realtime</span>
-              </div>
             </div>
-          </div>
-        </header>
 
-        {/* Gallery Content */}
-        <div className="space-y-20">
-          {viewType === 'products' ? (
-            <div className="grid gap-12 lg:grid-cols-[1fr]">
-              {/* Product Controls */}
-              <div className="space-y-12">
-                <ProductFilters filters={productFilters} setFilters={setProductFilters} categories={categories} />
+            {/* Categories */}
+            <section className="space-y-6">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-[var(--color-primary-dark)] pb-4 border-b border-[var(--color-stone)]/10">Categories</h3>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    if (viewType === 'products') setProductFilters(prev => ({ ...prev, categoryId: '', page: 1 }));
+                    else setStoreFilters(prev => ({ ...prev, categoryId: '', page: 1 }));
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold transition-all ${
+                    !(viewType === 'products' ? productFilters.categoryId : storeFilters.categoryId) 
+                      ? 'bg-[var(--color-primary-dark)] text-white shadow-lg' 
+                      : 'text-[var(--color-text-muted)] hover:bg-[var(--color-sand)]/20'
+                  }`}
+                >
+                  <span>All Provisions</span>
+                  <span className="text-[10px] opacity-40">{productsMeta.totalCount || 0}</span>
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      if (viewType === 'products') setProductFilters(prev => ({ ...prev, categoryId: cat.id, page: 1 }));
+                      else setStoreFilters(prev => ({ ...prev, categoryId: cat.id, page: 1 }));
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold transition-all ${
+                      (viewType === 'products' ? productFilters.categoryId : storeFilters.categoryId) === cat.id
+                        ? 'bg-[var(--color-primary-dark)] text-white shadow-lg' 
+                        : 'text-[var(--color-text-muted)] hover:bg-[var(--color-sand)]/20'
+                    }`}
+                  >
+                    <span>{cat.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
 
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-8 border-t border-[var(--color-stone)]/5">
-                  <div>
-                    <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">
-                      {productsMeta?.totalCount ?? 0} <i className="text-[var(--color-accent)]">Exhibits</i>
-                    </h2>
-                    <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">Refined collection by your chosen parameters</p>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest">Orchestration</span>
-                    <select
-                      value={productFilters.sortBy}
-                      onChange={(e) => setProductFilters(prev => ({ ...prev, page: 1, sortBy: e.target.value }))}
-                      className="bg-white border border-[var(--color-stone)]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/20 transition-all cursor-pointer shadow-sm"
-                    >
-                      <option value="newest">Genesis Order (Newest)</option>
-                      <option value="price_asc">Valuation: Minimum</option>
-                      <option value="price_desc">Valuation: Maximum</option>
-                      <option value="rating">Collector Choice (Rating)</option>
-                    </select>
-                  </div>
+            {/* Price Range */}
+            {viewType === 'products' && (
+              <section className="space-y-6">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-[var(--color-primary-dark)] pb-4 border-b border-[var(--color-stone)]/10">Price Range</h3>
+                <div className="space-y-4 px-2">
+                  {PRICE_RANGES.map((range) => {
+                    const isSelected = productFilters.minPrice === String(range.min) && productFilters.maxPrice === String(range.max);
+                    return (
+                      <label key={range.label} className="flex items-center gap-3 cursor-pointer group">
+                        <div 
+                          onClick={() => setProductFilters(prev => ({
+                            ...prev, 
+                            page: 1, 
+                            minPrice: isSelected ? '' : String(range.min),
+                            maxPrice: isSelected ? '' : String(range.max)
+                          }))}
+                          className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${isSelected ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : 'border-[var(--color-stone)]/20 group-hover:border-[var(--color-primary)]/40'}`}
+                        >
+                          {isSelected && <div className="w-2 h-2 bg-white rounded-sm" />}
+                        </div>
+                        <span className={`text-sm font-bold transition-colors ${isSelected ? 'text-[var(--color-primary-dark)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-primary-dark)]'}`}>
+                          {range.label}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
+              </section>
+            )}
 
+             {/* In Stock Toggle */}
+             {viewType === 'products' && (
+               <section className="space-y-6">
+                 <div className="flex items-center justify-between pt-6 border-t border-[var(--color-stone)]/10">
+                   <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[var(--color-primary-dark)]">Show In-Stock Only</span>
+                   <button
+                    onClick={() => setProductFilters(prev => ({ ...prev, inStockOnly: !prev.inStockOnly, page: 1 }))}
+                    className={`relative w-12 h-6 transition-colors ${productFilters.inStockOnly ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-stone)]/20'}`}
+                   >
+                    <motion.div 
+                      animate={{ x: productFilters.inStockOnly ? 28 : 4 }} 
+                      className="absolute top-1 left-0 w-4 h-4 bg-white shadow-md" 
+                    />
+                   </button>
+                 </div>
+               </section>
+             )}
+
+             {/* Global Reset */}
+             <button
+              onClick={() => {
+                setProductFilters({
+                  page: 1, pageSize: 12, search: '', categoryId: '', minPrice: '', maxPrice: '',
+                  sortBy: 'newest', desc: true, inStockOnly: false, minRating: ''
+                });
+                setStoreFilters({
+                  page: 1, pageSize: 9, search: '', categoryId: '', minRating: '',
+                  sortBy: 'rating', lat: null, lng: null, radiusKm: 10
+                });
+              }}
+              className="w-full py-4 border border-[var(--color-stone)]/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-[var(--color-stone)] hover:text-rose-500 hover:border-rose-100 hover:bg-rose-50/30 transition-all flex items-center justify-center gap-2"
+             >
+               <RefreshCw size={14} /> Reset All Refinements
+             </button>
+          </aside>
+
+          <main className="min-w-0 space-y-12 sm:space-y-16">
+            {viewType === 'products' ? (
+              <>
                 {productsLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="aspect-[3/4] bg-[var(--color-sand)]/20 rounded-[3rem] animate-pulse" />)}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <div key={i} className="aspect-square bg-[var(--color-sand)]/20 rounded-[1.5rem] animate-pulse" />)}
                   </div>
                 ) : productsError ? (
                   <StatePanel 
-                    className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
+                    className="bg-white border border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
                     message={(
                       <div className="text-center">
-                        <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Transmission Error in Gallery Sync</p>
-                        <button onClick={refetchProducts} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+                        <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6">Failed to load curated collection.</p>
+                        <button onClick={() => refetchProducts()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold shadow-lg hover:scale-[1.02] transition-all">Retry Discovering</button>
                       </div>
                     )}
                   />
                 ) : products.length === 0 ? (
-                  <div className="py-24 text-center bg-white border border-[var(--color-stone)]/5 rounded-[4rem] shadow-xl">
-                    <Sparkles size={64} className="mx-auto text-[var(--color-stone)]/20 mb-8" />
-                    <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Gallery Quiescent</h3>
-                    <p className="mt-4 text-[var(--color-text-muted)] italic max-w-sm mx-auto leading-relaxed">"No exhibits were found matching your current refinement parameters. Broaden your search."</p>
+                  <div className="py-24 text-center bg-white border border-[var(--color-stone)]/5 rounded-[4rem] shadow-sm">
+                    <Sparkles size={48} className="mx-auto text-[var(--color-stone)]/20 mb-8" />
+                    <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No matching provisions</h3>
+                    <p className="mt-4 text-[var(--color-text-muted)] italic max-w-sm mx-auto leading-relaxed">"Perhaps adjust your refinements to discover other heritage flavors."</p>
                   </div>
                 ) : (
                   <div className="space-y-16">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 sm:gap-x-10 sm:gap-y-14">
                       {products.map((product, idx) => (
                         <motion.div
                           key={product.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.05 }}
+                          initial={{ opacity: 0, y: 15 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: (idx % 5) * 0.05 }}
                         >
                           <ProductExhibit 
                             product={product} 
@@ -372,244 +469,96 @@ export default function Discovery() {
                     />
                   </div>
                 )}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-12">
-              <StoreFilters
-                filters={storeFilters}
-                setFilters={setStoreFilters}
-                categories={categories}
-                onUseLocation={handleUseLocation}
-                onClearLocation={clearLocation}
-                isLocating={isLocating}
-              />
-
-              {storesLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                  {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-96 bg-[var(--color-sand)]/20 rounded-[3rem] animate-pulse" />)}
-                </div>
-              ) : stores.length === 0 ? (
-                <div className="py-24 text-center bg-white border border-[var(--color-stone)]/5 rounded-[4rem] shadow-xl">
-                  <Store size={64} className="mx-auto text-[var(--color-stone)]/20 mb-8" />
-                  <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Studios Unidentified</h3>
-                  <p className="mt-4 text-[var(--color-text-muted)] italic max-w-sm mx-auto leading-relaxed">"No artisan studios matched your current registry filters."</p>
-                </div>
-              ) : (
-                <div className="space-y-16">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {stores.map((store, idx) => (
-                      <motion.div
-                        key={store.sellerId}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.05 }}
-                      >
-                        <StorePortfolio 
-                          store={store} 
-                          onClick={() => navigate(`/store/${store.sellerId}`)} 
-                        />
-                      </motion.div>
-                    ))}
+              </>
+            ) : (
+              /* Stores View */
+              <div className="space-y-12 sm:space-y-16">
+                <section className="bg-[var(--color-sand)]/10 border border-[var(--color-stone)]/10 p-8 rounded-[3rem] flex flex-col sm:flex-row items-center justify-between gap-8">
+                  <div className="flex items-center gap-6">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-md ${storeFilters.lat ? 'bg-[var(--color-primary-dark)] text-white' : 'bg-white text-[var(--color-stone)]'}`}>
+                      <MapPin size={24} />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-[var(--color-primary-dark)]">Nearby Artisans</h4>
+                      <p className="text-xs text-[var(--color-text-muted)] font-medium">Discover independent sellers in your heritage circle.</p>
+                    </div>
                   </div>
+                  <div className="flex items-center gap-4 bg-white/50 p-2 rounded-2xl border border-white/40">
+                    {storeFilters.lat && (
+                      <div className="px-4 text-xs font-black uppercase tracking-widest text-[var(--color-primary)]">
+                        {storeFilters.radiusKm} km
+                      </div>
+                    )}
+                    <button
+                      onClick={storeFilters.lat ? clearLocation : handleUseLocation}
+                      disabled={isLocating}
+                      className={`px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-sm transition-all ${
+                        storeFilters.lat ? 'bg-rose-50 text-rose-600' : 'bg-[var(--color-primary-dark)] text-white hover:brightness-110'
+                      }`}
+                    >
+                      {isLocating ? 'Locating...' : storeFilters.lat ? 'Clear Radius' : 'Enable Location'}
+                    </button>
+                  </div>
+                </section>
 
-                  <Pagination
-                    currentPage={storesMeta.page}
-                    totalPages={storesMeta.totalPages}
-                    pages={storePages}
-                    onPageChange={(page) => setStoreFilters((current) => ({ ...current, page }))}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+                {storesLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+                    {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-80 bg-[var(--color-sand)]/20 rounded-[2.5rem] animate-pulse" />)}
+                  </div>
+                ) : stores.length === 0 ? (
+                  <div className="py-24 text-center bg-white border border-[var(--color-stone)]/5 rounded-[4rem] shadow-sm">
+                    <Store size={48} className="mx-auto text-[var(--color-stone)]/20 mb-8" />
+                    <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No artisans found</h3>
+                    <p className="mt-4 text-[var(--color-text-muted)] italic max-w-sm mx-auto leading-relaxed">Try expanding your search radius or category.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+                      {stores.map((store, idx) => (
+                        <motion.div
+                          key={store.sellerId}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: (idx % 3) * 0.1 }}
+                        >
+                          <StorePortfolio 
+                            store={store} 
+                            onClick={() => navigate(`/store/${store.sellerId}`)} 
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
 
-function ProductFilters({ filters, setFilters, categories }) {
-  return (
-    <div className="bg-white/40 backdrop-blur-md border border-white p-10 rounded-[4rem] shadow-2xl space-y-12">
-      {/* Category Ribbon */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-primary-dark)]">Registry Categories</h3>
-          {filters.categoryId && (
-            <button 
-              onClick={() => setFilters(prev => ({ ...prev, categoryId: '', page: 1 }))}
-              className="text-[10px] font-black text-[var(--color-accent)] uppercase tracking-widest hover:scale-105 transition-transform"
-            >
-              Reset
-            </button>
-          )}
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-          <button
-            onClick={() => setFilters(prev => ({ ...prev, categoryId: '', page: 1 }))}
-            className={`whitespace-nowrap px-8 py-3 rounded-full text-xs font-bold transition-all border-2 ${
-              !filters.categoryId 
-                ? 'bg-[var(--color-primary-dark)] text-white border-transparent shadow-xl' 
-                : 'bg-white text-[var(--color-text-muted)] border-[var(--color-stone)]/5 hover:border-[var(--color-primary-dark)]/20'
-            }`}
-          >
-            All Exhibits
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setFilters(prev => ({ ...prev, categoryId: cat.id, page: 1 }))}
-              className={`whitespace-nowrap px-8 py-3 rounded-full text-xs font-bold transition-all border-2 flex items-center gap-2 ${
-                filters.categoryId === cat.id 
-                  ? 'bg-[var(--color-primary-dark)] text-[var(--color-accent)] border-transparent shadow-xl scale-105' 
-                  : 'bg-white text-[var(--color-text-muted)] border-[var(--color-stone)]/5 hover:border-[var(--color-primary-dark)]/20'
-              }`}
-            >
-              {filters.categoryId === cat.id && <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />}
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 items-end">
-        {/* Price Curation */}
-        <div className="space-y-5">
-          <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
-            <span>Valuation Ledger</span>
-            <span className="text-[var(--color-accent)] font-black">₹{filters.minPrice || 0} — ₹{filters.maxPrice || '∞'}</span>
-          </div>
-          <div className="flex items-center gap-4 pt-2">
-            <div className="relative flex-1 h-1.5 bg-[var(--color-sand)] rounded-full">
-              <input
-                type="range" min="0" max="25000" step="500"
-                value={filters.minPrice || 0}
-                onChange={(e) => setFilters(prev => ({ ...prev, minPrice: e.target.value, page: 1 }))}
-                className="absolute inset-0 w-full appearance-none bg-transparent accent-[var(--color-accent)] cursor-pointer"
-              />
-              <input
-                type="range" min="0" max="25000" step="500"
-                value={filters.maxPrice || 25000}
-                onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: e.target.value, page: 1 }))}
-                className="absolute inset-0 w-full appearance-none bg-transparent accent-[var(--color-accent)] cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Rating Tiers */}
-        <div className="space-y-5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Observation Quality</label>
-          <div className="flex gap-3">
-            {[4, 3].map(rating => (
-              <button
-                key={rating}
-                onClick={() => setFilters(prev => ({ ...prev, minRating: prev.minRating === rating ? '' : rating, page: 1 }))}
-                className={`flex-1 h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-2 ${
-                  filters.minRating === rating
-                    ? 'bg-[var(--color-accent)] text-[var(--color-primary-dark)] border-transparent shadow-lg'
-                    : 'bg-white text-[var(--color-text-muted)] border-[var(--color-stone)]/5 hover:border-[var(--color-accent)]/30'
-                }`}
-              >
-                {rating}★ Plus
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Stock Protocol */}
-        <div className="flex items-center justify-between h-12 px-6 bg-white border border-[var(--color-stone)]/5 rounded-2xl">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Allocation Ready</span>
-          <button
-            onClick={() => setFilters(prev => ({ ...prev, inStockOnly: !prev.inStockOnly, page: 1 }))}
-            className={`relative w-10 h-5 rounded-full transition-colors ${filters.inStockOnly ? 'bg-emerald-500' : 'bg-[var(--color-sand)]'}`}
-          >
-            <motion.div animate={{ x: filters.inStockOnly ? 22 : 2 }} className="absolute top-1 left-1 w-3 h-3 bg-white rounded-full shadow-sm" />
-          </button>
-        </div>
-
-        {/* Global Reset */}
-        <button
-          onClick={() => setFilters({
-            page: 1, pageSize: 12, search: '', categoryId: '', minPrice: '', maxPrice: '',
-            sortBy: 'newest', desc: true, inStockOnly: false, minRating: ''
-          })}
-          className="h-12 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-text-muted)] hover:text-rose-500 transition-colors"
-        >
-          <X size={14} /> Void Parameters
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function StoreFilters({ filters, setFilters, categories, onUseLocation, onClearLocation, isLocating }) {
-  return (
-    <div className="bg-white/40 backdrop-blur-md border border-white p-10 rounded-[4rem] shadow-2xl space-y-12">
-      <div className="space-y-6">
-        <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-primary-dark)]">Studio Specialization</h3>
-        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-          <button
-            onClick={() => setFilters(prev => ({ ...prev, categoryId: '', page: 1 }))}
-            className={`whitespace-nowrap px-8 py-3 rounded-full text-xs font-bold transition-all border-2 ${
-              !filters.categoryId ? 'bg-[var(--color-primary-dark)] text-white' : 'bg-white text-[var(--color-text-muted)] border-[var(--color-stone)]/5'
-            }`}
-          >
-            All Collectives
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setFilters(prev => ({ ...prev, categoryId: cat.id, page: 1 }))}
-              className={`whitespace-nowrap px-8 py-3 rounded-full text-xs font-bold transition-all border-2 ${
-                filters.categoryId === cat.id ? 'bg-[var(--color-primary-dark)] text-white' : 'bg-white text-[var(--color-text-muted)] border-[var(--color-stone)]/5'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col xl:flex-row items-center gap-10">
-        <div className="flex items-center gap-6 bg-white border border-[var(--color-stone)]/5 px-8 py-5 rounded-[2rem] shadow-xl w-full xl:w-auto">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${filters.lat ? 'bg-[var(--color-accent)] text-[var(--color-primary-dark)]' : 'bg-[var(--color-sand)] text-[var(--color-stone)]'}`}>
-            <MapPin size={24} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-[var(--color-primary-dark)]">Proximity Search</p>
-            <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-0.5">Find independent studios nearby</p>
-          </div>
-          <button
-            onClick={filters.lat ? onClearLocation : onUseLocation}
-            disabled={isLocating}
-            className={`relative w-12 h-6 rounded-full transition-colors ${filters.lat ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-sand)]'}`}
-          >
-            <motion.div animate={{ x: filters.lat ? 26 : 2 }} className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-          </button>
-        </div>
-
-        <AnimatePresence>
-          {filters.lat && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-              className="flex-1 w-full space-y-3"
-            >
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] pr-2">
-                <span>Signal Radius</span>
-                <span className="text-[var(--color-accent)]">{filters.radiusKm} Kilometers</span>
+                    <Pagination
+                      currentPage={storesMeta.page}
+                      totalPages={storesMeta.totalPages}
+                      pages={storePages}
+                      onPageChange={(page) => setStoreFilters((current) => ({ ...current, page }))}
+                    />
+                  </div>
+                )}
               </div>
-              <input
-                type="range" min="5" max="100" step="5"
-                value={filters.radiusKm}
-                onChange={(e) => setFilters(prev => ({ ...prev, radiusKm: Number(e.target.value), page: 1 }))}
-                className="w-full h-1.5 bg-[var(--color-sand)] rounded-full appearance-none accent-[var(--color-accent)] cursor-pointer"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+          </main>
+        </div>
       </div>
+
+      {/* Floating Cart Trigger */}
+      <button 
+        onClick={() => setIsCartOpen(true)}
+        className="fixed bottom-32 right-8 z-[90] w-16 h-16 rounded-full bg-[var(--color-primary-dark)] text-white shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group"
+      >
+        <ShoppingBag size={24} className="group-hover:rotate-12 transition-transform" />
+        {productsMeta.totalCount > 0 && (
+          <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[var(--color-accent)] text-white text-[10px] font-bold flex items-center justify-center ring-4 ring-[var(--color-background)]">
+            {productsMeta.totalCount}
+          </div>
+        )}
+      </button>
+
+      {/* Premium Selection Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }
@@ -617,15 +566,16 @@ function StoreFilters({ filters, setFilters, categories, onUseLocation, onClearL
 function ProductExhibit({ product, categoryName, onClick }) {
   const toast = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const cartMutation = useMutation({
     mutationFn: (payload) => addToCart(payload),
     onSuccess: () => { 
       queryClient.invalidateQueries({ queryKey: ['cart'] }); 
-      toast.success('Exhibit captured in bag.'); 
+      toast.success('Provision added to selection.'); 
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to capture exhibit.');
+      toast.error(error.response?.data?.message || 'Failed to update selection.');
     }
   });
 
@@ -642,155 +592,172 @@ function ProductExhibit({ product, categoryName, onClick }) {
     mutationFn: () => isInWishlist ? removeFromWishlist(product.id) : addToWishlist(product.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
-      toast.success(isInWishlist ? 'Removed from your curations.' : 'Added to your curations.');
+      toast.success(isInWishlist ? 'Removed from saved.' : 'Saved to favorites.');
     },
   });
 
   return (
-    <SurfaceCard 
+    <div 
       onClick={onClick}
-      className="bg-white border-[var(--color-stone)]/5 p-0 overflow-hidden shadow-xl rounded-[3.5rem] group transition-all hover:shadow-2xl hover:border-[var(--color-accent)]/10"
+      className="group cursor-pointer flex flex-col h-full"
     >
-      <div className="aspect-[4/5] overflow-hidden relative">
-        <SafeImage src={product.images?.[0] || product.imageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-8">
+      {/* Image Container */}
+      <div className="aspect-square overflow-hidden relative bg-[var(--color-sand)]/10 border border-[var(--color-stone)]/5 shadow-sm transition-all duration-700 group-hover:shadow-xl group-hover:border-[var(--color-accent)]/20">
+        <SafeImage 
+          src={typeof (product.images?.[0]) === 'string' ? product.images[0] : (product.images?.[0]?.url || product.images?.[0]?.imageUrl || product.imageUrl)} 
+          alt={product.name} 
+          className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110" 
+        />
+        
+        {/* Overlay Badges */}
+        <div className="absolute top-4 right-4 z-10">
           <button 
             onClick={(e) => { 
               e.stopPropagation(); 
               if (!isAuthenticated()) {
-                toast.info('Please log in to capture this exhibit in your bag.');
-                navigate('/login');
-                return;
-              }
-              cartMutation.mutate({ productId: product.id, quantity: 1 }); 
-            }}
-            className="w-full py-5 bg-[var(--color-accent)] text-[var(--color-primary-dark)] font-bold rounded-2xl flex items-center justify-center gap-3 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500"
-          >
-            <ShoppingBag size={20} /> Quick Acquisition
-          </button>
-        </div>
-        <div className="absolute top-6 left-6 flex gap-3">
-          <button 
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              if (!isAuthenticated()) {
-                toast.info('Please log in to add this to your curations.');
+                toast.info('Sign in to save provisions.');
                 navigate('/login');
                 return;
               }
               wishlistMutation.mutate(); 
             }}
-            className={`w-10 h-10 rounded-xl backdrop-blur-md flex items-center justify-center transition-all shadow-xl ${isInWishlist ? 'bg-rose-500 text-white' : 'bg-white/90 text-[var(--color-primary-dark)] hover:bg-rose-50'}`}
+            className={`w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-500 transform group-hover:scale-110 ${isInWishlist ? 'bg-[var(--color-accent)] text-white shadow-lg shadow-[var(--color-accent)]/20' : 'bg-white/80 text-[var(--color-primary-dark)] hover:bg-white shadow-sm hover:shadow-md'}`}
           >
-            <Heart size={18} className={isInWishlist ? 'fill-current' : ''} />
+            <Heart size={16} className={isInWishlist ? 'fill-current' : ''} />
           </button>
         </div>
-        <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] font-black text-[var(--color-primary-dark)] shadow-xl">
-          {formatCurrency(product.price)}
+
+        {/* Action Overlay */}
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 backdrop-blur-[1px] flex items-end p-4">
+          <button 
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (!isAuthenticated()) {
+                toast.info('Sign in to manage selection.');
+                navigate('/login');
+                return;
+              }
+              cartMutation.mutate({ productId: product.id, quantity: 1 }); 
+            }}
+            className="w-full py-3 bg-white text-[var(--color-primary-dark)] text-[9px] font-black uppercase tracking-[0.15em] flex items-center justify-center gap-2 shadow-2xl transform translate-y-2 group-hover:translate-y-0 transition-all duration-500 hover:bg-[var(--color-accent)] hover:text-white"
+          >
+            <ShoppingBag size={12} /> Add to Selection
+          </button>
         </div>
       </div>
-      <div className="p-8">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-          <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)]">{categoryName || 'Artisanal'}</span>
+
+      {/* Content */}
+      <div className="pt-5 px-1 flex-1 flex flex-col">
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <h3 className="text-sm sm:text-base font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight group-hover:text-[var(--color-accent)] transition-colors flex-1 line-clamp-2">
+            {product.name}
+          </h3>
+          <span className="text-sm sm:text-base font-['Fraunces'] font-medium text-[var(--color-primary-dark)] pt-0.5">
+            {formatCurrency(product.price)}
+          </span>
         </div>
-        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors leading-tight truncate">{product.name}</h3>
-        <div className="mt-6 flex items-center justify-between pt-6 border-t border-[var(--color-stone)]/5">
-          <div className="flex items-center gap-1 text-[var(--color-accent)] font-bold text-sm">
-            <Star size={14} className="fill-current" />
+        
+        <div className="flex items-center gap-3 mt-1 mb-3">
+          <span className="text-[8px] font-black uppercase tracking-widest text-[var(--color-stone)]/60 bg-[var(--color-sand)]/20 px-2 py-0.5 rounded-full">
+            {categoryName || 'General'}
+          </span>
+          <div className="flex items-center gap-1 text-[var(--color-accent)] font-bold text-[10px]">
+            <Star size={10} className="fill-current" />
             {Number(product.averageRating || 0).toFixed(1)}
           </div>
-          <div className="text-[10px] font-black text-[var(--color-primary-dark)] uppercase tracking-widest flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            Examine <ArrowUpRight size={14} />
-          </div>
         </div>
+
+        <p className="text-[10px] text-[var(--color-text-muted)] font-medium leading-relaxed italic line-clamp-2 mt-auto opacity-70">
+          {product.description || "A masterfully crafted provision reflecting heritage and flavor."}
+        </p>
       </div>
-    </SurfaceCard>
+    </div>
   );
 }
 
 function StorePortfolio({ store, onClick }) {
   return (
-    <SurfaceCard 
+    <div 
       onClick={onClick}
-      className="bg-white border-[var(--color-stone)]/5 p-0 overflow-hidden shadow-xl rounded-[3.5rem] group transition-all hover:shadow-2xl hover:border-[var(--color-accent)]/10"
+      className="classic-card p-10 relative overflow-hidden group cursor-pointer border-none shadow-none bg-white/50 backdrop-blur-sm ring-1 ring-[var(--color-stone)]/5 hover:ring-[var(--color-accent)]/20 transition-all duration-500"
     >
-      <div className="h-32 bg-[var(--color-sand)]/30 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--color-accent),transparent_70%)] opacity-20" />
-        {store.distanceKm && (
-          <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] font-black text-[var(--color-primary-dark)] shadow-xl">
-            {store.distanceKm} km Proximity
-          </div>
-        )}
-      </div>
-      <div className="px-8 pb-10 relative">
-        <div className="absolute -top-12 left-8">
-          <div className="w-24 h-24 rounded-[2rem] bg-[var(--color-primary-dark)] text-[var(--color-accent)] flex items-center justify-center text-4xl font-['Fraunces'] font-bold shadow-2xl ring-8 ring-white transition-transform group-hover:scale-105">
+      <div className="flex flex-col h-full">
+        <div className="flex items-start justify-between mb-8">
+          <div className="w-16 h-16 bg-[var(--color-primary-dark)] text-[var(--color-accent)] flex items-center justify-center text-2xl font-['Fraunces'] font-bold shadow-xl ring-4 ring-white transition-all group-hover:scale-110 group-hover:-rotate-3">
             {getInitials(store.businessName)}
           </div>
+          <div className="flex items-center gap-1.5 text-[var(--color-accent)] font-black text-sm bg-white px-3 py-1.5 rounded-full shadow-sm">
+            <Star size={12} className="fill-current" />
+            {Number(store.averageRating || 0).toFixed(1)}
+          </div>
         </div>
-        <div className="pt-16">
-          <div className="flex items-center justify-between gap-4">
-            <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors">{store.businessName}</h3>
-            <div className="flex items-center gap-1.5 text-[var(--color-accent)] font-bold text-lg">
-              <Star size={18} className="fill-current" />
-              {Number(store.averageRating || 0).toFixed(1)}
+
+        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-1 mb-2">
+          {store.businessName}
+        </h3>
+        <p className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)] italic line-clamp-1">
+          {store.address || 'Independent Artisan • Marketplace'}
+        </p>
+
+        <div className="mt-10 pt-8 border-t border-[var(--color-stone)]/10 flex items-center justify-between">
+          <div className="flex gap-8">
+            <div className="text-center">
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{store.productCount || 0}</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--color-stone)]/60">Provisions</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{store.reviewCount || 0}</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--color-stone)]/60">Stories</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-[var(--color-text-muted)] font-medium italic truncate">{store.address || 'Independent Artisan Hub'}</p>
-          <div className="mt-8 flex items-center justify-between pt-8 border-t border-[var(--color-stone)]/5">
-            <div className="flex gap-6">
-              <div className="text-center">
-                <p className="text-lg font-bold text-[var(--color-primary-dark)]">{store.productCount || 0}</p>
-                <p className="text-[8px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)]">Exhibits</p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-bold text-[var(--color-primary-dark)]">{store.reviewCount || 0}</p>
-                <p className="text-[8px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)]">Signals</p>
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)] opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100 shadow-xl">
-              <ArrowUpRight size={24} />
-            </div>
+          
+          <div className="w-12 h-12 bg-[var(--color-sand)]/20 flex items-center justify-center text-[var(--color-primary-dark)] group-hover:bg-[var(--color-accent)] group-hover:text-white transition-all duration-500 group-hover:translate-x-1 shadow-sm">
+            <ArrowRight size={20} />
           </div>
         </div>
       </div>
-    </SurfaceCard>
+    </div>
   );
 }
 
 function Pagination({ currentPage, totalPages, pages, onPageChange }) {
   if (totalPages <= 1) return null;
   return (
-    <div className="flex items-center justify-center gap-4 pt-12">
+    <div className="flex items-center justify-center gap-10 pt-20 border-t border-[var(--color-stone)]/10">
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="w-14 h-14 rounded-2xl bg-white border border-[var(--color-stone)]/5 flex items-center justify-center text-[var(--color-primary-dark)] disabled:opacity-30 transition-all hover:bg-[var(--color-sand)]/20 shadow-sm"
+        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-stone)] disabled:opacity-20 hover:text-[var(--color-primary-dark)] transition-all group"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> 
+        <span className="hidden sm:inline">Previous Passage</span>
       </button>
-      <div className="flex items-center gap-2">
+      
+      <div className="flex items-center gap-6">
         {pages.map((p, i) => (
-          p === '...' ? <span key={`sep-${i}`} className="text-[var(--color-stone)]">...</span> : (
+          p === '...' ? <span key={`sep-${i}`} className="text-[var(--color-stone)]/40 font-bold">...</span> : (
             <button
               key={p}
               onClick={() => onPageChange(p)}
-              className={`w-12 h-12 rounded-2xl font-bold transition-all ${
-                currentPage === p ? 'bg-[var(--color-primary-dark)] text-white shadow-xl' : 'bg-white text-[var(--color-text-muted)] border border-[var(--color-stone)]/5'
+              className={`w-10 h-10 text-[10px] font-black transition-all ${
+                currentPage === p 
+                  ? 'bg-[var(--color-primary-dark)] text-white shadow-xl shadow-[var(--color-primary)]/10 scale-110' 
+                  : 'text-[var(--color-stone)]/50 hover:text-[var(--color-primary-dark)] hover:bg-[var(--color-sand)]/20'
               }`}
             >
-              {p}
+              {String(p).padStart(2, '0')}
             </button>
           )
         ))}
       </div>
+
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="w-14 h-14 rounded-2xl bg-white border border-[var(--color-stone)]/5 flex items-center justify-center text-[var(--color-primary-dark)] disabled:opacity-30 transition-all hover:bg-[var(--color-sand)]/20 shadow-sm"
+        className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-stone)] disabled:opacity-20 hover:text-[var(--color-primary-dark)] transition-all group"
       >
-        <ChevronRight size={24} />
+        <span className="hidden sm:inline">Next Discovery</span>
+        <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
       </button>
     </div>
   );
@@ -821,8 +788,6 @@ function getPageNumbers(current, total) {
   }
   return pages;
 }
-
-
 
 function getInitials(value = '') {
   return value.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'S';

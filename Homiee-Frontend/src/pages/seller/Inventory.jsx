@@ -103,10 +103,10 @@ export default function Inventory() {
     mutationFn: deleteSellerProduct,
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['seller-inventory'] });
-      toast.success(response?.message || 'Piece removed from studio inventory.');
+      toast.success(response?.message || 'Product deleted successfully.');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to remove creation.');
+      toast.error(error.response?.data?.message || 'Unable to delete product.');
     },
   });
 
@@ -114,7 +114,7 @@ export default function Inventory() {
     mutationFn: ({ id, stock }) => updateSellerProductStock(id, stock),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['seller-inventory'] });
-      toast.success('Inventory volume adjusted.');
+      toast.success('Stock updated.');
       setEditingStockId(null);
       setStockDrafts((current) => {
         const next = { ...current };
@@ -123,34 +123,34 @@ export default function Inventory() {
       });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to adjust inventory.');
+      toast.error(error.response?.data?.message || 'Unable to update stock.');
     },
   });
 
   return (
     <div className="space-y-12 pb-20">
-      {/* Catalog Hero */}
-      <section className="relative overflow-hidden rounded-[4rem] bg-[var(--color-sand)]/30 p-12 shadow-inner">
+      {/* Catalog Header */}
+      <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[4rem] bg-[var(--color-sand)]/30 p-8 sm:p-12 shadow-inner">
         <div className="relative flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="max-w-2xl text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
               <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary-dark)] flex items-center justify-center text-white shadow-lg">
                 <Package size={24} />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-primary-dark)]">Studio Catalog</span>
+              <span className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-primary-dark)]">Catalog</span>
             </div>
-            <h1 className="text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">Studio Inventory</h1>
+            <h1 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">Product Inventory</h1>
             <p className="mt-4 text-[var(--color-text-muted)] font-medium leading-relaxed italic">
-              "Curate and oversee your collection of artisanal creations. Refine stock levels and manage listing aesthetics with precision."
+              "Manage your product listings and stock levels."
             </p>
           </div>
 
           <Link
             to="/seller/products/new"
-            className="group flex items-center gap-3 px-8 py-5 bg-[var(--color-primary-dark)] text-white rounded-[2rem] font-bold shadow-2xl hover:scale-[1.02] transition-all"
+            className="group flex items-center gap-3 px-8 py-4 sm:py-5 bg-[var(--color-primary-dark)] text-white rounded-2xl sm:rounded-[2rem] font-bold shadow-2xl hover:scale-[1.02] transition-all"
           >
             <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
-            List New Creation
+            Add Product
           </Link>
         </div>
       </section>
@@ -163,7 +163,7 @@ export default function Inventory() {
             <input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by creation name..."
+              placeholder="Search products..."
               className="w-full h-16 rounded-[1.5rem] bg-[var(--color-sand)]/20 border-2 border-transparent focus:border-[var(--color-accent)]/20 focus:bg-white px-14 text-[var(--color-primary-dark)] font-bold placeholder:text-[var(--color-stone)]/50 transition-all outline-none"
             />
           </div>
@@ -175,7 +175,7 @@ export default function Inventory() {
               onChange={(event) => setFilters((current) => ({ ...current, page: 1, categoryId: event.target.value }))}
               className="w-full h-16 rounded-[1.5rem] bg-[var(--color-sand)]/20 border-2 border-transparent focus:border-[var(--color-accent)]/20 focus:bg-white pl-14 pr-6 appearance-none text-[var(--color-primary-dark)] font-bold cursor-pointer transition-all outline-none"
             >
-              <option value="">All Collections</option>
+              <option value="">All Categories</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>{category.name}</option>
               ))}
@@ -203,8 +203,8 @@ export default function Inventory() {
         <div className="mt-8 flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-[var(--color-stone)]/5">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Registry:</span>
-              <span className="text-sm font-bold text-[var(--color-primary-dark)]">{inventoryMeta.totalCount || products.length} Creations</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Total:</span>
+              <span className="text-sm font-bold text-[var(--color-primary-dark)]">{inventoryMeta.totalCount || products.length} Products</span>
             </div>
             <label className="flex items-center gap-3 cursor-pointer group">
               <div 
@@ -235,7 +235,7 @@ export default function Inventory() {
             }}
             className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-widest hover:tracking-[0.2em] transition-all"
           >
-            Clear Curation
+            Clear Filters
           </button>
         </div>
       </SurfaceCard>
@@ -248,16 +248,16 @@ export default function Inventory() {
           className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync studio inventory.</p>
-              <button onClick={() => refetchInventory()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load inventory.</p>
+              <button onClick={() => refetchInventory()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
       ) : products.length === 0 ? (
-        <div className="py-20 text-center bg-[var(--color-sand)]/10 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[4rem]">
+        <div className="py-20 text-center bg-[var(--color-sand)]/10 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[2rem] sm:rounded-[4rem]">
           <Package size={64} className="mx-auto text-[var(--color-stone)]/20 mb-6" />
-          <p className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Empty Studio Vault</p>
-          <p className="mt-2 text-[var(--color-text-muted)] italic">"No creations matched your current filters. Start listing to build your legacy."</p>
+          <p className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Products Found</p>
+          <p className="mt-2 text-[var(--color-text-muted)] italic">"Try adjusting your filters or add your first product."</p>
         </div>
       ) : (
         <motion.div 
@@ -267,7 +267,7 @@ export default function Inventory() {
         >
           {viewMode === 'grid' ? (
             <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="sync">
                 {products.map((product) => (
                   <InventoryCard
                     key={product.id}
@@ -338,7 +338,7 @@ export default function Inventory() {
               disabled={filters.page === 1} 
               onClick={() => setFilters(c => ({ ...c, page: c.page - 1 }))}
               icon={<ChevronLeft size={20} />}
-              label="Previous Cycle"
+              label="Previous"
             />
             
             <div className="flex items-center gap-2">
@@ -361,7 +361,7 @@ export default function Inventory() {
               disabled={filters.page === totalPages} 
               onClick={() => setFilters(c => ({ ...c, page: c.page + 1 }))}
               icon={<ChevronRight size={20} />}
-              label="Next Cycle"
+              label="Next"
             />
           </div>
         </motion.div>
@@ -387,7 +387,6 @@ function InventoryCard({
 
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
@@ -403,7 +402,7 @@ function InventoryCard({
               to={`/product/${product.id}`}
               className="px-6 py-3 bg-white text-[var(--color-primary-dark)] rounded-xl font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all"
             >
-              Public View <ArrowUpRight size={16} />
+              View Product <ArrowUpRight size={16} />
             </Link>
           </div>
         </div>
@@ -412,10 +411,10 @@ function InventoryCard({
           <div className="flex items-start justify-between gap-4 mb-6">
             <div className="min-w-0">
               <h2 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] truncate">{product.name}</h2>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Creation ID: {String(product.id ?? '').slice(-8)}</p>
+              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Product ID: {String(product.id ?? '').slice(-8)}</p>
             </div>
             <div className="text-right">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Valuation</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Price</div>
               <div className="text-xl font-bold text-[var(--color-primary-dark)]">{formatCurrency(product.price)}</div>
             </div>
           </div>
@@ -424,14 +423,14 @@ function InventoryCard({
             <div className="flex items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2 text-[var(--color-primary-dark)] font-bold">
                 <Package size={16} />
-                <span className="text-sm">Studio Units: {stockValue}</span>
+                <span className="text-sm">Stock: {stockValue}</span>
               </div>
               {!isEditing && (
                 <button
                   onClick={onStartEditing}
                   className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-widest hover:underline"
                 >
-                  Adjust Volume
+                  Update Stock
                 </button>
               )}
             </div>
@@ -464,7 +463,7 @@ function InventoryCard({
             ) : (
               <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] italic">
                 {stockValue > 5 ? <CheckCircle2 size={14} className="text-[var(--color-primary)]" /> : stockValue > 0 ? <Clock size={14} className="text-amber-500" /> : <XCircle size={14} className="text-rose-500" />}
-                {stockValue > 5 ? 'Vibrant collection' : stockValue > 0 ? 'Limited supply remaining' : 'Collection exhausted'}
+                {stockValue > 5 ? 'In Stock' : stockValue > 0 ? 'Low Stock' : 'Out of Stock'}
               </div>
             )}
           </div>
@@ -475,7 +474,7 @@ function InventoryCard({
               className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)] font-bold text-sm hover:bg-[var(--color-accent)] hover:text-white transition-all shadow-sm"
             >
               <Pencil size={16} />
-              Refine
+              Edit
             </Link>
             <button
               onClick={onDelete}
@@ -509,11 +508,11 @@ function InventoryTable({
         <table className="w-full">
           <thead>
             <tr className="bg-[var(--color-sand)]/20 text-left">
-              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Creation</th>
-              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Valuation</th>
-              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Studio Units</th>
+              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Product</th>
+              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Price</th>
+              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Stock</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Status</th>
-              <th className="px-8 py-6 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Curation</th>
+              <th className="px-8 py-6 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-stone)]/5">

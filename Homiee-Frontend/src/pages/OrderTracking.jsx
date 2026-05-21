@@ -60,10 +60,10 @@ export default function OrderTracking() {
       queryClient.invalidateQueries({ queryKey: ['order', orderId] });
       queryClient.invalidateQueries({ queryKey: ['order-history', orderId] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('Acquisition cycle cancelled successfully.');
+      toast.success('Order cancelled successfully.');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to cancel acquisition.');
+      toast.error(error.response?.data?.message || 'Failed to cancel order.');
     },
   });
 
@@ -93,11 +93,11 @@ export default function OrderTracking() {
       <div className="min-h-screen bg-[var(--color-sand)]/10 px-6 pb-24 pt-32">
         <div className="mx-auto max-w-4xl">
           <StatePanel
-            className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
+            className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[2rem] sm:rounded-[3rem]"
             message={(
               <div className="text-center">
-                <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync acquisition details.</p>
-                <button onClick={() => refetchOrder()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+                <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load order details.</p>
+                <button onClick={() => refetchOrder()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
               </div>
             )}
           />
@@ -118,13 +118,13 @@ export default function OrderTracking() {
             <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-stone)]/10 flex items-center justify-center group-hover:bg-[var(--color-sand)]/20 transition-all">
               <ArrowLeft size={18} />
             </div>
-            Back to Acquisition Ledger
+            Back to My Orders
           </Link>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <h1 className="text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">Acquisition Journey</h1>
+              <h1 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">Track Order</h1>
               <p className="mt-4 text-xl text-[var(--color-text-muted)] font-medium italic leading-relaxed">
-                "Observing the orchestration of your curated pieces from artisan studio to your personal vault."
+                "Follow your order's progress from the seller to your doorstep."
               </p>
             </div>
             <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-6 px-10 rounded-[2.5rem] border border-white shadow-xl">
@@ -132,7 +132,7 @@ export default function OrderTracking() {
                 <Package size={24} />
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">Dossier Identifier</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">Order ID</div>
                 <div className="text-2xl font-bold text-[var(--color-primary-dark)]">#{String(order.id).slice(-10)}</div>
               </div>
             </div>
@@ -141,14 +141,14 @@ export default function OrderTracking() {
 
         <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
           {/* Timeline Canvas */}
-          <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-12 shadow-xl rounded-[4rem]">
+          <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-12 shadow-xl rounded-[2rem] sm:rounded-[4rem]">
             <div className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                   <Sparkles size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Journey Status</h2>
+                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Order Status</h2>
                   <div className="mt-1 flex items-center gap-2"><StatusPill value={displayStatus} /></div>
                 </div>
               </div>
@@ -192,11 +192,11 @@ export default function OrderTracking() {
                       <div className={`text-xl font-bold ${isUpcoming ? 'text-[var(--color-stone)]/30' : 'text-[var(--color-primary-dark)]'}`}>{step}</div>
                       <div className="mt-2 flex items-center gap-2 text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">
                         {historyEntry?.createdAt ? (
-                          <><Clock size={12} /> {formatDateTime(historyEntry.createdAt)}</>
+                           <><Clock size={12} /> {formatDateTime(historyEntry.createdAt)}</>
                         ) : isCurrent ? (
-                          'Active Phase'
+                          'Active Status'
                         ) : (
-                          'Awaiting Orchestration'
+                          'Awaiting Processing'
                         )}
                       </div>
                     </div>
@@ -208,44 +208,44 @@ export default function OrderTracking() {
             {historyError && (
               <div className="mt-12 p-6 rounded-[2rem] bg-amber-50 border border-amber-100 text-amber-800 text-xs italic leading-relaxed flex gap-3">
                 <Sparkles size={16} className="shrink-0 text-amber-600" />
-                "Detailed transmission history is temporarily quiescent, but the current stage is verified."
+                "Order history details are being updated, but the current status is verified."
               </div>
             )}
           </SurfaceCard>
 
           {/* Exhibition Canvas */}
           <div className="space-y-10">
-            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[3.5rem] shadow-xl">
+             <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-xl">
               <h2 className="text-2xl font-bold text-[var(--color-primary-dark)] mb-8 flex items-center gap-3">
                 <HistoryIcon size={20} className="text-[var(--color-accent)]" />
-                Acquisition Summary
+                Order Info
               </h2>
-              <div className="space-y-6">
-                <SummaryRow label="Dossier Reference" value={`#${order.id}`} />
-                <SummaryRow label="Genesis Date" value={formatDate(order.createdAt)} />
+               <div className="space-y-6">
+                <SummaryRow label="Order Number" value={`#${order.id}`} />
+                <SummaryRow label="Order Date" value={formatDate(order.createdAt)} />
                 {order.requestedDeliveryDate && (
-                  <SummaryRow label="Requested Delivery" value={formatDate(order.requestedDeliveryDate)} />
+                  <SummaryRow label="Expected Delivery" value={formatDate(order.requestedDeliveryDate)} />
                 )}
-                <SummaryRow label="Valuation Total" value={formatCurrency(order.totalAmount ?? 0)} />
-                <SummaryRow label="Settlement Method" value={orderSummary?.paymentMethod || 'Settled'} />
-                <SummaryRow label="Settlement Status" value={displayStatus === 'Delivered' ? 'Finalized' : displayStatus === 'Cancelled' ? 'Voided' : 'Pending'} />
+                <SummaryRow label="Order Total" value={formatCurrency(order.totalAmount ?? 0)} />
+                <SummaryRow label="Payment Method" value={orderSummary?.paymentMethod || 'Paid'} />
+                <SummaryRow label="Payment Status" value={displayStatus === 'Delivered' ? 'Completed' : displayStatus === 'Cancelled' ? 'Voided' : 'Pending'} />
               </div>
 
               <div className="mt-10 p-6 rounded-[2rem] bg-[var(--color-sand)]/10 border border-transparent flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[var(--color-primary-dark)] shrink-0 shadow-sm">
                   <MapPin size={20} />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Destination Registry</p>
+                 <div className="min-w-0">
+                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Delivery Address</p>
                   <p className="text-sm font-medium text-[var(--color-stone)] italic leading-relaxed">
-                    "Secure delivery coordinates are restricted to authorized courier transmissions for this dossier stage."
+                    "Your delivery address is protected and will be visible to the courier during shipping."
                   </p>
                 </div>
               </div>
             </SurfaceCard>
 
-            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[3.5rem] shadow-xl">
-              <h2 className="text-xl font-bold text-[var(--color-primary-dark)] mb-8">Acquisition Exhibits</h2>
+             <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-xl">
+              <h2 className="text-xl font-bold text-[var(--color-primary-dark)] mb-8">Order Items</h2>
               <div className="space-y-6">
                 {(order.items ?? []).map((item) => (
                   <div key={item.productId} className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 rounded-[2.5rem] bg-[var(--color-sand)]/10 border border-transparent hover:border-[var(--color-accent)]/10 transition-all group">
@@ -257,19 +257,19 @@ export default function OrderTracking() {
                         <Link to={`/product/${item.productId}`} className="text-lg font-bold text-[var(--color-primary-dark)] hover:text-[var(--color-accent)] transition-colors truncate block">
                           {item.productName}
                         </Link>
-                        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">
-                          Volume: {item.quantity} • {formatCurrency(item.price)}
+                         <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">
+                          Quantity: {item.quantity} • {formatCurrency(item.price)}
                         </p>
                       </div>
                     </div>
 
                     {canReview && (
-                      <Link
+                       <Link
                         to={`/product/${item.productId}`}
                         className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white border border-[var(--color-stone)]/10 text-[var(--color-primary-dark)] font-bold text-sm shadow-sm hover:bg-[var(--color-primary-dark)] hover:text-white transition-all flex items-center justify-center gap-2"
                       >
                         <PenSquare size={16} />
-                        Dossier Feedback
+                        Write a Review
                       </Link>
                     )}
                   </div>
@@ -279,18 +279,18 @@ export default function OrderTracking() {
 
             <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 blur-3xl rounded-full -mr-20 -mt-20" />
-              <div className="relative z-10">
-                <h2 className="text-2xl font-['Fraunces'] font-semibold mb-4">Governance Controls</h2>
+               <div className="relative z-10">
+                <h2 className="text-2xl font-['Fraunces'] font-semibold mb-4">Order Actions</h2>
                 <p className="text-white/40 font-medium text-sm leading-relaxed italic mb-8">
-                  "Adjustments to the acquisition cycle are permissible during the genesis phases of fulfillment."
+                  "You can cancel your order while it's still being processed."
                 </p>
-                <button
+                   <button
                   disabled={!canCancel || cancelMutation.isPending}
                   onClick={() => cancelMutation.mutate(order.id)}
                   className="w-full py-5 rounded-[2rem] bg-rose-500/10 border-2 border-rose-500/20 text-rose-500 font-bold hover:bg-rose-500 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                 >
                   <XCircle size={18} />
-                  {cancelMutation.isPending ? 'Finalizing Void...' : 'Void Acquisition'}
+                  {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Order'}
                 </button>
               </div>
             </SurfaceCard>

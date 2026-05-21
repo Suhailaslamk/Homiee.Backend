@@ -1,10 +1,11 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Options;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
+using Homiee.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -19,6 +20,7 @@ namespace Homiee.Application.Services
         private readonly ICategoryRepository _categoryRepo;
         private readonly ICacheService _cache;
         private readonly CacheSettings _cfg;
+        private readonly AppDbContext _dbContext;
 
         public SellerProductService(IProductRepository productRepo,
                                    ISellersRepository sellerRepo,
@@ -26,7 +28,8 @@ namespace Homiee.Application.Services
                                    IFileStorageService fileService,
                                    ICategoryRepository categoryRepo,
                                    ICacheService cache,
-                                   IOptions<CacheSettings> cfg)
+                                   IOptions<CacheSettings> cfg,
+                                   AppDbContext dbContext)
         {
             _productRepo = productRepo;
             _sellerRepo = sellerRepo;
@@ -34,7 +37,8 @@ namespace Homiee.Application.Services
             _fileService = fileService;
             _categoryRepo = categoryRepo;
             _cache = cache;
-            _cfg = cfg.Value; 
+            _cfg = cfg.Value;
+            _dbContext = dbContext;
         }
 
         public async Task<ApiResponse<string>> CreateProduct(CreateProductDto dto, int userId)
@@ -92,6 +96,17 @@ namespace Homiee.Application.Services
 
                 await _productRepo.AddAsync(product);
                 await _productRepo.SaveChangesAsync();
+
+                if (dto.Variants != null && dto.Variants.Any())
+                {
+                    foreach (var v in dto.Variants)
+                    {
+                        var variant = new ProductVariant(product.Id, v.Label, v.Price, v.Stock, v.Sku);
+                        _dbContext.Set<ProductVariant>().Add(variant);
+                    }
+                    await _dbContext.SaveChangesAsync();
+                }
+
                 var productImage = new ProductImage
                 {
                     ProductId = product.Id,
@@ -133,6 +148,10 @@ namespace Homiee.Application.Services
             if (dto.Stock <= 0)
                 return new ApiResponse<string>(400, "Stock must be greater than zero");
 
+            var product = await _productRepo.GetByIdAsync(productId);
+            if (product == null || product.IsDeleted)
+                return new ApiResponse<string>(404, "Product not found");
+
             //if (dto.Price > 1_000_000) // optional business rule
             //    return new ApiResponse<string>(400, "Price is too high");
 
@@ -145,15 +164,44 @@ namespace Homiee.Application.Services
                 return new ApiResponse<string>(403, "Seller not approved");
 
             // 🔍 Product validation
-            var product = await _productRepo.GetByIdAsync(productId);
-            if (product == null || product.IsDeleted)
-                return new ApiResponse<string>(404, "Product not found");
-
             if (product.SellerId != seller.Id)
                 return new ApiResponse<string>(403, "Unauthorized");
 
             try
             {
+                // 🔍 Handle Variants
+                var existingVariants = await _dbContext.Set<ProductVariant>()
+                    .Where(v => v.ProductId == productId)
+                    .ToListAsync();
+
+                if (dto.Variants != null)
+                {
+                    // Remove variants not in the new list
+                    var newIds = dto.Variants.Select(v => v.Id).Where(id => id > 0).ToList();
+                    var toRemove = existingVariants.Where(v => !newIds.Contains(v.Id)).ToList();
+                    foreach (var v in toRemove) v.IsDeleted = true;
+
+                    // Add or Update
+                    foreach (var vDto in dto.Variants)
+                    {
+                        if (vDto.Id > 0)
+                        {
+                            var v = existingVariants.FirstOrDefault(x => x.Id == vDto.Id);
+                            if (v != null) v.Update(vDto.Label, vDto.Price, vDto.Stock, vDto.Sku);
+                        }
+                        else
+                        {
+                            _dbContext.Set<ProductVariant>().Add(new ProductVariant(productId, vDto.Label, vDto.Price, vDto.Stock, vDto.Sku));
+                        }
+                    }
+                }
+                else
+                {
+                    // If Variants is null in DTO, we might want to keep existing or clear them. 
+                    // Usually null means "no change" in some APIs, but here we'll assume empty means clear.
+                    // For safety, let's only act if it's NOT null.
+                }
+
                 // 🧠 Domain handles internal consistency
                 product.Update(dto.Name.Trim(), dto.Description?.Trim(),dto.Stock, dto.Price);
 
@@ -372,44 +420,87 @@ namespace Homiee.Application.Services
         }
         public async Task<ApiResponse<SellerProductDetailsDto>> GetProductById(int productId, int userId)
         {
-            var cacheKey = $"product:detail:{productId}";
-            var cached = await _cache.GetAsync<SellerProductDetailsDto>(cacheKey);
-            if (cached is not null) return new ApiResponse<SellerProductDetailsDto>(200, "Success", cached);
-
-            var seller = await _sellerRepo.GetByUserIdAsync(userId);
-            if (seller == null)
-                return new ApiResponse<SellerProductDetailsDto>(404, "Seller not found");
-
-            var product = await _productRepo.Query()
-                .AsNoTracking()
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
-
-            if (product == null)
-                return new ApiResponse<SellerProductDetailsDto>(404, "Product not found");
-
-            if (product.SellerId != seller.Id)
-                return new ApiResponse<SellerProductDetailsDto>(403, "Unauthorized");
-
-            var dto = new SellerProductDetailsDto
+            try 
             {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Stock = product.Stock,
-                CategoryId = product.CategoryId,
-                Images = product.Images
-                    .OrderByDescending(i => i.IsPrimary)
-                    .Select(i => i.ImageUrl)
-                    .ToList()
+                Console.WriteLine($"[TRACE] GetProductById: Start for ProductId={productId}, UserId={userId}");
+                
+                var cacheKey = $"product:detail:{productId}";
+                var cached = await _cache.GetAsync<SellerProductDetailsDto>(cacheKey);
+                if (cached is not null) 
+                {
+                    Console.WriteLine($"[TRACE] GetProductById: Cache hit for {cacheKey}");
+                    return new ApiResponse<SellerProductDetailsDto>(200, "Success", cached);
+                }
 
+                Console.WriteLine($"[TRACE] GetProductById: Cache miss, fetching seller for UserID={userId}");
+                var seller = await _sellerRepo.GetByUserIdAsync(userId);
+                if (seller == null)
+                {
+                    Console.WriteLine($"[TRACE] GetProductById: Seller NOT FOUND for UserID={userId}");
+                    return new ApiResponse<SellerProductDetailsDto>(404, "Seller not found");
+                }
+                Console.WriteLine($"[TRACE] GetProductById: Found Seller ID={seller.Id}");
 
-            };
+                Console.WriteLine($"[TRACE] GetProductById: Querying database for Product {productId}");
+                var product = await _productRepo.Query()
+                    .AsNoTracking()
+                    .Include(p => p.Images)
+                    .Include(p => p.Variants)
+                    .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
 
-            await _cache.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(_cfg.ProductDetailTtlMinutes));
+                if (product == null)
+                {
+                    Console.WriteLine($"[TRACE] GetProductById: Product {productId} NOT FOUND or deleted");
+                    return new ApiResponse<SellerProductDetailsDto>(404, "Product not found");
+                }
 
-            return new ApiResponse<SellerProductDetailsDto>(200, "Success", dto);
+                if (product.SellerId != seller.Id)
+                {
+                    Console.WriteLine($"[TRACE] GetProductById: UNAUTHORIZED access to Product {productId} by Seller {seller.Id}");
+                    return new ApiResponse<SellerProductDetailsDto>(403, "Unauthorized");
+                }
+
+                Console.WriteLine($"[TRACE] GetProductById: Mapping Product {productId} (Images: {product.Images?.Count ?? 0}, Variants: {product.Variants?.Count ?? 0})");
+                
+                var dto = new SellerProductDetailsDto
+                {
+                    Id = product.Id,
+                    Name = product.Name ?? string.Empty,
+                    Description = product.Description ?? string.Empty,
+                    Price = product.Price,
+                    Stock = product.Stock,
+                    CategoryId = product.CategoryId,
+                    Images = (product.Images ?? new List<ProductImage>())
+                        .OrderByDescending(i => i.IsPrimary)
+                        .Select(i => new ProductImageDto
+                        {
+                            Id = i.Id,
+                            Url = i.ImageUrl ?? string.Empty,
+                            IsPrimary = i.IsPrimary
+                        })
+                        .ToList(),
+                    Variants = (product.Variants ?? new List<ProductVariant>())
+                        .Select(v => new ProductVariantDto
+                        {
+                            Id = v.Id,
+                            Label = v.Label ?? "Standard",
+                            Price = v.Price,
+                            Stock = v.Stock,
+                            Sku = v.Sku
+                        }).ToList()
+                };
+
+                Console.WriteLine($"[TRACE] GetProductById: Mapping complete, setting cache for {cacheKey}");
+                await _cache.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(_cfg.ProductDetailTtlMinutes));
+
+                return new ApiResponse<SellerProductDetailsDto>(200, "Success", dto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CRITICAL] SellerProductService.GetProductById Failure: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                throw; // Re-throw to be caught by Controller's catch block
+            }
         }
         public async Task<ApiResponse<List<CategoryDto>>> GetCategories()
         {

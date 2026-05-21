@@ -1,4 +1,5 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Common;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -61,10 +62,18 @@ namespace Homiee.Presentation.Controllers
         [HttpGet("product/{id}")]
         public async Task<IActionResult> GetProduct(int id)
         {
-            int userId = GetUserId();
-
-            var result = await _service.GetProductById(id, userId);
-            return StatusCode(result.StatusCode, result);
+            try
+            {
+                int userId = GetUserId();
+                var result = await _service.GetProductById(id, userId);
+                return StatusCode(result.StatusCode, result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CRITICAL] ProductDetails Error for ID {id}: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                return StatusCode(500, new ApiResponse<string>(500, $"Internal Server Error: {ex.Message}"));
+            }
         }
         [HttpPost("{id}/images")]
         public async Task<IActionResult> AddImages(int id, [FromForm] AddProductImagesDto dto)

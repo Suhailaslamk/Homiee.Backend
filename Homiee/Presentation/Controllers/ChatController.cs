@@ -72,20 +72,12 @@ namespace Homiee.Presentation.Controllers
             );
 
             // 🔥 Send to receiver in real-time
-            var connections = _manager.GetConnections(dto.ReceiverId);
-            foreach (var conn in connections)
-            {
-                await _hubContext.Clients.Client(conn)
-                    .SendAsync("ReceiveMessage", msg);
-            }
+            await _hubContext.Clients.User(dto.ReceiverId.ToString())
+                .SendAsync("ReceiveMessage", msg);
 
             // 🔥 Also send back to sender (multi-tab sync)
-            var senderConnections = _manager.GetConnections(senderId);
-            foreach (var conn in senderConnections)
-            {
-                await _hubContext.Clients.Client(conn)
-                    .SendAsync("ReceiveMessage", msg);
-            }
+            await _hubContext.Clients.User(senderId.ToString())
+                .SendAsync("ReceiveMessage", msg);
 
             return Ok(msg);
         }

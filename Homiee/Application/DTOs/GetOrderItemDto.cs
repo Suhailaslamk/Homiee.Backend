@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class GetOrderItemDto
     {
@@ -8,5 +8,6 @@
                    public decimal Price { get; set; }  
                    public int Quantity { get; set; }
         public string? ImageUrl { get; set; }
+        public string? VariantLabel { get; set; }
     }
 }

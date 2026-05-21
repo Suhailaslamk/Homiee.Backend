@@ -38,6 +38,7 @@ namespace Homiee.Infrastructure.Data
         public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
         public DbSet<SellerReview> SellerReviews { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<SellerEarning> SellerEarnings { get; set; }
          
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -70,7 +71,7 @@ namespace Homiee.Infrastructure.Data
                 .WithOne()
                 .HasForeignKey<DeliveryPartner>(d => d.UserId);
             modelBuilder.Entity<CartItem>()
-                .HasIndex(x => new { x.CustomerId, x.ProductId })
+                .HasIndex(x => new { x.CustomerId, x.ProductId, x.ProductVariantId })
                 .IsUnique();
 
            
@@ -133,6 +134,14 @@ namespace Homiee.Infrastructure.Data
             modelBuilder.Entity<SellerEarning>()
                .HasIndex(e => new { e.SellerId, e.OrderId })
                .IsUnique();
+
+            modelBuilder.Entity<ProductVariant>()
+                .HasOne(v => v.Product)
+                .WithMany(p => p.Variants)
+                .HasForeignKey(v => v.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductVariant>().HasQueryFilter(x => !x.IsDeleted);
         }
     }
 }

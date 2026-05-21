@@ -195,10 +195,10 @@ namespace Homiee.Application.Services
             if (existingUser != null)
             {
                 if (existingUser.IsEmailVerified)
-                    return (null!, new ApiResponse<string>(409, "User already exists"));
+                    return (null!, new ApiResponse<string>(409, "User with this email already exists. Please log in."));
 
                 return (null!, new ApiResponse<string>(409,
-                    "Email already registered but not verified"));
+                    $"Email '{normalizedEmail}' is already registered but not verified. Please verify your account."));
             }
 
             var user = new User
@@ -247,8 +247,19 @@ namespace Homiee.Application.Services
             if (error != null)
                 return error;
 
-            user.Role = UserRole.User;
-            await _userRepo.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                user.Role = UserRole.User;
+                await _userRepo.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error during customer registration");
+                return new ApiResponse<string>(500, "Internal server error during registration");
+            }
 
             await SendOtp(user);
 
@@ -300,17 +311,28 @@ namespace Homiee.Application.Services
             if (error != null)
                 return error;
 
-            user.Role = UserRole.DeliveryPartner;
-            await _userRepo.SaveChangesAsync();
-
-            var delivery = new DeliveryPartner
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                UserId = user.Id,
-                VehicleType = dto.VehicleType
-            };
+                user.Role = UserRole.DeliveryPartner;
+                await _userRepo.SaveChangesAsync();
 
-            await _deliveryRepo.AddAsync(delivery);
-            await _deliveryRepo.SaveChangesAsync();
+                var delivery = new DeliveryPartner
+                {
+                    UserId = user.Id,
+                    VehicleType = dto.VehicleType
+                };
+
+                await _deliveryRepo.AddAsync(delivery);
+                await _deliveryRepo.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error during delivery partner registration");
+                return new ApiResponse<string>(500, "Internal server error during registration");
+            }
 
             await SendOtp(user);
 
@@ -442,6 +464,9 @@ namespace Homiee.Application.Services
             var user = await _userRepo.GetByEmailAsync(normalizedEmail);
             if (user == null)
                 return new ApiResponse<string>(404, "User not found");
+
+            if (user.IsEmailVerified)
+                return new ApiResponse<string>(200, "Email already verified");
 
             var storedOtp = await _otpRepo.GetValidOtpAsync(user.Id, verifyotpdto.Otp);
 

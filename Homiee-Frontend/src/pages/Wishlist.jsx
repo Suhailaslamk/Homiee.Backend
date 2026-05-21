@@ -35,9 +35,9 @@ export default function Wishlist() {
     mutationFn: removeFromWishlist,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
-      toast.success('Piece removed from your curated vault.');
+      toast.success('Item removed from wishlist.');
     },
-    onError: () => toast.error('Unable to remove piece.'),
+    onError: () => toast.error('Failed to remove item.'),
   });
 
   const moveToCartMutation = useMutation({
@@ -48,9 +48,9 @@ export default function Wishlist() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Piece transitioned to your acquisition bag.');
+      toast.success('Item added to cart.');
     },
-    onError: () => toast.error('Unable to transition piece.'),
+    onError: () => toast.error('Failed to add to cart.'),
   });
 
   return (
@@ -64,23 +64,23 @@ export default function Wishlist() {
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--color-primary-dark)] text-white text-[10px] font-bold uppercase tracking-[0.3em] mb-6 shadow-xl"
           >
             <Sparkles size={14} className="text-[var(--color-accent)]" />
-            Curated Wishlist Vault
+            My Wishlist
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-6xl md:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight"
+            className="text-5xl sm:text-6xl md:text-7xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight"
           >
-            Your Saved Pieces
+            Your Saved Products
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mt-6 text-xl text-[var(--color-text-muted)] font-medium max-w-2xl mx-auto italic leading-relaxed"
+            className="mt-6 text-lg sm:text-xl text-[var(--color-text-muted)] font-medium max-w-2xl mx-auto italic leading-relaxed px-6"
           >
-            "A curated collection of artisanal creations awaiting their place in your curated environment."
+            "Save products you love and add them to your cart whenever you're ready."
           </motion.p>
         </header>
 
@@ -91,19 +91,19 @@ export default function Wishlist() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <SurfaceCard className="max-w-3xl mx-auto py-24 text-center bg-white border-[var(--color-stone)]/5 shadow-2xl rounded-[4rem]">
+            <SurfaceCard className="max-w-3xl mx-auto py-24 text-center bg-white border-[var(--color-stone)]/5 shadow-2xl rounded-[2rem] sm:rounded-[4rem]">
               <div className="w-24 h-24 bg-[var(--color-sand)]/20 rounded-[2rem] flex items-center justify-center mx-auto mb-10 border border-[var(--color-stone)]/5 shadow-inner text-[var(--color-primary-dark)]">
                 <Heart size={40} />
               </div>
-              <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Vault Vacant</h2>
+              <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Your wishlist is empty</h2>
               <p className="text-[var(--color-text-muted)] mt-6 text-lg leading-relaxed px-12 italic">
-                Your curated collection is currently quiescent. Explore the marketplace to discover pieces that resonate with your aesthetic.
+                You haven't saved any items yet. Explore the marketplace to discover products you love.
               </p>
               <Link 
                 to="/discovery" 
                 className="mt-12 inline-flex items-center gap-4 bg-[var(--color-primary-dark)] text-white px-12 py-6 rounded-[2rem] font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-[var(--color-primary-dark)]/20"
               >
-                Explore Marketplace
+                Browse Products
                 <ArrowRight size={20} />
               </Link>
             </SurfaceCard>
@@ -138,7 +138,7 @@ export default function Wishlist() {
 
 function WishlistItem({ item, onRemove, onMoveToCart, isMoving }) {
   return (
-    <SurfaceCard className="group flex flex-col bg-white rounded-[3.5rem] border-[var(--color-stone)]/5 overflow-hidden hover:shadow-2xl hover:border-[var(--color-accent)]/20 transition-all duration-700 p-0">
+    <SurfaceCard className="group flex flex-col bg-white rounded-[2rem] sm:rounded-[3.5rem] border-[var(--color-stone)]/5 overflow-hidden hover:shadow-2xl hover:border-[var(--color-accent)]/20 transition-all duration-700 p-0">
       <div className="relative aspect-[4/5] overflow-hidden">
         <SafeImage 
           src={item.image || item.images?.[0]} 
@@ -151,14 +151,14 @@ function WishlistItem({ item, onRemove, onMoveToCart, isMoving }) {
           <button 
             onClick={onRemove}
             className="w-14 h-14 bg-white/20 hover:bg-rose-500/80 backdrop-blur-md text-white rounded-2xl flex items-center justify-center transition-all transform translate-y-4 group-hover:translate-y-0 duration-500 delay-75 shadow-xl border border-white/20"
-            title="Remove from vault"
+            title="Remove from wishlist"
           >
             <Trash2 size={22} />
           </button>
           <Link 
             to={`/product/${item.id}`}
             className="w-14 h-14 bg-white/20 hover:bg-[var(--color-accent)]/80 backdrop-blur-md text-white rounded-2xl flex items-center justify-center transition-all transform translate-y-4 group-hover:translate-y-0 duration-500 shadow-xl border border-white/20"
-            title="Examine piece"
+            title="View details"
           >
             <ArrowUpRight size={22} />
           </Link>
@@ -167,7 +167,7 @@ function WishlistItem({ item, onRemove, onMoveToCart, isMoving }) {
         {/* Collection Label */}
         <div className="absolute bottom-6 left-6">
           <span className="px-5 py-2 bg-white/80 backdrop-blur-md rounded-full text-[10px] font-bold text-[var(--color-primary-dark)] uppercase tracking-widest border border-white/50 shadow-sm">
-            {item.categoryName || 'Artisanal'}
+            {item.categoryName || 'Product'}
           </span>
         </div>
       </div>
@@ -177,7 +177,7 @@ function WishlistItem({ item, onRemove, onMoveToCart, isMoving }) {
           <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">{item.name}</h3>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Valuation</span>
+              <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Price</span>
               <div className="flex items-baseline gap-1 text-[var(--color-primary-dark)]">
                 <span className="text-sm font-bold text-[var(--color-accent)]">₹</span>
                 <span className="text-3xl font-bold tracking-tighter">{item.price?.toLocaleString('en-IN')}</span>
@@ -192,10 +192,10 @@ function WishlistItem({ item, onRemove, onMoveToCart, isMoving }) {
         <button 
           onClick={onMoveToCart}
           disabled={isMoving}
-          className="mt-10 w-full flex items-center justify-center gap-3 bg-[var(--color-primary-dark)] text-white py-6 rounded-[2rem] font-bold hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-[var(--color-primary-dark)]/10"
+          className="mt-8 sm:mt-10 w-full flex items-center justify-center gap-3 bg-[var(--color-primary-dark)] text-white py-4 sm:py-6 rounded-[2rem] font-bold hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-[var(--color-primary-dark)]/10"
         >
           {isMoving ? <Clock size={20} className="animate-spin" /> : <ShoppingBag size={20} />}
-          Begin Acquisition
+          Add to Cart
         </button>
       </div>
     </SurfaceCard>

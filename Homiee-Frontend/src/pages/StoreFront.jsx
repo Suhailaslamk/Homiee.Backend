@@ -128,7 +128,7 @@ export default function StoreFront() {
     mutationFn: (payload) => addSellerReview(sellerId, payload),
     onSuccess: (response) => {
       if (response?.isSuccess) {
-        toast.success('Your story has been added to the studio ledger.');
+        toast.success('Your review has been submitted.');
         setReviewModalOpen(false);
         setReviewForm({ orderId: '', rating: 5, comment: '' });
         queryClient.invalidateQueries({ queryKey: ['store-reviews', sellerId] });
@@ -154,8 +154,8 @@ export default function StoreFront() {
             className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
             message={(
               <div className="text-center">
-                <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6">Unable to identify studio coordinates.</p>
-                <button onClick={refetchStore} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Discovery</button>
+                <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6">Unable to find store.</p>
+                <button onClick={refetchStore} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
               </div>
             )}
           />
@@ -180,71 +180,63 @@ export default function StoreFront() {
   const description = storeMeta.address || store.address || 'An independent studio dedicated to the mastery of craft and community support.';
 
   return (
-    <div className="min-h-screen bg-[var(--color-sand)]/10 pb-24 pt-32 px-6">
+    <div className="min-h-screen bg-[var(--color-background)] pb-24 pt-32 px-6 paper-texture">
       <div className="mx-auto max-w-7xl">
-        {/* Studio Header */}
-        <section className="relative mb-20">
+        {/* Cinematic Studio Header */}
+        <section className="mb-24">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="overflow-hidden rounded-[4rem] border border-white bg-white/40 backdrop-blur-3xl shadow-2xl relative"
+            className="relative overflow-hidden rounded-[2rem] bg-[var(--color-primary-dark)] p-8 sm:p-16 text-center"
           >
-            {/* Header Background Pattern */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--color-accent)] blur-[120px] rounded-full -mr-48 -mt-48" />
-              <div className="absolute bottom-0 left-0 w-96 h-96 bg-[var(--color-primary-dark)] blur-[120px] rounded-full -ml-48 -mb-48" />
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_center,var(--color-accent),transparent_70%)]" />
             </div>
 
-            <div className="relative p-10 sm:p-16 flex flex-col lg:flex-row items-center lg:items-end justify-between gap-12">
-              <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10 text-center lg:text-left">
-                <div className="w-32 h-32 rounded-[2.5rem] bg-[var(--color-primary-dark)] text-[var(--color-accent)] flex items-center justify-center text-5xl font-['Fraunces'] font-bold shadow-2xl border-4 border-white transition-transform hover:rotate-3 duration-500">
-                  {getInitials(store.businessName)}
-                </div>
-
-                <div className="max-w-2xl">
-                  <div className="flex flex-wrap justify-center lg:justify-start items-center gap-4 mb-6">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-accent)]/10 text-[var(--color-accent)] rounded-full text-[10px] font-black uppercase tracking-widest border border-[var(--color-accent)]/20">
-                      <ShieldCheck size={14} /> Authorized Studio
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/50 text-[var(--color-primary-dark)] rounded-full text-[10px] font-bold uppercase tracking-widest border border-[var(--color-stone)]/5 shadow-sm">
-                      <Star size={14} className="fill-[var(--color-accent)] text-[var(--color-accent)]" /> {formatRating(store.averageRating)} | {store.reviewCount ?? 0} Signals
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/50 text-[var(--color-primary-dark)] rounded-full text-[10px] font-bold uppercase tracking-widest border border-[var(--color-stone)]/5 shadow-sm">
-                      <LayoutGrid size={14} /> {displayProductCount} Exhibits
-                    </div>
-                  </div>
-
-                  <h1 className="text-5xl sm:text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-tight mb-6">
-                    {store.businessName}
-                  </h1>
-                  <p className="text-xl text-[var(--color-stone)] font-medium italic opacity-70 leading-relaxed pr-8">
-                    "{description}"
-                  </p>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-24 h-24 rounded-2xl bg-white text-[var(--color-primary-dark)] flex items-center justify-center text-4xl classic-heading shadow-2xl mb-8">
+                {getInitials(store.businessName)}
+              </div>
+              
+              <div className="flex items-center gap-3 mb-6">
+                <span className="exhibit-label text-white/60">Store ID: #{sellerId}</span>
+                <div className="w-1 h-1 rounded-full bg-white/20" />
+                <div className="flex items-center gap-1 text-[var(--color-accent)] font-bold text-sm">
+                  <Star size={14} className="fill-current" />
+                  {formatRating(store.averageRating)}
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              <h1 className="classic-heading text-3xl sm:text-6xl text-white mb-6">
+                {store.businessName}
+              </h1>
+              
+              <p className="text-base sm:text-xl text-white/70 font-medium italic max-w-2xl leading-relaxed px-4">
+                "{description}"
+              </p>
+
+              <div className="mt-12 flex flex-wrap justify-center gap-6">
                 {Number(sellerId) !== Number(currentUserId) && (
                   <button
                     onClick={() => {
                       if (!isAuthenticated()) {
-                        toast.info('Please log in to transmit messages to this studio.');
+                        toast.info('Please log in to send a message to this store.');
                         navigate('/login');
                         return;
                       }
-                      navigate(`/chat/${store.sellerUserId}`, { state: { name: store.businessName, subtitle: 'Ask about custom orchestration or studio exhibits.' } });
+                      navigate(`/chat/${store.sellerUserId}`, { state: { name: store.businessName, subtitle: 'Ask about products or orders.' } });
                     }}
-                    className="h-20 px-10 bg-[var(--color-primary-dark)] text-white font-bold rounded-3xl flex items-center justify-center gap-4 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"
+                    className="h-14 px-8 bg-white text-[var(--color-primary-dark)] font-bold rounded-xl shadow-xl hover:scale-105 transition-all flex items-center gap-3"
                   >
-                    <MessageSquare size={24} /> Transmit Message
+                    <MessageSquare size={18} /> Send Message
                   </button>
                 )}
                 {store.phoneNumber && (
                   <a
                     href={`tel:${store.phoneNumber}`}
-                    className="h-20 px-8 bg-white border border-[var(--color-stone)]/10 text-[var(--color-primary-dark)] font-bold rounded-3xl flex items-center justify-center gap-4 shadow-xl hover:bg-[var(--color-sand)]/20 transition-all"
+                    className="h-14 px-8 bg-transparent border border-white/20 text-white font-bold rounded-xl hover:bg-white/5 transition-all flex items-center gap-3"
                   >
-                    <Phone size={24} /> {store.phoneNumber}
+                    <Phone size={18} /> {store.phoneNumber}
                   </a>
                 )}
               </div>
@@ -254,41 +246,38 @@ export default function StoreFront() {
 
         <div className="grid gap-16 lg:grid-cols-[380px,1fr]">
           {/* Studio Refinement */}
-          <aside className="space-y-10">
-            <SurfaceCard className="bg-white/60 backdrop-blur-xl border-white p-10 rounded-[3.5rem] shadow-2xl space-y-12 h-fit lg:sticky lg:top-32">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
-                  <Filter size={20} />
+          <aside className="space-y-6 sm:space-y-10">
+            <div className="classic-card p-6 sm:p-10 space-y-8 sm:space-y-12 h-fit lg:sticky lg:top-32">
+              <div className="flex items-center gap-4 border-b border-[var(--color-stone)]/10 pb-6">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
+                  <Filter size={18} />
                 </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Curation</p>
-                  <h2 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Refine Studio</h2>
-                </div>
+                <h2 className="classic-heading text-xl">Filters</h2>
               </div>
 
               <div className="space-y-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] ml-2">Identify Exhibit</label>
+                  <label className="exhibit-label">Search</label>
                   <div className="relative">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--color-stone)]/30" size={18} />
+                    <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-[var(--color-stone)]/30" size={16} />
                     <input
                       type="text"
                       value={filters.search}
                       onChange={(e) => setFilters(prev => ({ ...prev, page: 1, search: e.target.value }))}
-                      placeholder="Search exhibits..."
-                      className="w-full bg-white border border-[var(--color-stone)]/5 rounded-2xl py-4 pl-14 pr-6 text-sm font-medium outline-none focus:border-[var(--color-accent)]/20 transition-all shadow-inner"
+                      placeholder="Search products..."
+                      className="w-full bg-transparent border-b border-[var(--color-stone)]/20 py-3 pl-8 pr-4 text-sm font-medium outline-none focus:border-[var(--color-accent)] transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] ml-2">Specialization</label>
+                  <label className="exhibit-label">Categories</label>
                   <select
                     value={filters.categoryId}
                     onChange={(e) => setFilters(prev => ({ ...prev, page: 1, categoryId: e.target.value }))}
-                    className="w-full bg-white border border-[var(--color-stone)]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/20 transition-all cursor-pointer shadow-sm"
+                    className="w-full bg-transparent border-b border-[var(--color-stone)]/20 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)] transition-all cursor-pointer"
                   >
-                    <option value="">All Specializations</option>
+                    <option value="">All Areas</option>
                     {categories.map((catId) => (
                       <option key={catId} value={catId}>{categoryMap[catId] || `Category #${catId}`}</option>
                     ))}
@@ -296,72 +285,55 @@ export default function StoreFront() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] ml-2">Valuation Range</label>
-                  <div className="grid grid-cols-2 gap-4">
+                  <label className="exhibit-label">Price Range</label>
+                  <div className="grid grid-cols-2 gap-8">
                     <input
                       type="number" placeholder="Min"
                       value={filters.minPrice}
                       onChange={(e) => setFilters(prev => ({ ...prev, page: 1, minPrice: e.target.value }))}
-                      className="bg-white border border-[var(--color-stone)]/5 rounded-2xl px-5 py-4 text-sm font-bold outline-none shadow-inner"
+                      className="bg-transparent border-b border-[var(--color-stone)]/20 py-3 text-sm font-bold outline-none focus:border-[var(--color-accent)]"
                     />
                     <input
                       type="number" placeholder="Max"
                       value={filters.maxPrice}
                       onChange={(e) => setFilters(prev => ({ ...prev, page: 1, maxPrice: e.target.value }))}
-                      className="bg-white border border-[var(--color-stone)]/5 rounded-2xl px-5 py-4 text-sm font-bold outline-none shadow-inner"
+                      className="bg-transparent border-b border-[var(--color-stone)]/20 py-3 text-sm font-bold outline-none focus:border-[var(--color-accent)]"
                     />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] ml-2">Observation Threshold</label>
-                  <div className="flex gap-2">
-                    {[4, 5].map((rating) => (
-                      <button
-                        key={rating}
-                        onClick={() => setFilters(prev => ({ ...prev, page: 1, minRating: prev.minRating === rating ? '' : rating }))}
-                        className={`flex-1 py-4 rounded-2xl border-2 font-bold transition-all text-xs ${
-                          Number(filters.minRating) === rating ? 'bg-[var(--color-accent)] text-[var(--color-primary-dark)] border-transparent' : 'bg-white text-[var(--color-stone)] border-[var(--color-stone)]/5 hover:border-[var(--color-accent)]/20'
-                        }`}
-                      >
-                        {rating}★ Plus
-                      </button>
-                    ))}
                   </div>
                 </div>
 
                 <button
                   onClick={() => setFilters({ page: 1, pageSize: 12, search: '', minPrice: '', maxPrice: '', categoryId: '', sortBy: 'newest', desc: true, minRating: '' })}
-                  className="w-full py-5 rounded-2xl border border-[var(--color-stone)]/10 font-bold text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] hover:text-rose-500 transition-colors"
+                  className="w-full py-4 text-rose-600 exhibit-label text-[0.6rem] hover:underline"
                 >
-                  Reset Parameters
+                  Clear Filters
                 </button>
               </div>
-            </SurfaceCard>
+            </div>
           </aside>
 
           {/* Studio Portfolio */}
           <div className="space-y-16">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
               <div>
-                <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Studio Exhibits</h2>
-                <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">A curated catalog of artisanal treasures</p>
+                <h2 className="text-3xl sm:text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Store Products</h2>
+                <p className="text-xs sm:text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">A curated collection</p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 w-full sm:w-auto">
                 <select
                   value={filters.sortBy}
                   onChange={(e) => setFilters(prev => ({ ...prev, page: 1, sortBy: e.target.value }))}
-                  className="bg-white border border-[var(--color-stone)]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[var(--color-primary-dark)] outline-none shadow-sm cursor-pointer"
+                  className="flex-1 sm:flex-none bg-white border border-[var(--color-stone)]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[var(--color-primary-dark)] outline-none shadow-sm cursor-pointer"
                 >
-                  <option value="newest">Genesis Order</option>
-                  <option value="price_asc">Valuation: Min</option>
-                  <option value="price_desc">Valuation: Max</option>
-                  <option value="rating">Top Choice</option>
+                  <option value="newest">Newest</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="rating">Top Rated</option>
                 </select>
                 <button
                   onClick={() => setFilters(prev => ({ ...prev, page: 1, desc: !prev.desc }))}
-                  className={`w-14 h-14 rounded-2xl border transition-all flex items-center justify-center ${filters.desc ? 'bg-[var(--color-primary-dark)] text-white' : 'bg-white text-[var(--color-stone)] border-[var(--color-stone)]/10'}`}
+                  className={`w-14 h-14 rounded-2xl border transition-all flex items-center justify-center shrink-0 ${filters.desc ? 'bg-[var(--color-primary-dark)] text-white' : 'bg-white text-[var(--color-stone)] border-[var(--color-stone)]/10'}`}
                 >
                   <ChevronDown size={24} className={filters.desc ? '' : 'rotate-180'} />
                 </button>
@@ -369,14 +341,14 @@ export default function StoreFront() {
             </div>
 
             {products.length === 0 ? (
-              <div className="py-32 text-center bg-white border border-[var(--color-stone)]/5 rounded-[4rem] shadow-xl">
-                <Sparkles size={64} className="mx-auto text-[var(--color-stone)]/20 mb-8" />
-                <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Portfolio Quiet</h3>
-                <p className="mt-4 text-[var(--color-text-muted)] italic max-w-sm mx-auto leading-relaxed">"No exhibits match your current exploration parameters. Try broadening your scope."</p>
+              <div className="py-32 text-center bg-white/40 border border-[var(--color-stone)]/10 rounded-[2rem]">
+                <Sparkles size={48} className="mx-auto text-[var(--color-stone)]/20 mb-6" />
+                <h3 className="classic-heading text-3xl">No Products Found</h3>
+                <p className="mt-4 text-[var(--color-text-muted)] italic max-w-sm mx-auto">"Try adjusting your filters to find what you're looking for."</p>
               </div>
             ) : (
               <div className="space-y-16">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-12">
                   {products.map((product, idx) => (
                     <motion.div
                       key={product.id}
@@ -402,37 +374,34 @@ export default function StoreFront() {
             )}
 
             {/* Studio Signals (Reviews) */}
-            <div className="pt-24 border-t border-[var(--color-stone)]/5 grid gap-16 lg:grid-cols-[1fr,1.5fr]">
-              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[3.5rem] shadow-2xl h-fit">
+            <div className="pt-24 border-t border-[var(--color-stone)]/10 grid gap-16 lg:grid-cols-[1fr,1.5fr]">
+              <div className="classic-card p-10 h-fit">
                 <div className="flex items-center gap-4 mb-10">
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
-                    <CheckCircle2 size={24} />
+                  <div className="w-10 h-10 rounded-full bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)]">
+                  <CheckCircle2 size={20} />
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Signals</p>
-                    <h2 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Studio Ledger</h2>
+                  <h2 className="classic-heading text-xl">Store Reviews</h2>
+                </div>
+
+                <div className="flex items-end gap-5 mb-12">
+                  <p className="text-6xl classic-heading">{formatRating(store.averageRating)}</p>
+                  <div className="pb-2">
+                    <StarRow value={store.averageRating} size={16} />
+                    <p className="mt-2 exhibit-label text-[0.55rem]">{store.reviewCount ?? 0} Reviews</p>
                   </div>
                 </div>
 
-                <div className="flex items-end gap-5 mb-12 bg-[var(--color-sand)]/10 p-8 rounded-[2.5rem] border border-[var(--color-stone)]/5">
-                  <p className="text-6xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] tracking-tighter">{formatRating(store.averageRating)}</p>
-                  <div className="pb-3">
-                    <StarRow value={store.averageRating} size={18} />
-                    <p className="mt-3 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{store.reviewCount ?? 0} Observations</p>
-                  </div>
-                </div>
-
-                <div className="space-y-5 mb-10">
+                <div className="space-y-4 mb-10">
                   {[5, 4, 3, 2, 1].map((star) => {
                     const count = reviewBreakdown[star] || 0;
                     const percent = reviews.length ? (count / reviews.length) * 100 : 0;
                     return (
-                      <div key={star} className="flex items-center gap-5">
-                        <span className="w-10 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{star}★</span>
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-sand)]/30">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${percent}%` }} transition={{ duration: 1 }} className="h-full bg-[var(--color-accent)]" />
+                      <div key={star} className="flex items-center gap-4">
+                        <span className="w-8 exhibit-label text-[0.5rem]">{star}★</span>
+                        <div className="h-0.5 flex-1 overflow-hidden bg-[var(--color-stone)]/10">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${percent}%` }} transition={{ duration: 1 }} className="h-full bg-[var(--color-primary-dark)]" />
                         </div>
-                        <span className="w-8 text-right text-[10px] font-bold text-[var(--color-primary-dark)]">{count}</span>
+                        <span className="w-6 text-right exhibit-label text-[0.5rem]">{count}</span>
                       </div>
                     );
                   })}
@@ -442,54 +411,51 @@ export default function StoreFront() {
                   <button
                     onClick={() => {
                       if (!canWriteReview) {
-                        toast.info('You may contribute to the ledger after a successful acquisition from this studio.');
+                      toast.info('You can write a review after your order is delivered.');
                         return;
                       }
                       setReviewModalOpen(true);
                     }}
-                    className="w-full py-5 bg-[var(--color-primary-dark)] text-white font-bold rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+                    className="w-full py-4 bg-[var(--color-primary-dark)] text-white font-bold rounded-xl shadow-lg hover:scale-105 transition-all"
                   >
-                    Contribute Signal
+                    Write a Review
                   </button>
                 )}
-              </SurfaceCard>
+              </div>
 
-              <div className="space-y-10">
+              <div className="space-y-12">
                 <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Recent Signals</h2>
-                    <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">Authentic narratives from the collector community</p>
-                  </div>
-                  {reviewsLoading && <Clock className="animate-spin text-[var(--color-stone)]/30" size={24} />}
+                  <h2 className="classic-heading text-3xl">Customer Reviews</h2>
+                  {reviewsLoading && <Clock className="animate-spin text-[var(--color-stone)]/30" size={20} />}
                 </div>
 
                 {reviews.length === 0 ? (
-                  <div className="p-16 text-center bg-white border border-[var(--color-stone)]/5 rounded-[4rem] shadow-xl">
-                    <p className="text-lg text-[var(--color-text-muted)] italic">"This studio ledger currently has no public entries."</p>
+                  <div className="p-16 text-center border border-[var(--color-stone)]/10 rounded-[2rem]">
+                    <p className="text-lg text-[var(--color-text-muted)] italic">"This store has no reviews yet."</p>
                   </div>
                 ) : (
-                  <div className="grid gap-8">
+                  <div className="grid gap-12">
                     {reviews.map((review, idx) => (
                       <motion.div
                         key={idx}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="p-10 bg-white border border-[var(--color-stone)]/5 rounded-[3.5rem] shadow-xl hover:shadow-2xl transition-all group"
+                        className="pb-12 border-b border-[var(--color-stone)]/10 last:border-0"
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
-                          <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-2xl bg-[var(--color-sand)]/50 flex items-center justify-center text-xl font-bold font-['Fraunces'] text-[var(--color-primary-dark)] group-hover:bg-[var(--color-accent)] transition-colors">
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-[var(--color-sand)]/50 flex items-center justify-center classic-heading text-xl">
                               {(review.userName || 'P').charAt(0)}
                             </div>
                             <div>
-                              <p className="text-lg font-bold text-[var(--color-primary-dark)]">{review.userName || 'Collector'}</p>
-                              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1 italic">{formatDate(review.createdAt)}</p>
+                              <p className="text-lg font-bold text-[var(--color-primary-dark)]">{review.userName || 'Customer'}</p>
+                              <p className="exhibit-label text-[0.5rem] mt-0.5">{formatDate(review.createdAt)}</p>
                             </div>
                           </div>
-                          <StarRow value={review.rating} size={16} />
+                          <StarRow value={review.rating} size={14} />
                         </div>
-                        <p className="text-xl text-[var(--color-stone)] font-medium italic leading-relaxed pr-8 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <p className="text-xl text-[var(--color-text-muted)] font-medium italic leading-relaxed">
                           "{review.comment}"
                         </p>
                       </motion.div>
@@ -510,11 +476,11 @@ export default function StoreFront() {
           onClose={() => setReviewModalOpen(false)}
           onSubmit={() => {
             if (!reviewForm.orderId) {
-              toast.error('Choose a valid acquisition reference.');
+              toast.error('Please select an order to review.');
               return;
             }
             if (!reviewForm.comment.trim()) {
-              toast.error('Share a short narrative.');
+              toast.error('Please write a short review.');
               return;
             }
             reviewMutation.mutate({
@@ -532,121 +498,114 @@ export default function StoreFront() {
 
 function StudioExhibitCard({ product, onClick }) {
   return (
-    <SurfaceCard
+    <div
       onClick={onClick}
-      className="bg-white border-[var(--color-stone)]/5 p-0 overflow-hidden shadow-xl rounded-[3rem] group transition-all hover:shadow-2xl"
+      className="classic-card overflow-hidden group cursor-pointer"
     >
       <div className="aspect-square overflow-hidden relative">
-        <SafeImage src={product.imageUrl} alt={product.name} className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-        <div className="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black text-[var(--color-primary-dark)] shadow-xl">
+        <SafeImage src={product.imageUrl} alt={product.name} className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+        <div className="absolute top-6 right-6 px-3 py-1.5 bg-white/80 backdrop-blur-md rounded-lg exhibit-label text-[0.6rem] shadow-sm">
           {formatCurrency(product.price)}
         </div>
       </div>
-
-      <div className="p-8">
-        <div className="mb-4 flex items-center justify-between">
-          <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${product.isAvailable ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
-            {product.isAvailable ? `In Studio (${product.stock})` : 'Allocation Void'}
+      <div className="p-4 sm:p-8">
+        <div className="mb-2 flex items-center justify-between">
+          <span className={`exhibit-label text-[0.5rem] sm:text-[0.55rem] ${product.isAvailable ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {product.isAvailable ? 'In Stock' : 'Out of Stock'}
           </span>
-          <div className="flex items-center gap-1.5 text-[var(--color-accent)] font-bold text-xs">
-            <Star size={12} className="fill-current" />
+          <div className="flex items-center gap-1 text-[var(--color-accent)] font-bold text-[10px]">
+            <Star size={10} className="fill-current" />
             {formatRating(product.averageRating)}
           </div>
         </div>
-
-        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors leading-tight truncate">{product.name}</h3>
-        <p className="mt-3 line-clamp-2 text-sm text-[var(--color-text-muted)] font-medium italic opacity-70">
-          {product.description || 'Tap through to examine the full narrative and craftsmanship behind this piece.'}
+        <h3 className="classic-heading text-base sm:text-xl group-hover:text-[var(--color-accent)] transition-colors truncate">{product.name}</h3>
+        <p className="mt-2 line-clamp-2 text-xs text-[var(--color-text-muted)] font-medium italic opacity-70">
+          {product.description || 'View product details.'}
         </p>
-
-        <div className="mt-8 flex items-center justify-between pt-6 border-t border-[var(--color-stone)]/5">
-          <div className="flex items-center gap-2 text-[10px] font-black text-[var(--color-primary-dark)] uppercase tracking-widest group-hover:text-[var(--color-accent)] transition-colors">
-            Examine <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+        <div className="mt-4 sm:mt-8 flex items-center justify-between pt-4 sm:pt-6 border-t border-[var(--color-stone)]/10">
+          <div className="exhibit-label text-[0.4rem] sm:text-[0.55rem] flex items-center gap-1 group-hover:text-[var(--color-accent)] transition-colors">
+            View <ArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
       </div>
-    </SurfaceCard>
+
+    </div>
   );
 }
-
 function ReviewModal({ eligibleOrders, reviewForm, setReviewForm, onClose, onSubmit, isSubmitting }) {
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-primary-dark)]/60 px-6 backdrop-blur-xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-primary-dark)]/40 px-6 backdrop-blur-md">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9, y: 40 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 40 }}
-          className="w-full max-w-2xl rounded-[4rem] border border-white/20 bg-white p-12 sm:p-16 shadow-2xl relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="w-full max-w-xl classic-card p-12 relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-accent)]/10 blur-[100px] rounded-full -mr-32 -mt-32" />
-          
-          <div className="flex items-start justify-between gap-8 mb-12 relative z-10">
+          <div className="flex items-start justify-between gap-8 mb-12">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
-                <Sparkles size={12} />
-                Studio Validation
-              </div>
-              <h3 className="text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-tight">Compose Your <i className="text-[var(--color-accent)]">Signal</i></h3>
-              <p className="mt-6 text-lg text-[var(--color-stone)] font-medium italic opacity-70 leading-relaxed">"Your reflection immortalizes the legacy of this studio within the community registry."</p>
+              <h3 className="classic-heading text-4xl mb-4">Write a Review</h3>
+              <p className="text-sm text-[var(--color-text-muted)] italic leading-relaxed">"Share your experience with the community."</p>
             </div>
-            <button onClick={onClose} className="w-14 h-14 rounded-2xl bg-[var(--color-sand)]/20 border border-[var(--color-stone)]/5 flex items-center justify-center text-[var(--color-stone)] hover:text-rose-500 transition-all active:scale-90">
-              <Plus size={24} className="rotate-45" />
+            <button onClick={onClose} className="w-10 h-10 rounded-full bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)] hover:text-rose-500 transition-all">
+              <Plus size={20} className="rotate-45" />
             </button>
           </div>
 
-          <div className="space-y-10 relative z-10">
+          <div className="space-y-10">
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] ml-2 italic">Acquisition Reference</label>
+              <label className="exhibit-label text-[0.6rem]">Select Order</label>
               <select
                 value={reviewForm.orderId}
                 onChange={(e) => setReviewForm(prev => ({ ...prev, orderId: e.target.value }))}
-                className="w-full bg-[var(--color-sand)]/5 border border-[var(--color-stone)]/5 rounded-2xl px-6 py-4 text-sm font-bold text-[var(--color-primary-dark)] outline-none shadow-inner"
+                className="w-full bg-transparent border-b border-[var(--color-stone)]/20 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]"
               >
-                <option value="">Choose your order...</option>
+                <option value="">Select order...</option>
                 {eligibleOrders.map((order) => (
-                  <option key={order.id} value={order.id}>Reference #{order.id} — {formatDate(order.createdAt)}</option>
+                  <option key={order.id} value={order.id}>Order #{order.id.slice(-6).toUpperCase()} — {formatDate(order.createdAt)}</option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] ml-2 italic">Resonance Rating</label>
+              <label className="exhibit-label text-[0.6rem]">Rating</label>
               <div className="flex gap-4">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <button
                     key={rating}
                     onClick={() => setReviewForm(prev => ({ ...prev, rating }))}
-                    className={`flex-1 h-14 rounded-2xl border-2 font-bold transition-all text-xs flex items-center justify-center gap-2 ${
-                      reviewForm.rating === rating ? 'bg-[var(--color-accent)] text-[var(--color-primary-dark)] border-transparent shadow-lg scale-105' : 'bg-white text-[var(--color-stone)] border-[var(--color-stone)]/5 hover:border-[var(--color-accent)]/30'
+                    className={`flex-1 h-12 rounded-lg border transition-all text-xs flex items-center justify-center gap-2 ${
+                      reviewForm.rating === rating 
+                        ? 'bg-[var(--color-primary-dark)] text-white border-transparent' 
+                        : 'bg-white text-[var(--color-stone)] border-[var(--color-stone)]/20 hover:border-[var(--color-accent)]'
                     }`}
                   >
-                    {rating} <Star size={12} className={reviewForm.rating >= rating ? 'fill-current' : ''} />
+                    {rating} <Star size={10} className={reviewForm.rating >= rating ? 'fill-current' : ''} />
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] ml-2 italic">The Narrative Submission</label>
+              <label className="exhibit-label text-[0.6rem]">Your Review</label>
               <textarea
-                rows="5"
+                rows="4"
                 value={reviewForm.comment}
                 onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
-                placeholder="Articulate the soul of your experience with this studio..."
-                className="w-full bg-[var(--color-sand)]/5 border border-[var(--color-stone)]/5 rounded-[2.5rem] px-8 py-6 text-lg font-medium text-[var(--color-primary-dark)] outline-none shadow-inner italic scrollbar-hide min-h-[160px]"
+                placeholder="Share the details of your experience..."
+                className="w-full bg-[var(--color-sand)]/10 border border-[var(--color-stone)]/10 rounded-xl px-6 py-4 text-sm font-medium text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)] italic"
               />
             </div>
           </div>
 
-          <div className="mt-12 flex items-center gap-6 relative z-10">
-            <button onClick={onClose} className="flex-1 h-18 py-5 rounded-[1.8rem] border-2 border-[var(--color-stone)]/5 font-bold text-[var(--color-stone)] hover:bg-[var(--color-sand)]/20 transition-all">Discard Signal</button>
+          <div className="mt-12 flex items-center gap-6">
+            <button onClick={onClose} className="flex-1 h-14 exhibit-label text-[0.6rem] text-[var(--color-stone)] hover:underline">Discard</button>
             <button
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="flex-[2] h-18 py-5 bg-[var(--color-primary-dark)] text-white rounded-[1.8rem] font-bold text-lg shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-[2] h-14 bg-[var(--color-primary-dark)] text-white rounded-xl font-bold shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
-              {isSubmitting ? <><Clock size={20} className="animate-spin" /> Publishing...</> : <>Publish Signal <ArrowUpRight size={20} /></>}
+              {isSubmitting ? <Clock size={18} className="animate-spin" /> : <>Submit Review <ArrowRight size={18} /></>}
             </button>
           </div>
         </motion.div>
@@ -658,20 +617,20 @@ function ReviewModal({ eligibleOrders, reviewForm, setReviewForm, onClose, onSub
 function Pagination({ currentPage, totalPages, pages, onPageChange }) {
   if (totalPages <= 1) return null;
   return (
-    <div className="flex items-center justify-center gap-4 pt-12">
+    <div className="flex items-center justify-center gap-6 pt-16">
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="w-14 h-14 rounded-2xl bg-white border border-[var(--color-stone)]/5 flex items-center justify-center text-[var(--color-primary-dark)] disabled:opacity-30 transition-all hover:bg-[var(--color-sand)]/20"
+        className="exhibit-label text-[0.6rem] text-[var(--color-stone)] disabled:opacity-30 hover:text-[var(--color-primary-dark)] transition-all flex items-center gap-2"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={16} /> Previous
       </button>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         {pages.map((p, i) => (
           <button
             key={i}
             onClick={() => onPageChange(p)}
-            className={`w-12 h-12 rounded-2xl font-bold transition-all ${currentPage === p ? 'bg-[var(--color-primary-dark)] text-white shadow-xl' : 'bg-white text-[var(--color-text-muted)] border border-[var(--color-stone)]/5'}`}
+            className={`w-8 h-8 rounded-full exhibit-label text-[0.6rem] transition-all ${currentPage === p ? 'bg-[var(--color-primary-dark)] text-white shadow-md' : 'text-[var(--color-stone)] hover:bg-[var(--color-sand)]/20'}`}
           >
             {p}
           </button>
@@ -680,9 +639,9 @@ function Pagination({ currentPage, totalPages, pages, onPageChange }) {
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="w-14 h-14 rounded-2xl bg-white border border-[var(--color-stone)]/5 flex items-center justify-center text-[var(--color-primary-dark)] disabled:opacity-30 transition-all hover:bg-[var(--color-sand)]/20"
+        className="exhibit-label text-[0.6rem] text-[var(--color-stone)] disabled:opacity-30 hover:text-[var(--color-primary-dark)] transition-all flex items-center gap-2"
       >
-        <ChevronRight size={24} />
+        Next <ChevronRight size={16} />
       </button>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
 
-export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', enabled = true } = {}) {
+export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', enabled = true, onStatusChange = null } = {}) {
   const connectionRef = useRef(null);
   const [status, setStatus] = useState(enabled ? 'connecting' : 'idle');
   const onMessageRef = useRef(onMessage);
@@ -13,6 +13,7 @@ export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', en
   useEffect(() => {
     if (!enabled || !hubUrl) {
       setStatus('idle');
+      onStatusChange?.('idle');
       return undefined;
     }
 
@@ -20,6 +21,7 @@ export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', en
 
     if (!token || token === 'undefined') {
       setStatus('idle');
+      onStatusChange?.('idle');
       return undefined;
     }
 
@@ -44,9 +46,9 @@ export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', en
       onMessageRef.current?.(payload);
     });
 
-    connection.onreconnecting(() => setStatus('reconnecting'));
-    connection.onreconnected(() => setStatus('connected'));
-    connection.onclose(() => setStatus('disconnected'));
+    connection.onreconnecting(() => { setStatus('reconnecting'); onStatusChange?.('reconnecting'); });
+    connection.onreconnected(() => { setStatus('connected'); onStatusChange?.('connected'); });
+    connection.onclose(() => { setStatus('disconnected'); onStatusChange?.('disconnected'); });
 
     connection
       .start()
@@ -54,6 +56,7 @@ export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', en
         isStarting = false;
         if (!cancelled) {
           setStatus('connected');
+          onStatusChange?.('connected');
         } else {
           // If already cancelled, stop it now
           connection.stop().catch(() => {});
@@ -74,6 +77,7 @@ export function useSignalR(hubUrl, onMessage, { eventName = 'ReceiveMessage', en
 
         if (!cancelled) {
           setStatus('error');
+          onStatusChange?.('error');
         }
       });
 

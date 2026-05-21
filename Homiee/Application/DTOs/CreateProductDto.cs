@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class CreateProductDto
     {
@@ -8,6 +8,7 @@
         public int Stock { get; set; }
         public int CategoryId { get; set; }
         public IFormFile Image { get; set; }
+        public List<ProductVariantDto>? Variants { get; set; }
 
     }
 }

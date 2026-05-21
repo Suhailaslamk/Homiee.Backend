@@ -19,7 +19,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[var(--color-stone)]/5 shadow-sm text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] mb-8"
           >
-            <Sparkles size={14} /> The Homiee Genesis
+            <Sparkles size={14} /> Our Story
           </motion.div>
           
           <motion.h1 
@@ -28,16 +28,16 @@ export default function About() {
             transition={{ delay: 0.1 }}
             className="text-7xl sm:text-8xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-[1.05]"
           >
-            Empowering the <i className="text-[var(--color-accent)]">Artisan</i> heartbeat.
+            Empowering <i className="text-[var(--color-accent)]">local</i> creators.
           </motion.h1>
           
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mt-12 text-2xl text-[var(--color-stone)] font-medium leading-relaxed italic max-w-3xl opacity-80"
+            className="mt-8 sm:mt-12 text-lg sm:text-2xl text-[var(--color-stone)] font-medium leading-relaxed italic max-w-3xl opacity-80"
           >
-            "Homiee was born from a simple observation: the most soul-stirring treasures aren't found in factories, but in the hands of our neighbors."
+            "Homiee was born from a simple observation: the most unique products aren't found in factories, but in the hands of talented local makers."
           </motion.p>
         </header>
 
@@ -48,7 +48,7 @@ export default function About() {
             viewport={{ once: true }}
             className="space-y-12"
           >
-            <h2 className="text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">Our Orchestration <i className="text-[var(--color-accent)]">Principles</i></h2>
+            <h2 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">Our Core <i className="text-[var(--color-accent)]">Values</i></h2>
             
             <div className="space-y-10">
               <Principle 
@@ -58,13 +58,13 @@ export default function About() {
               />
               <Principle 
                 icon={<ShieldCheck />} 
-                title="Artisan Integrity" 
-                desc="Every studio on our platform is hand-vetted for authenticity, craftsmanship, and commitment to their craft." 
+                title="Quality & Trust" 
+                desc="Every store on our platform is hand-vetted for quality, authenticity, and commitment to their craft." 
               />
               <Principle 
                 icon={<Zap />} 
-                title="Radical Transparency" 
-                desc="From source to sanctuary, we provide the full narrative of your acquisitions, including direct artisan signals." 
+                title="Full Transparency" 
+                desc="We provide full transparency for every order, connecting you directly with the sellers." 
               />
             </div>
           </motion.div>
@@ -87,20 +87,20 @@ export default function About() {
           </div>
         </div>
 
-        <section className="bg-[var(--color-primary-dark)] rounded-[5rem] p-16 sm:p-24 text-white relative overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.2)]">
+        <section className="bg-[var(--color-primary-dark)] rounded-[3rem] sm:rounded-[5rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.2)]">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 blur-[100px] rounded-full -mr-48 -mt-48" />
           
           <div className="relative z-10 text-center max-w-3xl mx-auto space-y-10">
-            <h3 className="text-5xl sm:text-6xl font-['Fraunces'] font-bold leading-tight">Ready to join the <i className="text-[var(--color-accent)]">movement?</i></h3>
-            <p className="text-xl text-white/60 leading-relaxed font-medium italic">
-              "Whether you are a creator seeking a stage or a collector seeking soul, your sanctuary is here."
+            <h3 className="text-4xl sm:text-6xl font-['Fraunces'] font-bold leading-tight">Ready to join the <i className="text-[var(--color-accent)]">marketplace?</i></h3>
+            <p className="text-lg sm:text-xl text-white/60 leading-relaxed font-medium italic">
+              "Whether you are a seller seeking a shop or a customer seeking unique products, your home is here."
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link 
                 to="/signup/seller" 
-                className="px-12 py-6 bg-[var(--color-accent)] text-white rounded-full font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[var(--color-accent)]/20 flex items-center justify-center gap-3"
+                className="px-10 py-5 sm:px-12 sm:py-6 bg-[var(--color-accent)] text-white rounded-full font-black text-lg sm:text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[var(--color-accent)]/20 flex items-center justify-center gap-3"
               >
-                Launch Studio <ArrowRight size={22} />
+                Start Selling <ArrowRight size={22} />
               </Link>
               <Link 
                 to="/discovery" 

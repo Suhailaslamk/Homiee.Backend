@@ -1,4 +1,4 @@
-﻿namespace Homiee.Application.DTOs
+namespace Homiee.Application.DTOs
 {
     public class SellerProductDetailsDto
     {
@@ -10,6 +10,7 @@
         public int CategoryId { get; set; }
 
         // ✅ ADD THIS
-        public List<string> Images { get; set; } = new();
+        public List<ProductImageDto> Images { get; set; } = new();
+        public List<ProductVariantDto> Variants { get; set; } = new();
     }
 }

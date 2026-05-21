@@ -79,7 +79,10 @@ namespace Homiee.Application.Services
             var productMap = new Dictionary<int, Product>();
             foreach (var item in cartItems)
             {
-                var product = await _productRepo.GetByIdWithImagesAsync(item.ProductId);
+                var product = await _productRepo.Query()
+                    .Include(p => p.Images)
+                    .Include(p => p.Variants)
+                    .FirstOrDefaultAsync(p => p.Id == item.ProductId && !p.IsDeleted);
                 if (product == null || product.IsDeleted)
                 {
                     _logger.LogWarning("Order validation failed for User #{UserId}: Product #{ProductId} not found or deleted", userId, item.ProductId);
@@ -90,10 +93,23 @@ namespace Homiee.Application.Services
                     _logger.LogWarning("Order validation failed for User #{UserId}: Attempted to buy own product #{ProductId}", userId, item.ProductId);
                     return new ApiResponse<string>(400, "You cannot buy your own product");
                 }
-                if (product.Stock < item.Quantity)
+                ProductVariant? variant = null;
+                if (item.ProductVariantId.HasValue)
                 {
-                    _logger.LogWarning("Order validation failed for User #{UserId}: Insufficient stock for Product '{ProductName}'", userId, product.Name);
-                    return new ApiResponse<string>(400, $"Not enough stock for '{product.Name}'");
+                    variant = product.Variants.FirstOrDefault(v => v.Id == item.ProductVariantId.Value && !v.IsDeleted);
+                    if (variant == null)
+                    {
+                        _logger.LogWarning("Order validation failed for User #{UserId}: Variant #{VariantId} not found", userId, item.ProductVariantId);
+                        return new ApiResponse<string>(404, $"Variant not found for '{product.Name}'");
+                    }
+                }
+
+                var availableStock = variant?.Stock ?? product.Stock;
+                if (availableStock < item.Quantity)
+                {
+                    var displayName = variant != null ? $"{product.Name} ({variant.Label})" : product.Name;
+                    _logger.LogWarning("Order validation failed for User #{UserId}: Insufficient stock for '{DisplayName}'", userId, displayName);
+                    return new ApiResponse<string>(400, $"Not enough stock for '{displayName}'");
                 }
                 productMap[item.ProductId] = product;
             }
@@ -112,11 +128,23 @@ namespace Homiee.Application.Services
                     foreach (var item in group)
                     {
                         var product = productMap[item.ProductId];
-                        product.ReduceStock(item.Quantity);
+                        ProductVariant? variant = null;
+                        if (item.ProductVariantId.HasValue)
+                        {
+                            variant = product.Variants.First(v => v.Id == item.ProductVariantId.Value);
+                            variant.ReduceStock(item.Quantity);
+                        }
+                        else
+                        {
+                            product.ReduceStock(item.Quantity);
+                        }
+
                         order.AddItem(new OrderItem(
                             product.Id, product.SellerId,
-                            item.Quantity, product.Price,
-                            product.Name ?? "Unknown"));
+                            item.Quantity, variant?.Price ?? product.Price,
+                            product.Name ?? "Unknown",
+                            item.ProductVariantId,
+                            variant?.Label));
                     }
 
                     order.UpdateStatus(OrderStatus.Placed);
@@ -193,7 +221,8 @@ namespace Homiee.Application.Services
         .Where(img => img.IsPrimary)
         .Select(img => img.ImageUrl)
         .FirstOrDefault()
-    : null
+    : null,
+                        VariantLabel = i.VariantLabel
                     }).ToList()
                 })
                 .ToListAsync();
@@ -230,7 +259,8 @@ namespace Homiee.Application.Services
         .Where(img => img.IsPrimary)
         .Select(img => img.ImageUrl)
         .FirstOrDefault()
-    : null
+    : null,
+                    VariantLabel = i.VariantLabel
                 }).ToList()
             });
         }

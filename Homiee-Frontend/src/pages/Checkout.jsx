@@ -27,7 +27,8 @@ import {
   User,
   Smartphone,
   Clock,
-  LayoutGrid
+  LayoutGrid,
+  Wallet
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -40,6 +41,7 @@ import { getProductById, getSellerById } from '../api/marketplace';
 import SurfaceCard from '../components/SurfaceCard';
 import { useToast } from '../hooks/useToast';
 import { getResponseData } from '../utils/api';
+import StatePanel from '../components/StatePanel';
 
 const EMPTY_ADDRESS = {
   fullName: '',
@@ -137,10 +139,10 @@ export default function Checkout() {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       setAddressDraft(EMPTY_ADDRESS);
       setShowAddressForm(false);
-      toast.success('Destination registry updated.');
+      toast.success('Address saved.');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to update registry.');
+      toast.error(error.response?.data?.message || 'Failed to save address.');
     },
   });
 
@@ -149,11 +151,11 @@ export default function Checkout() {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('Acquisition cycle initiated successfully.');
+      toast.success('Order placed successfully!');
       navigate('/success');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to initiate cycle.');
+      toast.error(error.response?.data?.message || 'Failed to place order.');
     },
   });
 
@@ -170,11 +172,11 @@ export default function Checkout() {
     return (
       <div className="min-h-screen bg-[var(--color-sand)]/10 pt-32 pb-24 px-6 flex items-center justify-center">
         <StatePanel
-          className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
+          className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[2rem] sm:rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync checkout parameters.</p>
-              <button onClick={() => { refetchCart(); refetchAddresses(); }} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load checkout details.</p>
+              <button onClick={() => { refetchCart(); refetchAddresses(); }} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
@@ -184,7 +186,7 @@ export default function Checkout() {
 
   const handlePlaceOrder = () => {
     if (!selectedAddressId) {
-      toast.error('Please specify a delivery destination registry.');
+      toast.error('Please select a delivery address.');
       return;
     }
 
@@ -206,13 +208,13 @@ export default function Checkout() {
             <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-stone)]/10 flex items-center justify-center group-hover:bg-[var(--color-sand)]/20 transition-all">
               <ChevronLeft size={18} />
             </div>
-            Back to Acquisition Bag
+            Back to Cart
           </Link>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">Concierge Settlement</h1>
+              <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tight">Checkout</h1>
               <p className="mt-4 text-xl text-[var(--color-text-muted)] font-medium italic leading-relaxed">
-                "Orchestrating the final transition of your chosen pieces to their destined environment."
+                "Review your details and complete your order."
               </p>
             </div>
             <div className="flex items-center gap-4 bg-[var(--color-primary-dark)] text-white p-6 px-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
@@ -222,8 +224,8 @@ export default function Checkout() {
                   <ShieldCheck size={24} />
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Security Protocol</div>
-                  <div className="text-lg font-bold">Encrypted Settlement</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Security</div>
+                  <div className="text-lg font-bold">Secure Checkout</div>
                 </div>
               </div>
             </div>
@@ -241,8 +243,8 @@ export default function Checkout() {
                     <MapPin size={24} />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Destination Registry</h2>
-                    <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Specify where your pieces shall arrive</p>
+                    <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Delivery Address</h2>
+                    <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Where should we send your order?</p>
                   </div>
                 </div>
                 <button
@@ -251,7 +253,7 @@ export default function Checkout() {
                   className={`px-8 py-4 rounded-[1.5rem] font-bold text-sm transition-all flex items-center gap-2 ${showAddressForm ? 'bg-[var(--color-sand)]/20 text-[var(--color-stone)]' : 'bg-[var(--color-primary-dark)] text-white shadow-xl'}`}
                 >
                   {showAddressForm ? <X size={18} /> : <PlusCircle size={18} />}
-                  {showAddressForm ? 'Discard Entry' : 'Register Destination'}
+                  {showAddressForm ? 'Cancel' : 'Add New Address'}
                 </button>
               </div>
 
@@ -264,18 +266,18 @@ export default function Checkout() {
                     onSubmit={(e) => { e.preventDefault(); createAddressMutation.mutate(addressDraft); }}
                     className="mb-12 grid gap-8 overflow-hidden"
                   >
-                    <div className="grid gap-6 md:grid-cols-2 p-10 rounded-[3rem] bg-[var(--color-sand)]/10 border border-[var(--color-stone)]/5 shadow-inner">
-                      <InputField label="Recipient Designation" value={addressDraft.fullName} onChange={(v) => setAddressDraft({ ...addressDraft, fullName: v })} icon={<User size={18} />} />
-                      <InputField label="Secure Contact" value={addressDraft.phone} onChange={(v) => setAddressDraft({ ...addressDraft, phone: v })} icon={<Smartphone size={18} />} />
+                    <div className="grid gap-6 md:grid-cols-2 p-6 md:p-10 rounded-[3rem] bg-[var(--color-sand)]/10 border border-[var(--color-stone)]/5 shadow-inner">
+                      <InputField label="Full Name" value={addressDraft.fullName} onChange={(v) => setAddressDraft({ ...addressDraft, fullName: v })} icon={<User size={18} />} />
+                      <InputField label="Phone Number" value={addressDraft.phone} onChange={(v) => setAddressDraft({ ...addressDraft, phone: v })} icon={<Smartphone size={18} />} />
                       <div className="md:col-span-2">
-                        <InputField label="Street Origin" value={addressDraft.line1} onChange={(v) => setAddressDraft({ ...addressDraft, line1: v })} icon={<MapPin size={18} />} />
+                        <InputField label="Address Line 1" value={addressDraft.line1} onChange={(v) => setAddressDraft({ ...addressDraft, line1: v })} icon={<MapPin size={18} />} />
                       </div>
-                      <InputField label="City Centre" value={addressDraft.city} onChange={(v) => setAddressDraft({ ...addressDraft, city: v })} />
-                      <InputField label="Region / State" value={addressDraft.state} onChange={(v) => setAddressDraft({ ...addressDraft, state: v })} />
-                      <InputField label="Pincode Ledger" value={addressDraft.pincode} onChange={(v) => setAddressDraft({ ...addressDraft, pincode: v })} />
+                      <InputField label="City" value={addressDraft.city} onChange={(v) => setAddressDraft({ ...addressDraft, city: v })} />
+                      <InputField label="State" value={addressDraft.state} onChange={(v) => setAddressDraft({ ...addressDraft, state: v })} />
+                      <InputField label="Pincode" value={addressDraft.pincode} onChange={(v) => setAddressDraft({ ...addressDraft, pincode: v })} />
                       <div className="md:col-span-2">
                         <button type="submit" disabled={createAddressMutation.isPending} className="w-full h-16 rounded-[1.5rem] bg-[var(--color-primary-dark)] text-white font-bold shadow-2xl hover:scale-[1.02] active:scale-95 transition-all">
-                          {createAddressMutation.isPending ? 'Syncing Registry...' : 'Register to Dossier'}
+                          {createAddressMutation.isPending ? 'Saving...' : 'Save Address'}
                         </button>
                       </div>
                     </div>
@@ -286,7 +288,7 @@ export default function Checkout() {
               <div className="grid gap-6">
                 {addresses.length === 0 ? (
                   <div className="text-center py-16 rounded-[3rem] border-2 border-dashed border-[var(--color-stone)]/10 text-[var(--color-text-muted)] font-medium italic">
-                    "The destination registry is currently quiescent. Please add a registry entry."
+                    "No addresses found. Please add a delivery address."
                   </div>
                 ) : (
                   addresses.map((addr) => {
@@ -326,14 +328,14 @@ export default function Checkout() {
             </SurfaceCard>
 
             {/* Gift Personalization */}
-            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-12 rounded-[4rem] shadow-xl">
+            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-6 md:p-12 rounded-[4rem] shadow-xl">
               <div className="flex items-center gap-4 mb-10">
                 <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                   <Gift size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Gift Curation</h2>
-                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Enhance the emotional resonance of your piece</p>
+                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Gifting Options</h2>
+                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Add a special touch to your order</p>
                 </div>
               </div>
 
@@ -346,7 +348,7 @@ export default function Checkout() {
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center border-2 transition-all ${isGift ? 'bg-[var(--color-accent)] border-[var(--color-accent)]' : 'border-[var(--color-stone)]/10 bg-white group-hover:border-[var(--color-accent)]/30'}`}>
                       {isGift && <CheckCircle2 size={18} className="text-white" />}
                     </div>
-                    <span className="text-lg font-bold text-[var(--color-primary-dark)]">Orchestrate as a gift for someone special</span>
+                    <span className="text-lg font-bold text-[var(--color-primary-dark)]">Send as a gift for someone special</span>
                   </div>
                   <Sparkles size={24} className={isGift ? 'text-[var(--color-accent)]' : 'text-[var(--color-stone)]/20'} />
                 </button>
@@ -363,16 +365,16 @@ export default function Checkout() {
                         <textarea 
                           value={giftMessage}
                           onChange={(e) => setGiftMessage(e.target.value)}
-                          placeholder="Compose a handwritten message for your piece..."
+                          placeholder="Write your gift message here..."
                           className="w-full h-40 rounded-[2rem] border-2 border-[var(--color-stone)]/5 bg-[var(--color-sand)]/5 p-8 outline-none focus:bg-white focus:border-[var(--color-accent)]/20 transition-all italic text-xl shadow-inner placeholder:text-[var(--color-stone)]/30"
                           style={{ fontFamily: 'Georgia, serif' }}
                         />
                         <div className="absolute bottom-6 right-8 flex items-center gap-3 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest italic opacity-50">
-                          Handwritten Transcription <PenTool size={14} />
+                          Gift Message <PenTool size={14} />
                         </div>
                       </div>
                       <p className="text-[10px] text-[var(--color-text-muted)] font-medium text-center italic">
-                        "Your message will be hand-transcribed on artisan-grade recycled cardstock."
+                        "We'll include a beautiful gift card with your message."
                       </p>
                     </motion.div>
                   )}
@@ -381,20 +383,20 @@ export default function Checkout() {
             </SurfaceCard>
 
             {/* Delivery Timeline */}
-            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-12 rounded-[4rem] shadow-xl">
+            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-6 md:p-12 rounded-[4rem] shadow-xl">
               <div className="flex items-center gap-4 mb-10">
                 <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                   <Clock size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Delivery Timeline</h2>
-                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Schedule your piece's arrival</p>
+                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Delivery Date</h2>
+                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">When would you like to receive your order?</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 <p className="text-sm text-[var(--color-text-muted)] italic leading-relaxed">
-                  "Choose a preferred date for your pieces to arrive. We will orchestrate our logistics to honor your schedule."
+                  "Select a preferred date for your order. We will do our best to meet your schedule."
                 </p>
                 <div className="relative group max-w-sm">
                   <div className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-stone)] group-focus-within:text-[var(--color-accent)] transition-colors pointer-events-none">
@@ -410,25 +412,25 @@ export default function Checkout() {
                 </div>
                 {requestedDeliveryDate && (
                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-2">
-                    <CheckCircle2 size={12} /> Scheduled for {new Date(requestedDeliveryDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    <CheckCircle2 size={12} /> Delivery set for {new Date(requestedDeliveryDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   </p>
                 )}
               </div>
             </SurfaceCard>
 
             {/* Payment Method - Static Info */}
-            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-12 rounded-[4rem] shadow-xl">
+            <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-6 md:p-12 rounded-[4rem] shadow-xl">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                   <Wallet size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Settlement Protocol</h2>
-                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Verified: Cash on Delivery only</p>
+                  <h2 className="text-2xl font-bold text-[var(--color-primary-dark)]">Payment Method</h2>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Cash on Delivery (COD)</p>
                 </div>
               </div>
               <p className="mt-6 text-sm text-[var(--color-text-muted)] italic leading-relaxed">
-                "For artisan integrity and logistical simplicity, all transactions are settled via Studio Settlement (COD) upon the successful arrival of your pieces."
+                "We currently only support Cash on Delivery (COD) for all orders. You can pay when your items arrive."
               </p>
             </SurfaceCard>
           </div>
@@ -436,7 +438,7 @@ export default function Checkout() {
           {/* Settlement Summary */}
           <aside className="relative">
             <div className="sticky top-32 space-y-8">
-              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-10 rounded-[4rem] shadow-[0_30px_60px_rgba(0,0,0,0.15)] relative overflow-hidden group">
+              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-6 md:p-10 rounded-[4rem] shadow-[0_30px_60px_rgba(0,0,0,0.15)] relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-3xl rounded-full -mr-24 -mt-24 group-hover:bg-white/10 transition-all duration-1000" />
                 
                 <div className="relative z-10">
@@ -444,7 +446,7 @@ export default function Checkout() {
                     <div className="w-14 h-14 rounded-[1.8rem] bg-white/10 backdrop-blur-md flex items-center justify-center text-[var(--color-accent)] shadow-2xl border border-white/10">
                       <Sparkles size={28} />
                     </div>
-                    <h2 className="text-2xl font-['Fraunces'] font-semibold">Order Vault</h2>
+                    <h2 className="text-2xl font-['Fraunces'] font-semibold">Order Summary</h2>
                   </div>
 
                   <div className="space-y-6 max-h-[350px] overflow-y-auto pr-4 scrollbar-hide">
@@ -467,12 +469,12 @@ export default function Checkout() {
                   </div>
 
                   <div className="mt-10 pt-10 border-t border-white/5 space-y-6">
-                    <SummaryRow label="Subtotal Valuation" value={formatCurrency(subtotal)} inverse />
-                    <SummaryRow label="Concierge Logistics" value="INCLUDED" inverse />
+                    <SummaryRow label="Subtotal" value={formatCurrency(subtotal)} inverse />
+                    <SummaryRow label="Shipping" value="INCLUDED" inverse />
                     
                     <div className="pt-8 border-t border-white/10 mt-8">
                       <div className="flex flex-col gap-2">
-                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em]">Total Transaction Investment</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em]">Order Total</span>
                         <div className="flex items-baseline justify-between">
                           <span className="text-sm font-bold text-[var(--color-accent)]">INR</span>
                           <span className="text-5xl font-['Fraunces'] font-bold tracking-tighter">{formatCurrency(subtotal).replace('₹', '')}</span>
@@ -487,9 +489,9 @@ export default function Checkout() {
                       className="mt-12 w-full h-20 rounded-[2rem] bg-[var(--color-accent)] text-[var(--color-primary-dark)] font-bold text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-[var(--color-accent)]/20 flex items-center justify-center gap-4 group/btn"
                     >
                       {codCheckoutMutation.isPending ? (
-                        <><Clock size={24} className="animate-spin" /> Orchestrating...</>
+                        <><Clock size={24} className="animate-spin" /> Processing...</>
                       ) : (
-                      <>Confirm Acquisition <ArrowRight size={24} className="group-hover/btn:translate-x-2 transition-transform" /></>
+                      <>Place Order <ArrowRight size={24} className="group-hover/btn:translate-x-2 transition-transform" /></>
                     )}
                   </button>
                 </div>
@@ -500,9 +502,9 @@ export default function Checkout() {
                   <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-1">Guaranteed Integrity</h4>
+                  <h4 className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-1">Secure Checkout</h4>
                   <p className="text-[10px] leading-relaxed text-[var(--color-text-muted)] font-medium italic">
-                    "Every transaction is encrypted and verified through the Homiee secure settlement protocol."
+                    "Your information is secure and private. We use industry-standard encryption to protect your data."
                   </p>
                 </div>
               </div>

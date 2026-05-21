@@ -145,6 +145,7 @@ namespace Homiee.Application.Services
             var product = await _productRepo.Query()
                 .AsNoTracking()
                 .Include(p => p.Images)
+                .Include(p => p.Variants)
                 .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
             if (product == null)
@@ -158,7 +159,20 @@ namespace Homiee.Application.Services
                 Price = product.Price,
                 Stock = product.Stock,
                 CategoryId = product.CategoryId,
-                Images = product.Images?.Select(i => i.ImageUrl).ToList() ?? new List<string>()
+                Images = product.Images?.Select(i => new ProductImageDto
+                {
+                    Id = i.Id,
+                    Url = i.ImageUrl ?? string.Empty,
+                    IsPrimary = i.IsPrimary
+                }).ToList() ?? new List<ProductImageDto>(),
+                Variants = product.Variants?.Select(v => new ProductVariantDto
+                {
+                    Id = v.Id,
+                    Label = v.Label,
+                    Price = v.Price,
+                    Stock = v.Stock,
+                    Sku = v.Sku
+                }).ToList() ?? new List<ProductVariantDto>()
             };
 
             await _cache.SetAsync(key, dto,

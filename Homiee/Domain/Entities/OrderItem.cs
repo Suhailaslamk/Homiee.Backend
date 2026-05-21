@@ -1,4 +1,4 @@
-﻿namespace Homiee.Domain.Entities
+namespace Homiee.Domain.Entities
 {
     public class OrderItem : BaseEntity
     {
@@ -9,22 +9,25 @@
 
         public int SellerId { get; private set; }
 
-        public int Quantity { get; private set; }
-        public decimal Price { get; private set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public int? ProductVariantId { get; private set; }
+        public string? VariantLabel { get; private set; }
 
         public Order Order { get; set; }
         public Product Product { get; set; }
 
         private OrderItem() { }
 
-        public OrderItem(int productId, int sellerId, int quantity, decimal price, string productName)
+        public OrderItem(int productId, int sellerId, int quantity, decimal price, string productName, int? productVariantId = null, string? variantLabel = null)
         {
             ProductId = productId;
             SellerId = sellerId;
             Quantity = quantity;
             Price = price;
             ProductName = productName;
-            
+            ProductVariantId = productVariantId;
+            VariantLabel = variantLabel;
         }
     }
     }

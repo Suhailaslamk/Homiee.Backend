@@ -1,4 +1,4 @@
-﻿//using Homiee.Application.DTOs;
+//using Homiee.Application.DTOs;
 //using Homiee.Application.Interfaces.IRepository;
 //using Homiee.Application.Interfaces.IServices;
 //using Homiee.Domain.Entities;
@@ -81,6 +81,7 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 public class CartService : ICartService
 {
@@ -98,7 +99,10 @@ public class CartService : ICartService
 
     public async Task<ApiResponse<string>> AddToCart(int customerId, AddToCartDto dto)
     {
-        var product = await _productRepo.GetByIdAsync(dto.ProductId);
+        var product = await _productRepo.Query()
+            .Include(p => p.Variants)
+            .FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+
         if (product == null)
             return new ApiResponse<string>(404, "Product not found");
 
@@ -114,16 +118,32 @@ public class CartService : ICartService
 
         if (user.Role == UserRole.Admin)
             return new ApiResponse<string>(400, "Admin cannot add products to wishlist");
+
+        // ✅ Variant Logic
+        ProductVariant? variant = null;
+        if (dto.ProductVariantId.HasValue)
+        {
+            variant = product.Variants.FirstOrDefault(v => v.Id == dto.ProductVariantId.Value && !v.IsDeleted);
+            if (variant == null)
+                return new ApiResponse<string>(404, "Product variant not found");
+        }
+
         // ✅ Always fetch existing item first
-        var existingItem = await _cartRepo.GetCartItem(customerId, dto.ProductId);
+        var existingItem = await _cartRepo.Query()
+            .FirstOrDefaultAsync(x => x.CustomerId == customerId && 
+                                     x.ProductId == dto.ProductId && 
+                                     x.ProductVariantId == dto.ProductVariantId);
 
         var existingQty = existingItem?.Quantity ?? 0;
         var totalRequested = existingQty + dto.Quantity;
 
+        var availableStock = variant?.Stock ?? product.Stock;
+        var displayName = variant != null ? $"{product.Name} ({variant.Label})" : product.Name;
+
         // ✅ Single source of truth validation
-        if (totalRequested > product.Stock)
+        if (totalRequested > availableStock)
         {
-            var remainingStock = product.Stock - existingQty;
+            var remainingStock = availableStock - existingQty;
 
             if (existingQty > 0)
             {
@@ -131,11 +151,11 @@ public class CartService : ICartService
                     400,
                     remainingStock > 0
                         ? $"You already added {existingQty}. Only {remainingStock} more can be added."
-                        : $"You already added the maximum available stock ({product.Stock})."
+                        : $"You already added the maximum available stock ({availableStock})."
                 );
             }
 
-            return new ApiResponse<string>(400, $"Only {product.Stock} items available");
+            return new ApiResponse<string>(400, $"Only {availableStock} items available for '{displayName}'");
         }
 
         // ✅ Update or insert
@@ -151,6 +171,7 @@ public class CartService : ICartService
                 CustomerId = customerId,
                 ProductId = product.Id,
                 SellerId = product.SellerId,
+                ProductVariantId = dto.ProductVariantId,
                 Quantity = dto.Quantity
             };
 
@@ -167,17 +188,22 @@ public class CartService : ICartService
         {
             ProductId = x.ProductId,
             SellerId = x.SellerId,
+            ProductVariantId = x.ProductVariantId,
             Quantity = x.Quantity
         }).ToList();
 
         return new ApiResponse<List<CartItemDto>>(200, "Cart fetched", result);
     }
 
-    public async Task<ApiResponse<string>> RemoveFromCart(int customerId, int productId)
+    public async Task<ApiResponse<string>> RemoveFromCart(int customerId, int productId, int? variantId = null)
     {
-        var item = await _cartRepo.GetCartItem(customerId, productId);
+        var item = await _cartRepo.Query()
+            .FirstOrDefaultAsync(x => x.CustomerId == customerId && 
+                                     x.ProductId == productId && 
+                                     x.ProductVariantId == variantId);
+
         if (item == null)
-            return new ApiResponse<string>(404, "Item not found");
+            return new ApiResponse<string>(404, "Item not found in cart");
 
         await _cartRepo.DeleteAsync(item);
 

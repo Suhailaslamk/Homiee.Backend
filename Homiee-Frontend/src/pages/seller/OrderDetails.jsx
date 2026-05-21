@@ -69,10 +69,10 @@ export default function SellerOrderDetails() {
       queryClient.invalidateQueries({ queryKey: ['seller-order', orderId] });
       queryClient.invalidateQueries({ queryKey: ['seller-order-tracking', orderId] });
       queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
-      toast.success(response?.message || 'Fulfillment dossier updated.');
+      toast.success(response?.message || 'Order updated.');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Unable to update dossier.');
+      toast.error(error.response?.data?.message || 'Failed to update order.');
     },
   });
 
@@ -87,8 +87,8 @@ export default function SellerOrderDetails() {
           className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Unable to sync order dossier.</p>
-              <button onClick={() => refetchOrder()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Failed to load order details.</p>
+              <button onClick={() => refetchOrder()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
@@ -106,11 +106,11 @@ export default function SellerOrderDetails() {
             <div className="w-10 h-10 rounded-xl bg-white border border-[var(--color-stone)]/10 flex items-center justify-center group-hover:bg-[var(--color-sand)]/20 transition-all">
               <ChevronLeft size={18} />
             </div>
-            Back to Ledger
+            Back to Orders
           </Link>
 
-          {/* Dossier Hero */}
-          <section className="relative overflow-hidden rounded-[4rem] bg-[var(--color-primary-dark)] p-12 text-white shadow-2xl">
+          {/* Order Header */}
+          <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[4rem] bg-[var(--color-primary-dark)] p-8 sm:p-12 text-white shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
             <div className="relative flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="flex items-center gap-8">
@@ -123,20 +123,20 @@ export default function SellerOrderDetails() {
                     <StatusPill value={order.status} />
                   </div>
                   <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm flex items-center gap-2">
-                    <Calendar size={14} /> Transaction Date: {formatDateTime(order.createdAt)}
+                    <Calendar size={14} /> Order Date: {formatDateTime(order.createdAt)}
                   </p>
                   {order.requestedDeliveryDate && (
                     <p className="mt-2 text-[var(--color-accent)] font-bold tracking-widest uppercase text-[10px] flex items-center gap-2">
-                      <Truck size={14} /> Delivery Requested: {new Date(order.requestedDeliveryDate).toLocaleDateString('en-IN', { dateStyle: 'long' })}
+                      <Truck size={14} /> Expected Delivery: {new Date(order.requestedDeliveryDate).toLocaleDateString('en-IN', { dateStyle: 'long' })}
                     </p>
                   )}
                 </div>
               </div>
               
-              <div className="flex flex-col items-center lg:items-end bg-white/5 backdrop-blur-md p-8 rounded-[3rem] border border-white/10">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Total Acquisition</div>
-                <div className="text-5xl font-['Fraunces'] font-bold text-[var(--color-accent)]">{formatCurrency(order.totalAmount)}</div>
-                <div className="mt-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">{order.items?.length || 0} Unique Pieces</div>
+              <div className="flex flex-col items-center lg:items-end bg-white/5 backdrop-blur-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-white/10">
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-2">Total Amount</div>
+                <div className="text-4xl sm:text-5xl font-['Fraunces'] font-bold text-[var(--color-accent)]">{formatCurrency(order.totalAmount)}</div>
+                <div className="mt-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">{order.items?.length || 0} Products</div>
               </div>
             </div>
           </section>
@@ -147,8 +147,8 @@ export default function SellerOrderDetails() {
               <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[4rem]">
                 <div className="flex items-center justify-between mb-12">
                   <div>
-                    <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Fulfillment Journey</h2>
-                    <p className="text-[var(--color-text-muted)] font-medium mt-2">Historical progression of the acquisition state.</p>
+                    <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Order Status</h2>
+                    <p className="text-[var(--color-text-muted)] font-medium mt-2">Track the progress of this order.</p>
                   </div>
                   <div className="w-16 h-16 rounded-[1.5rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                     <Clock size={32} />
@@ -175,7 +175,7 @@ export default function SellerOrderDetails() {
                         }`}>
                           <h4 className={`text-lg font-bold ${isCurrent ? 'text-[var(--color-primary-dark)]' : 'text-[var(--color-stone)]'}`}>{step.label}</h4>
                           <p className="text-xs font-medium text-[var(--color-text-muted)] mt-1">
-                            {step.date ? formatDateTime(step.date) : 'Awaiting stage arrival'}
+                            {step.date ? formatDateTime(step.date) : 'Pending'}
                           </p>
                         </div>
                       </div>
@@ -187,7 +187,7 @@ export default function SellerOrderDetails() {
               {/* Acquisition Exhibit */}
               <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[4rem]">
                 <div className="flex items-center justify-between mb-12">
-                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Order Exhibits</h2>
+                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Order Items</h2>
                   <div className="w-16 h-16 rounded-[1.5rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                     <Box size={32} />
                   </div>
@@ -202,16 +202,16 @@ export default function SellerOrderDetails() {
                         </div>
                         <div>
                           <p className="text-xl font-bold text-[var(--color-primary-dark)]">{item.productName}</p>
-                          <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Registry ID: {String(item.productId).slice(-8)}</p>
+                          <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Product ID: {String(item.productId).slice(-8)}</p>
                         </div>
                       </div>
                       <div className="grid grid-cols-3 gap-10 mt-8 md:mt-0 text-right">
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Volume</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Quantity</p>
                           <p className="text-lg font-bold text-[var(--color-primary-dark)]">{item.quantity}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Unit Value</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Unit Price</p>
                           <p className="text-lg font-bold text-[var(--color-primary-dark)]">{formatCurrency(item.price)}</p>
                         </div>
                         <div>
@@ -232,13 +232,13 @@ export default function SellerOrderDetails() {
                 <div className="relative z-10">
                   <h3 className="text-xl font-bold mb-8 flex items-center gap-3 text-[var(--color-accent)]">
                     <Zap size={24} />
-                    Advance Stage
+                    Next Step
                   </h3>
                   <div className="grid gap-3">
                     {nextActions.length === 0 ? (
                       <div className="p-8 text-center rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-md">
                         <Sparkles size={32} className="mx-auto text-[var(--color-accent)] mb-4" />
-                        <p className="text-xs font-bold uppercase tracking-widest text-white/40">Journey Finalized</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-white/40">Order Completed</p>
                       </div>
                     ) : (
                       nextActions.map((action) => (
@@ -257,23 +257,23 @@ export default function SellerOrderDetails() {
                 </div>
               </SurfaceCard>
 
-              {/* Registry Insight */}
-              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[3rem] shadow-xl">
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-8">Collector Profile</h3>
+              {/* Customer Details */}
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-xl">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-8">Customer Details</h3>
                 <div className="space-y-8">
                   <div className="flex items-center gap-5">
                     <div className="w-14 h-14 rounded-full bg-[var(--color-primary-dark)] text-white flex items-center justify-center font-bold text-lg shadow-lg">
                       {order.customerName?.[0] || 'C'}
                     </div>
                     <div>
-                      <p className="font-bold text-[var(--color-primary-dark)]">{order.customerName || 'Private Collector'}</p>
+                      <p className="font-bold text-[var(--color-primary-dark)]">{order.customerName || 'Customer'}</p>
                       <p className="text-xs font-medium text-[var(--color-text-muted)]">{order.customerEmail}</p>
                     </div>
                   </div>
                   
                   <div className="space-y-6 pt-8 border-t border-[var(--color-stone)]/5">
                     <DetailRow icon={Phone} label="Communication" value={order.shippingPhone} />
-                    <DetailRow icon={MapPin} label="Shipping Registry" value={formatAddress(order)} />
+                    <DetailRow icon={MapPin} label="Shipping Address" value={formatAddress(order)} />
                   </div>
 
                   <div className="pt-8">
@@ -302,7 +302,7 @@ function DetailRow({ icon: Icon, label, value }) {
         <Icon size={14} />
         <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
       </div>
-      <p className="text-sm font-bold text-[var(--color-primary-dark)] leading-relaxed">{value || 'Registry Missing'}</p>
+      <p className="text-sm font-bold text-[var(--color-primary-dark)] leading-relaxed">{value || 'Not Provided'}</p>
     </div>
   );
 }
@@ -323,7 +323,6 @@ function OrderDetailsLoading() {
 function getNextSellerActions(status) {
   const normalized = String(status || '').toLowerCase();
 
-  // Robust checks for both string labels and numeric Enum values
   const isPending = normalized === 'pending' || normalized === '0';
   const isProcessing = normalized === 'processing' || normalized === '1';
   const isPlaced = normalized === 'placed' || normalized === '2';
@@ -332,34 +331,34 @@ function getNextSellerActions(status) {
 
   if (isPending) {
     return [
-      { value: 'Placed', label: 'Confirm Placement', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all' },
-      { value: 'Accepted', label: 'Accept Acquisition', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-primary-dark)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
+      { value: 'Placed', label: 'Confirm Order', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all' },
+      { value: 'Accepted', label: 'Accept Order', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-primary-dark)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
     ];
   }
 
   if (isPlaced) {
     return [
-      { value: 'Accepted', label: 'Accept Acquisition', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
+      { value: 'Accepted', label: 'Accept Order', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
       { value: 'Rejected', label: 'Reject Order', icon: <XCircle size={18} />, className: 'bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all' },
     ];
   }
 
   if (isAccepted) {
     return [
-      { value: 'Processing', label: 'Begin Processing', icon: <Clock size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl shadow-[var(--color-accent)]/20' },
-      { value: 'Shipped', label: 'Skip to Dispatch', icon: <Truck size={18} />, className: 'bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all' },
+      { value: 'Processing', label: 'Start Processing', icon: <Clock size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl shadow-[var(--color-accent)]/20' },
+      { value: 'Shipped', label: 'Ship Order', icon: <Truck size={18} />, className: 'bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all' },
     ];
   }
 
   if (isProcessing) {
     return [
-      { value: 'Shipped', label: 'Dispatch Shipment', icon: <Truck size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
+      { value: 'Shipped', label: 'Ship Order', icon: <Truck size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
     ];
   }
 
   if (isShipped) {
     return [
-      { value: 'Delivered', label: 'Finalize Delivery', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
+      { value: 'Delivered', label: 'Mark as Delivered', icon: <CheckCircle2 size={18} />, className: 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-primary)] transition-all shadow-xl' },
     ];
   }
 

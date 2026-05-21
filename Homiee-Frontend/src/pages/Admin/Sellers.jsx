@@ -32,6 +32,8 @@ export default function Sellers() {
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const pageSize = 10;
 
   const toast = useToast();
@@ -54,20 +56,25 @@ export default function Sellers() {
 
   const approveMutation = useMutation({
     mutationFn: approveSeller,
-    onSuccess: (response) => { refresh(); toast.success(response.message || 'Artisan approved.'); },
-    onError: (error) => toast.error(error.response?.data?.message || 'Unable to approve artisan.'),
+    onSuccess: (response) => { refresh(); toast.success(response.message || 'Seller approved.'); },
+    onError: (error) => toast.error(error.response?.data?.message || 'Unable to approve seller.'),
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (userId) => rejectSeller(userId, 'Requires additional verification documents'),
-    onSuccess: (response) => { refresh(); toast.success(response.message || 'Artisan application rejected.'); },
-    onError: (error) => toast.error(error.response?.data?.message || 'Unable to reject artisan.'),
+    mutationFn: ({ userId, reason }) => rejectSeller(userId, reason),
+    onSuccess: (response) => { 
+      refresh(); 
+      toast.success(response.message || 'Seller application rejected.'); 
+      setShowRejectModal(false);
+      setSelectedUserId(null);
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Unable to reject seller.'),
   });
 
   const suspendMutation = useMutation({
     mutationFn: (userId) => suspendSeller(userId, 'Suspended from platform'),
-    onSuccess: (response) => { refresh(); toast.success(response.message || 'Artisan suspended.'); },
-    onError: (error) => toast.error(error.response?.data?.message || 'Unable to suspend artisan.'),
+    onSuccess: (response) => { refresh(); toast.success(response.message || 'Seller suspended.'); },
+    onError: (error) => toast.error(error.response?.data?.message || 'Unable to suspend seller.'),
   });
 
   return (
@@ -76,13 +83,13 @@ export default function Sellers() {
       <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-primary-dark)] text-white text-[10px] font-bold uppercase tracking-widest mb-6">
-            <ShieldCheck size={14} /> Artisan Curation
+            <ShieldCheck size={14} /> Seller Management
           </div>
-          <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">
-            The <i className="text-[var(--color-accent)]">Directory.</i>
+          <h1 className="text-4xl sm:text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">
+            Seller <i className="text-[var(--color-accent)]">List.</i>
           </h1>
-          <p className="mt-4 text-xl text-[var(--color-text-muted)] font-medium max-w-2xl">
-            Review, verify, and moderate the high-end merchants powering the Homiee marketplace.
+          <p className="mt-4 text-lg sm:text-xl text-[var(--color-text-muted)] font-medium max-w-2xl">
+            Review, verify, and manage the sellers on the platform.
           </p>
         </div>
       </header>
@@ -93,7 +100,7 @@ export default function Sellers() {
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={20} />
           <input
             type="text"
-            placeholder="Search by artisan or studio name..."
+            placeholder="Search by seller or shop name..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-full pl-16 pr-6 py-5 rounded-2xl bg-[var(--color-sand)]/20 border-transparent focus:bg-white focus:border-[var(--color-accent)] transition-all outline-none font-medium text-[var(--color-primary-dark)]"
@@ -121,9 +128,9 @@ export default function Sellers() {
               onChange={(event) => { setStatus(event.target.value); setPage(1); }} 
               className="w-full pl-12 pr-4 py-5 rounded-2xl bg-[var(--color-sand)]/20 border-transparent outline-none font-bold text-sm text-[var(--color-primary-dark)] appearance-none cursor-pointer"
             >
-              <option value="">Status Filter</option>
-              <option value="Submitted">Awaiting Review</option>
-              <option value="Approved">Verified Artisans</option>
+              <option value="">All Status</option>
+              <option value="Submitted">Pending Approval</option>
+              <option value="Approved">Verified Sellers</option>
               <option value="Rejected">Rejected</option>
               <option value="Suspended">Suspended</option>
             </select>
@@ -150,10 +157,10 @@ export default function Sellers() {
             )}
           />
         ) : sellers.length === 0 ? (
-          <SurfaceCard className="bg-white border-[var(--color-stone)]/10 text-center py-24 rounded-[3rem]">
+          <SurfaceCard className="bg-white border-[var(--color-stone)]/10 text-center py-24 rounded-[2rem] sm:rounded-[3rem]">
             <Store size={64} className="mx-auto text-[var(--color-sand)] mb-6" />
-            <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Artisans Found</h3>
-            <p className="mt-2 text-[var(--color-text-muted)] font-medium">Refine your search or filters to explore the directory.</p>
+            <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Sellers Found</h3>
+            <p className="mt-2 text-[var(--color-text-muted)] font-medium">Try adjusting your filters.</p>
           </SurfaceCard>
         ) : (
           <AnimatePresence mode="popLayout">
@@ -165,12 +172,12 @@ export default function Sellers() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl hover:shadow-2xl hover:border-[var(--color-accent)]/20 transition-all rounded-[2.5rem] p-8 group">
+                  <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl hover:shadow-2xl hover:border-[var(--color-accent)]/20 transition-all rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 group">
                     <div className="flex flex-col xl:flex-row items-center gap-8">
                       {/* Artisan Identity */}
                       <div className="flex items-center gap-6 flex-1 min-w-0 w-full">
                         <div className="w-20 h-20 rounded-[2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)] text-3xl font-['Fraunces'] font-bold shrink-0 shadow-inner group-hover:bg-[var(--color-accent)]/10 transition-colors">
-                          {(seller.businessName || 'S').charAt(0).toUpperCase()}
+                           {(seller.businessName || 'S').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-3 mb-2">
@@ -195,14 +202,17 @@ export default function Sellers() {
                               onClick={() => approveMutation.mutate(seller.userId)} 
                               disabled={approveMutation.isPending}
                               className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
-                              title="Approve Artisan"
+                              title="Approve Seller"
                             >
                               <UserCheck size={20} />
                             </button>
                           )}
                           {['Submitted', 'Pending'].includes(seller.status) && (
                             <button 
-                              onClick={() => rejectMutation.mutate(seller.userId)} 
+                              onClick={() => {
+                                setSelectedUserId(seller.userId);
+                                setShowRejectModal(true);
+                              }} 
                               disabled={rejectMutation.isPending}
                               className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-all shadow-sm"
                               title="Reject Application"
@@ -215,7 +225,7 @@ export default function Sellers() {
                               onClick={() => suspendMutation.mutate(seller.userId)} 
                               disabled={suspendMutation.isPending}
                               className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-                              title="Suspend Studio"
+                              title="Suspend Seller"
                             >
                               <UserX size={20} />
                             </button>
@@ -224,9 +234,9 @@ export default function Sellers() {
                         
                         <Link 
                           to={`/admin/sellers/${seller.userId || seller.id}`}
-                          className="px-8 py-4 rounded-2xl bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)] font-bold text-sm hover:bg-[var(--color-primary-dark)] hover:text-white transition-all flex items-center gap-2"
+                          className="px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-[var(--color-sand)]/20 text-[var(--color-primary-dark)] font-bold text-sm hover:bg-[var(--color-primary-dark)] hover:text-white transition-all flex items-center gap-2"
                         >
-                          View Studio <ArrowUpRight size={18} />
+                          View Details <ArrowUpRight size={18} />
                         </Link>
                       </div>
                     </div>
@@ -260,6 +270,67 @@ export default function Sellers() {
           </button>
         </div>
       )}
+
+      <AnimatePresence>
+        {showRejectModal && (
+          <ReasonModal 
+            onClose={() => {
+              setShowRejectModal(false);
+              setSelectedUserId(null);
+            }} 
+            onSubmit={(reason) => rejectMutation.mutate({ userId: selectedUserId, reason })}
+            isPending={rejectMutation.isPending}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function ReasonModal({ onClose, onSubmit, isPending }) {
+  const [reason, setReason] = useState('');
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[var(--color-primary-dark)]/40 backdrop-blur-sm">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full max-w-lg bg-white rounded-[3rem] p-12 shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 blur-3xl rounded-full -mr-16 -mt-16" />
+        
+        <div className="relative z-10">
+          <h3 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-4">Rejection Feedback</h3>
+          <p className="text-sm text-[var(--color-text-muted)] font-medium mb-8 leading-relaxed">
+            Please provide a reason for the rejection. This will be shown to the seller to help them correct their application.
+          </p>
+          
+          <textarea
+            autoFocus
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="e.g., Identity proof clarity is insufficient, please provide a high-resolution scan."
+            className="w-full h-40 p-6 rounded-2xl bg-[var(--color-sand)]/20 border-2 border-transparent focus:border-rose-500/30 focus:bg-white outline-none transition-all text-[var(--color-primary-dark)] font-medium resize-none placeholder:opacity-40"
+          />
+          
+          <div className="mt-10 flex items-center gap-4">
+            <button
+              onClick={onClose}
+              className="flex-1 px-8 py-4 rounded-xl font-bold text-[var(--color-text-muted)] hover:bg-[var(--color-sand)]/30 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => reason && onSubmit(reason)}
+              disabled={!reason || isPending}
+              className="flex-[2] px-8 py-4 rounded-xl bg-rose-600 text-white font-bold shadow-xl shadow-rose-900/10 hover:bg-rose-700 transition-all disabled:opacity-30"
+            >
+              {isPending ? 'Processing...' : 'Confirm Rejection'}
+            </button>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -70,10 +70,10 @@ export default function Profile() {
     mutationFn: updateProfile,
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast.success(response.message || 'Patron dossier updated.');
+      toast.success(response.message || 'Profile updated.');
     },
     onError: (mutationError) => {
-      toast.error(mutationError.response?.data?.message || 'Unable to update dossier.');
+      toast.error(mutationError.response?.data?.message || 'Failed to update profile.');
     },
   });
 
@@ -87,7 +87,7 @@ export default function Profile() {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('sellerOnboardingStatus');
-    toast.info('Session finalized. You have been signed out.');
+    toast.info('You have been logged out.');
     navigate('/login');
   };
 
@@ -122,22 +122,22 @@ export default function Profile() {
 
   if (error || !profile) {
     return (
-      <div className="pt-32 min-h-screen flex items-center justify-center bg-[var(--color-sand)]/20">
+      <div className="pt-32 min-h-screen flex items-center justify-center bg-[var(--color-sand)]/20 px-6">
         <StatePanel 
-          message="Unable to sync patron dossier. Please verify your connection."
-          className="bg-white border-[var(--color-stone)]/10 p-12 rounded-[3rem] shadow-xl"
+          message="Failed to load profile. Please check your connection."
+          className="bg-white border-[var(--color-stone)]/10 p-12 rounded-[2rem] sm:rounded-[3rem] shadow-xl"
         />
       </div>
     );
   }
 
   const menuItems = [
-    { id: 'overview', label: 'Identity Overview', icon: User },
-    { id: 'settings', label: 'Dossier Settings', icon: Settings },
+    { id: 'overview', label: 'Profile Info', icon: User },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   if (isCustomer) {
-    menuItems.push({ id: 'addresses', label: 'Delivery Registry', icon: MapPin });
+    menuItems.push({ id: 'addresses', label: 'Addresses', icon: MapPin });
   }
 
   const formState = {
@@ -152,7 +152,7 @@ export default function Profile() {
     <div className="pt-32 min-h-screen bg-[var(--color-sand)]/10 pb-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row gap-12">
-          {/* Navigation Dossier */}
+          {/* Profile Menu */}
           <div className="w-full lg:w-80 shrink-0">
             <div className="space-y-6 sticky top-32">
               <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-8 rounded-[3rem] shadow-2xl relative overflow-hidden group">
@@ -163,7 +163,7 @@ export default function Profile() {
                   </div>
                   <h2 className="text-2xl font-['Fraunces'] font-semibold truncate px-2">{profile.name}</h2>
                   <div className="mt-2 flex items-center justify-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">{profile.role} Patron</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">{profile.role} User</span>
                     <div className="w-1 h-1 rounded-full bg-[var(--color-accent)]" />
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Since {new Date(profile.createdAt).getFullYear()}</span>
                   </div>
@@ -199,7 +199,7 @@ export default function Profile() {
                   className="w-full flex items-center gap-4 p-5 rounded-[1.8rem] font-bold text-rose-500 hover:bg-rose-50 transition-all"
                 >
                   <LogOut size={20} />
-                  <span className="text-sm tracking-wide">Finalize Session</span>
+                  <span className="text-sm tracking-wide">Logout</span>
                 </button>
               </div>
             </div>
@@ -245,17 +245,17 @@ function ProfileOverview({ profile, orders, navigate, isCustomer, isSeller }) {
             <Fingerprint size={24} />
           </div>
           <div>
-            <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Identity Dossier</h2>
-            <p className="text-[var(--color-text-muted)] font-medium mt-1">Management of your core persona on the Homiee platform.</p>
+            <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Profile Info</h2>
+            <p className="text-[var(--color-text-muted)] font-medium mt-1">Manage your personal information.</p>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <InfoCard label="Legal Name" value={profile.name} icon={<User size={18} />} />
-          <InfoCard label="Transmission Hub" value={profile.email} icon={<Mail size={18} />} />
+          <InfoCard label="Full Name" value={profile.name} icon={<User size={18} />} />
+          <InfoCard label="Email Address" value={profile.email} icon={<Mail size={18} />} />
           <InfoCard label="Platform Role" value={profile.role} icon={<ShieldCheck size={18} />} />
-          {profile.seller && <InfoCard label="Studio Status" value={profile.seller.status || 'Verified'} icon={<Store size={18} />} />}
-          {profile.delivery && <InfoCard label="Logistics Type" value={profile.delivery.vehicleType || 'Motorized'} icon={<Truck size={18} />} />}
+          {profile.seller && <InfoCard label="Seller Status" value={profile.seller.status || 'Verified'} icon={<Store size={18} />} />}
+          {profile.delivery && <InfoCard label="Delivery Type" value={profile.delivery.vehicleType || 'Motorized'} icon={<Truck size={18} />} />}
         </div>
       </section>
 
@@ -264,14 +264,14 @@ function ProfileOverview({ profile, orders, navigate, isCustomer, isSeller }) {
           <QuickAction 
             onClick={() => navigate('/orders')}
             icon={<Package size={28} />}
-            label="Acquisition Ledger"
-            description="Track and oversee your collection"
+            label="My Orders"
+            description="View and track your orders"
           />
           <QuickAction 
             onClick={() => navigate('/wishlist')}
             icon={<Heart size={28} />}
-            label="Curated Vault"
-            description="Explore your saved masterpieces"
+            label="My Wishlist"
+            description="View your saved items"
           />
         </section>
       )}
@@ -283,13 +283,13 @@ function ProfileOverview({ profile, orders, navigate, isCustomer, isSeller }) {
             className="w-full flex items-center justify-between p-10 rounded-[3rem] bg-[var(--color-primary-dark)] text-white shadow-2xl group relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent_60%)]" />
-            <div className="relative z-10 flex items-center gap-8 text-left">
+            <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 text-center sm:text-left">
               <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 backdrop-blur-md flex items-center justify-center text-[var(--color-accent)] group-hover:scale-110 transition-transform">
                 <LayoutDashboard size={32} />
               </div>
               <div>
-                <h3 className="text-2xl font-['Fraunces'] font-semibold">Artisan Studio Dashboard</h3>
-                <p className="text-white/40 font-medium uppercase tracking-widest text-[10px] mt-1">Manage your professional creative output</p>
+                <h3 className="text-2xl font-['Fraunces'] font-semibold">Seller Dashboard</h3>
+                <p className="text-white/40 font-medium uppercase tracking-widest text-[10px] mt-1">Manage your shop and products</p>
               </div>
             </div>
             <ArrowRightCircle size={32} className="relative z-10 text-[var(--color-accent)] group-hover:translate-x-2 transition-transform" />
@@ -303,18 +303,18 @@ function ProfileOverview({ profile, orders, navigate, isCustomer, isSeller }) {
             <div className="w-10 h-10 rounded-xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
               <Layers size={20} />
             </div>
-            <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Artisan Credentials</h3>
+            <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Business Details</h3>
           </div>
           <div className="grid gap-6 md:grid-cols-2">
-            <DetailRow label="Studio Name" value={profile.seller.businessName} />
-            <DetailRow label="Verified Contact" value={profile.seller.phoneNumber || 'Dossier Incomplete'} />
-            <DetailRow label="Studio Origin" value={profile.seller.address || 'Dossier Incomplete'} />
-            <DetailRow label="Tax Registry" value={profile.seller.gstNumber || 'Dossier Incomplete'} />
+            <DetailRow label="Business Name" value={profile.seller.businessName} />
+            <DetailRow label="Phone Number" value={profile.seller.phoneNumber || 'Not Provided'} />
+            <DetailRow label="Business Address" value={profile.seller.address || 'Not Provided'} />
+            <DetailRow label="GST Number" value={profile.seller.gstNumber || 'Not Provided'} />
           </div>
           {profile.seller.rejectionReason && (
             <div className="mt-8 p-6 rounded-[2rem] bg-rose-50 border border-rose-100 text-rose-600 italic text-sm">
               <div className="flex items-center gap-2 mb-2 font-bold uppercase tracking-widest text-[10px]">
-                <XCircle size={14} /> Refinement Required
+                 <XCircle size={14} /> Action Required
               </div>
               "{profile.seller.rejectionReason}"
             </div>
@@ -329,13 +329,13 @@ function ProfileOverview({ profile, orders, navigate, isCustomer, isSeller }) {
               <div className="w-10 h-10 rounded-xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                 <History size={20} />
               </div>
-              <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Recent Acquisitions</h3>
+              <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Recent Orders</h3>
             </div>
             <button 
               onClick={() => navigate('/orders')} 
               className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-widest hover:underline"
             >
-              Full Ledger
+              View All
             </button>
           </div>
           
@@ -380,25 +380,25 @@ function AccountSettings({ formState, handleChange, handleSave, isSaving, isSell
           <Settings size={24} />
         </div>
         <div>
-          <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Dossier Settings</h2>
-          <p className="text-[var(--color-text-muted)] font-medium mt-1">Refine your personal and professional profile.</p>
+          <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Settings</h2>
+          <p className="text-[var(--color-text-muted)] font-medium mt-1">Update your personal and professional profile.</p>
         </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-10 max-w-2xl">
         <div className="space-y-8">
-          <InputField label="Patron Designation" name="name" value={formState.name} onChange={handleChange} disabled={isAdmin} icon={<User size={18} />} />
+          <InputField label="Full Name" name="name" value={formState.name} onChange={handleChange} disabled={isAdmin} icon={<User size={18} />} />
           
           {isSeller && (
             <div className="space-y-8 pt-8 border-t border-[var(--color-stone)]/5">
-              <InputField label="Artisan Studio Name" name="businessName" value={formState.businessName} onChange={handleChange} icon={<Store size={18} />} />
-              <InputField label="Verified Contact Number" name="phoneNumber" value={formState.phoneNumber} onChange={handleChange} icon={<Smartphone size={18} />} />
-              <InputField label="Tax Registry Number" name="gstNumber" value={formState.gstNumber} onChange={handleChange} icon={<CreditCard size={18} />} />
-              <TextAreaField label="Studio Origin Address" name="address" value={formState.address} onChange={handleChange} icon={<MapPin size={18} />} />
+              <InputField label="Business Name" name="businessName" value={formState.businessName} onChange={handleChange} icon={<Store size={18} />} />
+              <InputField label="Phone Number" name="phoneNumber" value={formState.phoneNumber} onChange={handleChange} icon={<Smartphone size={18} />} />
+              <InputField label="GST Number" name="gstNumber" value={formState.gstNumber} onChange={handleChange} icon={<CreditCard size={18} />} />
+              <TextAreaField label="Business Address" name="address" value={formState.address} onChange={handleChange} icon={<MapPin size={18} />} />
               
               <div className="flex gap-4 p-6 rounded-[2rem] bg-amber-50 border border-amber-100 text-amber-800 text-xs italic leading-relaxed">
                 <Sparkles size={16} className="shrink-0 text-amber-600" />
-                "Alterations to your professional credentials may trigger a secondary verification cycle to maintain studio integrity."
+                "Updating your business details may require a new verification process."
               </div>
             </div>
           )}
@@ -406,7 +406,7 @@ function AccountSettings({ formState, handleChange, handleSave, isSaving, isSell
 
         {isAdmin && (
           <div className="p-6 rounded-[2rem] bg-[var(--color-sand)]/10 border border-[var(--color-stone)]/10 text-[var(--color-text-muted)] text-xs font-medium italic">
-            "Administrative credentials are locked by the central security protocol for this endpoint."
+             "Admin credentials cannot be edited here."
           </div>
         )}
 
@@ -415,7 +415,7 @@ function AccountSettings({ formState, handleChange, handleSave, isSaving, isSell
           disabled={isSaving || isAdmin}
           className="w-full sm:w-auto px-12 py-5 rounded-[2rem] bg-[var(--color-primary-dark)] text-white font-bold shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
         >
-          {isSaving ? 'Refining Dossier...' : 'Finalize Adjustments'}
+          {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
     </SurfaceCard>
@@ -438,14 +438,14 @@ function AddressesSection() {
   const deleteMutation = useMutation({
     mutationFn: deleteAddress,
     onSuccess: () => {
-      toast.success('Address removed from registry.');
+      toast.success('Address removed.');
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
-    onError: () => toast.error('Unable to remove address from registry.'),
+    onError: () => toast.error('Failed to remove address.'),
   });
 
   const handleDelete = (id) => {
-    if (window.confirm('Confirm removal of this address from your delivery registry?')) {
+    if (window.confirm('Are you sure you want to remove this address?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -458,8 +458,8 @@ function AddressesSection() {
             <MapPin size={24} />
           </div>
           <div>
-            <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Delivery Registry</h2>
-            <p className="text-[var(--color-text-muted)] font-medium mt-1">Manage your curated list of acquisition destinations.</p>
+            <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Addresses</h2>
+            <p className="text-[var(--color-text-muted)] font-medium mt-1">Manage your shipping addresses.</p>
           </div>
         </div>
         
@@ -468,7 +468,7 @@ function AddressesSection() {
             onClick={() => { setEditingAddress(null); setIsFormOpen(true); }}
             className="flex items-center justify-center gap-3 bg-[var(--color-primary-dark)] text-white px-8 py-4 rounded-[2rem] font-bold shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
           >
-            <Plus size={20} /> Register Destination
+            <Plus size={20} /> Add Address
           </button>
         )}
       </div>
@@ -494,10 +494,10 @@ function AddressesSection() {
             {isLoading ? (
               [1, 2].map(i => <div key={i} className="h-48 rounded-[3rem] bg-[var(--color-sand)]/20 animate-pulse" />)
             ) : addresses.length === 0 ? (
-              <div className="col-span-2 py-24 text-center bg-[var(--color-sand)]/10 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[4rem]">
+              <div className="col-span-2 py-24 text-center bg-[var(--color-sand)]/10 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[2rem] sm:rounded-[4rem]">
                 <MapPin size={64} className="mx-auto text-[var(--color-stone)]/20 mb-6" />
-                <p className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Registry Quiescent</p>
-                <p className="mt-2 text-[var(--color-text-muted)] italic">"Register your first destination for a seamless acquisition cycle."</p>
+                <p className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Addresses Found</p>
+                <p className="mt-2 text-[var(--color-text-muted)] italic">"Add your first address to start ordering."</p>
               </div>
             ) : (
               addresses.map((addr, idx) => (
@@ -562,11 +562,11 @@ function AddressForm({ address, onClose }) {
   const mutation = useMutation({
     mutationFn,
     onSuccess: () => {
-      toast.success(`Destination ${address ? 'refined' : 'registered'} in dossier.`);
+      toast.success(`Address ${address ? 'updated' : 'added'} successfully.`);
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       onClose();
     },
-    onError: () => toast.error(`Unable to sync destination to registry.`),
+    onError: () => toast.error(`Failed to save address.`),
   });
 
   const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -574,20 +574,20 @@ function AddressForm({ address, onClose }) {
   return (
     <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 lg:p-12 shadow-xl rounded-[4rem]">
       <div className="flex items-center justify-between mb-12">
-        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{address ? 'Refine Destination' : 'Register New Destination'}</h3>
+        <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{address ? 'Edit Address' : 'Add New Address'}</h3>
         <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-[var(--color-sand)]/20 flex items-center justify-center text-[var(--color-stone)]"><X size={20} /></button>
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(formData); }} className="space-y-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <InputField label="Recipient Designation" name="fullName" value={formData.fullName} onChange={handleChange} icon={<User size={18} />} />
-          <InputField label="Secure Contact" name="phone" value={formData.phone} onChange={handleChange} icon={<Smartphone size={18} />} />
+          <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} icon={<User size={18} />} />
+          <InputField label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} icon={<Smartphone size={18} />} />
           <div className="md:col-span-2">
-            <InputField label="Street Origin" name="line1" value={formData.line1} onChange={handleChange} icon={<MapPin size={18} />} />
+            <InputField label="Address Line 1" name="line1" value={formData.line1} onChange={handleChange} icon={<MapPin size={18} />} />
           </div>
-          <InputField label="City Centre" name="city" value={formData.city} onChange={handleChange} />
-          <InputField label="Region / State" name="state" value={formData.state} onChange={handleChange} />
-          <InputField label="Pincode Ledger" name="pincode" value={formData.pincode} onChange={handleChange} />
+          <InputField label="City" name="city" value={formData.city} onChange={handleChange} />
+          <InputField label="State" name="state" value={formData.state} onChange={handleChange} />
+          <InputField label="Pincode" name="pincode" value={formData.pincode} onChange={handleChange} />
         </div>
 
         <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t border-[var(--color-stone)]/5">
@@ -596,7 +596,7 @@ function AddressForm({ address, onClose }) {
             disabled={mutation.isPending} 
             className="flex-1 h-16 rounded-[2rem] bg-[var(--color-primary-dark)] text-white font-bold shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
           >
-            {mutation.isPending ? 'Syncing Registry...' : 'Confirm Registration'}
+            {mutation.isPending ? 'Saving...' : 'Save Address'}
           </button>
           <button 
             type="button" 

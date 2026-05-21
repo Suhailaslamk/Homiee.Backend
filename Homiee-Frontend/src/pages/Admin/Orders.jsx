@@ -58,7 +58,7 @@ export default function Orders() {
     mutationFn: ({ id, nextStatus }) => updateAdminOrderStatus(id, nextStatus),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast.success(response.message || 'Transaction status updated.');
+      toast.success(response.message || 'Order status updated.');
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Unable to update status.'),
   });
@@ -69,13 +69,13 @@ export default function Orders() {
       <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-primary-dark)] text-white text-[10px] font-bold uppercase tracking-widest mb-6">
-            <Receipt size={14} /> Platform Ledger
+            <Receipt size={14} /> Order Management
           </div>
-          <h1 className="text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">
-            The <i className="text-[var(--color-accent)]">Transactions.</i>
+          <h1 className="text-4xl sm:text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] leading-tight">
+            Order <i className="text-[var(--color-accent)]">List.</i>
           </h1>
-          <p className="mt-4 text-xl text-[var(--color-text-muted)] font-medium max-w-2xl">
-            A real-time audit of every artisanal acquisition and exchange across the Homiee ecosystem.
+          <p className="mt-4 text-lg sm:text-xl text-[var(--color-text-muted)] font-medium max-w-2xl">
+            Review and manage all marketplace orders.
           </p>
         </div>
       </header>
@@ -100,7 +100,7 @@ export default function Orders() {
               onChange={(event) => { setStatus(event.target.value); setPage(1); }} 
               className="w-full pl-12 pr-4 py-5 rounded-2xl bg-[var(--color-sand)]/20 border-transparent outline-none font-bold text-sm text-[var(--color-primary-dark)] appearance-none cursor-pointer"
             >
-              <option value="">All Transaction Stages</option>
+              <option value="">All Status</option>
               {STATUS_OPTIONS.map((item) => (
                 <option key={item.value} value={item.label}>{item.label}</option>
               ))}
@@ -122,16 +122,16 @@ export default function Orders() {
             className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[2.5rem]"
             message={(
               <div className="text-center">
-                <p className="text-lg font-bold text-[var(--color-primary-dark)] mb-4">The ledger failed to synchronize.</p>
-                <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry Synchronization</button>
+                <p className="text-lg font-bold text-[var(--color-primary-dark)] mb-4">Failed to load orders.</p>
+                <button onClick={() => refetch()} className="px-8 py-4 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
               </div>
             )}
           />
         ) : orders.length === 0 ? (
           <SurfaceCard className="bg-white border-[var(--color-stone)]/10 text-center py-24 rounded-[3rem]">
             <ShoppingBag size={64} className="mx-auto text-[var(--color-sand)] mb-6" />
-            <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Records Found</h3>
-            <p className="mt-2 text-[var(--color-text-muted)] font-medium">Refine your ledger search to discover transaction history.</p>
+            <h3 className="text-2xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">No Orders Found</h3>
+            <p className="mt-2 text-[var(--color-text-muted)] font-medium">Try adjusting your filters.</p>
           </SurfaceCard>
         ) : (
           <AnimatePresence mode="popLayout">
@@ -143,7 +143,7 @@ export default function Orders() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl hover:shadow-2xl hover:border-[var(--color-accent)]/20 transition-all rounded-[2.5rem] p-8 group">
+                  <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl hover:shadow-2xl hover:border-[var(--color-accent)]/20 transition-all rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 group">
                     <div className="flex flex-col xl:flex-row items-center gap-8">
                       {/* Transaction Identity */}
                       <div className="flex items-center gap-6 flex-1 min-w-0 w-full">
@@ -158,8 +158,8 @@ export default function Orders() {
                             <StatusPill value={order.status || 'Pending'} />
                           </div>
                           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[var(--color-text-muted)] font-medium text-sm">
-                            <span className="flex items-center gap-2"><User size={14} className="text-[var(--color-primary)]" /> Collector #{String(order.userId).slice(-6)}</span>
-                            <span className="flex items-center gap-2"><Store size={14} className="text-[var(--color-accent)]" /> Artisan #{String(order.sellerId).slice(-6)}</span>
+                            <span className="flex items-center gap-2"><User size={14} className="text-[var(--color-primary)]" /> Customer #{String(order.userId).slice(-6)}</span>
+                            <span className="flex items-center gap-2"><Store size={14} className="text-[var(--color-accent)]" /> Seller #{String(order.sellerId).slice(-6)}</span>
                             <span className="flex items-center gap-2"><Clock size={14} /> {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                             {order.requestedDeliveryDate && (
                               <span className="flex items-center gap-2 text-emerald-600 font-bold"><Calendar size={14} /> Expected: {new Date(order.requestedDeliveryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
@@ -171,7 +171,7 @@ export default function Orders() {
                       {/* Transaction Value & Control */}
                       <div className="flex flex-wrap items-center gap-8 w-full xl:w-auto justify-end">
                         <div className="text-right">
-                          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">Total Valuation</div>
+                          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">Total Amount</div>
                           <div className="text-3xl font-bold text-[var(--color-primary-dark)]">{formatCurrency(order.totalAmount)}</div>
                         </div>
 

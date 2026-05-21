@@ -183,8 +183,8 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { label: 'Discover', path: '/discovery', show: showMarketplaceActions },
-    { label: 'Stores', path: '/stores', show: showMarketplaceActions },
+    { label: 'Shop', path: '/discovery', show: showMarketplaceActions },
+    { label: 'Studios', path: '/stores', show: showMarketplaceActions },
     { label: 'How It Works', path: '/about', show: true },
   ].filter(link => link.show);
 
@@ -314,7 +314,7 @@ export default function Navbar() {
                     className="flex items-center gap-2 rounded-full border border-black/5 bg-black/5 p-1 pr-3 hover:bg-black/10 transition"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-full premium-gradient text-white font-bold text-sm">
-                      {role.charAt(0).toUpperCase()}
+                      {(role || 'U').charAt(0).toUpperCase()}
                     </div>
                     <ChevronDown size={14} className="text-[var(--color-text-muted)]" />
                   </button>
@@ -329,12 +329,12 @@ export default function Navbar() {
                         className="absolute right-0 mt-2 w-56 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5 z-50"
                       >
                         <div className="px-3 py-2 border-b border-black/5 mb-2">
-                          <p className="text-sm font-semibold text-[var(--color-text-main)] capitalize">{role} Account</p>
+                          <p className="text-sm font-semibold text-[var(--color-text-main)] capitalize">{(role || 'Guest')} Account</p>
                         </div>
                         
                         {isCustomerRole(role) && (
                           <>
-                            <DropdownItem to="/orders" icon={Package} label="My Acquisitions" />
+                            <DropdownItem to="/orders" icon={Package} label="My Orders" />
                             <DropdownItem to="/wishlist" icon={Heart} label="Wishlist" />
                           </>
                         )}
@@ -342,7 +342,7 @@ export default function Navbar() {
                           <DropdownItem to="/chat" icon={MessageCircle} label="Messages" badge={unreadChatCount} />
                         )}
                         {showWorkspace && (
-                          <DropdownItem to={getWorkspacePath(role)} icon={LayoutDashboard} label="Workspace" />
+                          <DropdownItem to={getWorkspacePath(role)} icon={LayoutDashboard} label="Dashboard" />
                         )}
                         {token && !isAdminRole(role) && (
                           <DropdownItem to="/profile" icon={User} label="Profile Settings" />
@@ -436,7 +436,7 @@ export default function Navbar() {
                         {isCustomerRole(role) && <MobileActionCard to="/orders" icon={Package} label="Orders" />}
                         <MobileActionCard to="/wishlist" icon={Heart} label="Wishlist" />
                         <MobileActionCard to="/chat" icon={MessageCircle} label="Messages" badge={unreadChatCount} />
-                        {showWorkspace && <MobileActionCard to={getWorkspacePath(role)} icon={LayoutDashboard} label="Workspace" />}
+                        {showWorkspace && <MobileActionCard to={getWorkspacePath(role)} icon={LayoutDashboard} label="Dashboard" />}
                         <button 
                           onClick={handleLogout}
                           className="col-span-2 mt-4 p-4 rounded-3xl bg-rose-50 text-rose-600 font-bold flex items-center justify-center gap-3"

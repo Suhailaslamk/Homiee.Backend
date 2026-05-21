@@ -1,4 +1,4 @@
-﻿using Homiee.Domain.Entities;
+using Homiee.Domain.Entities;
 
 namespace Homiee.Application.Interfaces.IRepository
 {
@@ -9,5 +9,6 @@ namespace Homiee.Application.Interfaces.IRepository
         Task AddAsync(CartItem item);
         Task UpdateAsync(CartItem item);
         Task DeleteAsync(CartItem item);
+        IQueryable<CartItem> Query();
     }
 }

@@ -48,15 +48,8 @@ namespace Homiee.Application.Services
             };
 
             // ✅ Real-time push via SignalR
-            var connections = _connectionManager.GetConnections(userId);
-            if (connections.Any())
-            {
-                foreach (var conn in connections)
-                {
-                    await _hub.Clients.Client(conn)
-                        .SendAsync("ReceiveNotification", dto);
-                }
-            }
+            await _hub.Clients.User(userId.ToString())
+                .SendAsync("ReceiveNotification", dto);
         }
 
         public async Task<ApiResponse<List<NotificationDto>>> GetUserNotifications(int userId)

@@ -102,28 +102,28 @@ export default function SellerDashboard() {
   const headlineStats = useMemo(
     () => [
       {
-        label: 'Exhibit Inventory',
+        label: 'Total Products',
         value: dashboard.totalProducts ?? kpis.totalProducts ?? 0,
-        hint: `${kpis.activeProducts ?? 0} active signals`,
+        hint: `${kpis.activeProducts ?? 0} active products`,
         icon: Layers,
         accent: 'sand',
       },
       {
-        label: 'Acquisition Flow',
+        label: 'Recent Orders',
         value: dashboard.totalOrders ?? kpis.totalOrders ?? 0,
         hint: `${kpis.ordersToday ?? 0} new today`,
         icon: ShoppingBag,
         accent: 'forest',
       },
       {
-        label: 'Awaiting Fulfillment',
+        label: 'Pending Orders',
         value: kpis.pendingOrders ?? 0,
         hint: `${kpis.deliveredOrders ?? 0} fulfilled`,
         icon: Clock3,
         accent: 'accent',
       },
       {
-        label: 'Stock Registry',
+        label: 'Low Stock',
         value: dashboard.lowStockProducts ?? kpis.lowStockProducts ?? 0,
         hint: `${kpis.outOfStockProducts ?? 0} voided`,
         icon: TriangleAlert,
@@ -137,7 +137,7 @@ export default function SellerDashboard() {
   const pageError = dashboardError || analyticsError || earningsError;
 
   return (
-    <div className="space-y-16 pb-24 px-6 pt-10">
+    <div className="space-y-6 pb-10">
       {pageLoading ? (
         <DashboardLoading />
       ) : pageError ? (
@@ -145,8 +145,8 @@ export default function SellerDashboard() {
           className="bg-white border-[var(--color-stone)]/10 p-12 shadow-xl rounded-[3rem]"
           message={(
             <div className="text-center">
-              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6">Studio Synchronization Failure</p>
-              <button onClick={() => refetchDashboard()} className="px-10 py-5 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Reconnect Studio</button>
+              <p className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] mb-6">Dashboard sync failed.</p>
+              <button onClick={() => refetchDashboard()} className="px-10 py-5 bg-[var(--color-primary-dark)] text-white rounded-2xl font-bold">Retry</button>
             </div>
           )}
         />
@@ -154,10 +154,10 @@ export default function SellerDashboard() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="space-y-16"
+          className="space-y-6"
         >
-          {/* Studio Pulse Hero */}
-          <section className="relative overflow-hidden rounded-[4rem] bg-white border border-[var(--color-stone)]/5 shadow-2xl p-10 sm:p-16">
+          {/* Dashboard Header */}
+          <section className="relative overflow-hidden rounded-2xl bg-white border border-[var(--color-stone)]/5 shadow-lg p-5 sm:p-10">
             <div className="absolute inset-0 opacity-10 pointer-events-none">
               <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--color-accent)] blur-[120px] rounded-full -mr-48 -mt-48" />
               <div className="absolute bottom-0 left-0 w-96 h-96 bg-[var(--color-primary-dark)] blur-[120px] rounded-full -ml-48 -mb-48" />
@@ -165,32 +165,32 @@ export default function SellerDashboard() {
 
             <div className="relative flex flex-col xl:flex-row items-center justify-between gap-12">
               <div className="max-w-2xl text-center xl:text-left">
-                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-[var(--color-sand)]/30 border border-[var(--color-stone)]/5 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-primary-dark)] mb-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-sand)]/30 border border-[var(--color-stone)]/5 text-[9px] font-bold uppercase tracking-widest text-[var(--color-primary-dark)] mb-4">
                   <ShieldCheck size={14} className="text-[var(--color-accent)]" />
-                  Artisan Studio Management Center
+                  Seller Dashboard
                 </div>
                 
-                <h1 className="text-5xl sm:text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-tight">
-                  Studio <i className="text-[var(--color-accent)]">Pulse</i>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)] tracking-tighter leading-tight">
+                  Seller <i className="text-[var(--color-accent)]">Dashboard</i>
                 </h1>
-                <p className="mt-6 text-xl text-[var(--color-stone)] font-medium italic opacity-70 leading-relaxed">
-                  "Your creative orchestration and performance registry, curated for the master artisan."
+                <p className="mt-4 text-base sm:text-xl text-[var(--color-stone)] font-medium italic opacity-70 leading-relaxed">
+                  "Manage your products, orders, and earnings."
                 </p>
               </div>
               
-              <div className="flex flex-col items-center xl:items-end bg-[var(--color-primary-dark)] p-10 rounded-[3.5rem] shadow-2xl min-w-[320px] relative group">
+              <div className="flex flex-col items-center bg-[var(--color-primary-dark)] p-8 rounded-[2rem] shadow-2xl w-full xl:w-auto xl:min-w-[280px] relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-                <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-4 italic">Cycle Revenue Registry</div>
-                <div className="text-6xl font-['Fraunces'] font-bold text-[var(--color-accent)] tracking-tighter">{formatCurrency(kpis.revenueThisMonth ?? 0)}</div>
-                <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                  <TrendingUp size={14} /> +14.2% Optimization
+                <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-3 italic">Monthly Revenue</div>
+                <div className="text-4xl sm:text-5xl font-['Fraunces'] font-bold text-[var(--color-accent)] tracking-tighter">{formatCurrency(kpis.revenueThisMonth ?? 0)}</div>
+                <div className="mt-4 flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
+                  <TrendingUp size={12} /> +14.2% Growth
                 </div>
               </div>
             </div>
           </section>
 
           {/* Management Orbs */}
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 grid-cols-2 xl:grid-cols-4">
             {headlineStats.map((item, idx) => (
               <motion.div
                 key={item.label}
@@ -203,24 +203,24 @@ export default function SellerDashboard() {
             ))}
           </div>
 
-          <div className="grid gap-16 xl:grid-cols-[1.5fr,0.5fr]">
-            {/* Revenue Canvas */}
-            <SurfaceCard className="bg-white/40 backdrop-blur-3xl border-white p-12 shadow-2xl rounded-[4rem]">
-              <div className="flex items-center justify-between mb-16">
+          <div className="grid gap-8 xl:grid-cols-[1.5fr,0.5fr]">
+            {/* Sales Analytics */}
+            <SurfaceCard className="bg-white/40 backdrop-blur-3xl border-white p-5 sm:p-10 shadow-2xl rounded-2xl sm:rounded-[3rem]">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Studio Signal</h2>
-                  <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">Historical acquisition resonance over 30 cycles</p>
+                  <h2 className="text-4xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Sales Analytics</h2>
+                  <p className="text-sm font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2 italic">Revenue trends over the last 30 days</p>
                 </div>
                 <div className="w-16 h-16 rounded-[1.8rem] bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-primary-dark)] shadow-inner">
                   <Compass size={32} />
                 </div>
               </div>
 
-              <div className="h-[400px] w-full min-w-0">
+              <div className="h-56 sm:h-[350px] w-full min-w-0 overflow-hidden relative">
                 {revenueSeries.length === 0 ? (
-                  <EmptyBlock icon={Activity} title="Generating Resonance..." description="Your studio signal will populate as acquisitions occur." />
+                  <EmptyBlock icon={Activity} title="Loading Charts..." description="Your sales charts will appear here as orders come in." />
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" debounce={50}>
                     <AreaChart data={revenueSeries}>
                       <defs>
                         <linearGradient id="colorRevenueArtisan" x1="0" y1="0" x2="0" y2="1">
@@ -242,7 +242,7 @@ export default function SellerDashboard() {
                         }}
                         itemStyle={{ color: 'var(--color-primary-dark)', fontWeight: 'bold', fontSize: '14px' }}
                         cursor={{ stroke: 'var(--color-accent)', strokeWidth: 2, strokeDasharray: '6 6' }}
-                        formatter={(value) => [formatCurrency(value), 'Resonance Value']}
+                        formatter={(value) => [formatCurrency(value), 'Revenue']}
                       />
                       <Area 
                         type="monotone" 
@@ -258,16 +258,16 @@ export default function SellerDashboard() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 mt-16 pt-16 border-t border-[var(--color-stone)]/5">
-                <StudioInsight label="Mean Acquisition" value={formatCurrency(kpis.revenueThisMonth / (kpis.totalOrders || 1))} icon={Zap} />
-                <StudioInsight label="Portfolio Health" value="Optimized" icon={CheckCircle2} />
-                <StudioInsight label="Studio Rating" value={`${Number(kpis.averageRating || 0).toFixed(1)} Signals`} icon={Star} />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 pt-6 border-t border-[var(--color-stone)]/5">
+                <StudioInsight label="Avg Order Value" value={formatCurrency(kpis.revenueThisMonth / (kpis.totalOrders || 1))} icon={Zap} />
+                <StudioInsight label="Store Health" value="Healthy" icon={CheckCircle2} />
+                <StudioInsight label="Seller Rating" value={`${Number(kpis.averageRating || 0).toFixed(1)} Rating`} icon={Star} />
               </div>
             </SurfaceCard>
 
-            <div className="space-y-12">
-              {/* Studio Vault */}
-              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-12 rounded-[4rem] shadow-2xl relative overflow-hidden group">
+            <div className="space-y-6">
+              {/* Earnings */}
+              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-accent)]/10 blur-[100px] rounded-full -mr-32 -mt-32 transition-all duration-700 group-hover:bg-[var(--color-accent)]/20" />
                 
                 <div className="relative z-10 space-y-12">
@@ -275,11 +275,11 @@ export default function SellerDashboard() {
                     <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-[var(--color-accent)] border border-white/10">
                       <BadgeIndianRupee size={28} />
                     </div>
-                    <Link to="/seller/earnings" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">Vault Details</Link>
+                    <Link to="/seller/earnings" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors">View Earnings</Link>
                   </div>
 
                   <div className="space-y-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 italic">Settlement Ready</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 italic">Available Balance</p>
                     <p className="text-6xl font-['Fraunces'] font-bold text-[var(--color-accent)] tracking-tighter">
                       {formatCurrency(earningsSummary.availableEarnings ?? earnings.availableAmount ?? 0)}
                     </p>
@@ -287,7 +287,7 @@ export default function SellerDashboard() {
 
                   <div className="pt-10 border-t border-white/10 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">In Orchestration</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">Pending Clearance</p>
                       <p className="text-2xl font-bold text-white/80">{formatCurrency(earningsSummary.pendingEarnings ?? earnings.pendingAmount ?? 0)}</p>
                     </div>
                     <Link 
@@ -300,43 +300,43 @@ export default function SellerDashboard() {
                 </div>
               </SurfaceCard>
 
-              {/* Orchestration Hub */}
-              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[4rem] shadow-xl">
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] mb-10 italic">Orchestration Hub</h3>
+              {/* Quick Actions */}
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[4rem] shadow-xl">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] mb-10 italic">Quick Actions</h3>
                 <div className="grid gap-6">
                   <OrchestrationAction 
                     to="/seller/products/new" 
-                    label="Curate Piece" 
+                    label="Add Product" 
                     icon={<Plus size={24} />} 
                     variant="accent"
                   />
                   <OrchestrationAction 
                     to="/seller/orders" 
-                    label="Registry Hub" 
+                    label="Order History" 
                     icon={<ClipboardList size={24} />} 
                     variant="ghost"
                   />
                   <OrchestrationAction 
                     to="/seller/inventory" 
-                    label="Studio Assets" 
+                    label="Stock Management" 
                     icon={<Layers size={24} />} 
                     variant="ghost"
                   />
                 </div>
               </SurfaceCard>
 
-              {/* Logistics Schedule */}
-              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[4rem] shadow-xl">
+              {/* Delivery Schedule */}
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[4rem] shadow-xl">
                 <div className="flex items-center justify-between mb-8">
                   <div>
-                    <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Logistics Schedule</h3>
-                    <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Monthly Delivery Pulse</p>
+                    <h3 className="text-xl font-bold text-[var(--color-primary-dark)]">Delivery Schedule</h3>
+                    <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1">Next 30 days</p>
                   </div>
                   <Calendar size={24} className="text-[var(--color-accent)] opacity-30" />
                 </div>
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-hide">
                   {calendarDays.length === 0 ? (
-                    <p className="text-sm italic text-[var(--color-text-muted)] text-center py-10">No scheduled arrivals for this cycle.</p>
+                    <p className="text-sm italic text-[var(--color-text-muted)] text-center py-10">No scheduled deliveries.</p>
                   ) : (
                     calendarDays.map((day, i) => (
                       <div key={i} className="p-4 rounded-2xl bg-[var(--color-sand)]/10 border border-transparent flex items-center justify-between group hover:bg-white hover:border-[var(--color-accent)]/20 transition-all">
@@ -346,8 +346,8 @@ export default function SellerDashboard() {
                             <span className="text-sm font-bold leading-none">{new Date(day.date).getDate()}</span>
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-[var(--color-primary-dark)]">{day.orderCount} Acquisition{day.orderCount > 1 ? 's' : ''}</p>
-                            <p className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest">Expected Arrival</p>
+                            <p className="text-xs font-bold text-[var(--color-primary-dark)]">{day.orderCount} Order{day.orderCount > 1 ? 's' : ''}</p>
+                            <p className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest">Expected Delivery</p>
                           </div>
                         </div>
                         <ArrowRightCircle size={16} className="text-[var(--color-stone)]/20 group-hover:text-[var(--color-accent)] transition-all" />
@@ -359,13 +359,13 @@ export default function SellerDashboard() {
             </div>
           </div>
 
-          {/* Acquisition Ledger Previews */}
-          <div className="grid gap-16 lg:grid-cols-2">
-            <SurfaceCard className="bg-white/60 backdrop-blur-3xl border-white p-12 shadow-2xl rounded-[4rem]">
-              <div className="flex items-center justify-between mb-12">
+          {/* Recent Activity Previews */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <SurfaceCard className="bg-white/60 backdrop-blur-3xl border-white p-5 sm:p-10 shadow-2xl rounded-2xl sm:rounded-[3rem]">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Recent Acquisition</h2>
-                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">The latest signals from your collectors</p>
+                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Recent Orders</h2>
+                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Latest orders from your customers</p>
                 </div>
                 <Link to="/seller/orders" className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-stone)] hover:text-[var(--color-accent)] transition-all">
                   <History size={24} />
@@ -374,7 +374,7 @@ export default function SellerDashboard() {
 
               <div className="space-y-6">
                 {recentOrders.length === 0 ? (
-                  <EmptyBlock icon={ShoppingBag} title="Await Acquisition..." description="Your fulfillment ledger is awaiting its first artisan signal." />
+                  <EmptyBlock icon={ShoppingBag} title="No Orders Yet" description="Your order list will appear here once customers start buying." />
                 ) : (
                   recentOrders.map((order, idx) => (
                     <Link 
@@ -404,11 +404,11 @@ export default function SellerDashboard() {
               </div>
             </SurfaceCard>
 
-            <SurfaceCard className="bg-white/60 backdrop-blur-3xl border-white p-12 shadow-2xl rounded-[4rem]">
-              <div className="flex items-center justify-between mb-12">
+            <SurfaceCard className="bg-white/60 backdrop-blur-3xl border-white p-5 sm:p-10 shadow-2xl rounded-2xl sm:rounded-[3rem]">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Premier Exhibits</h2>
-                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Ranked by resonance and acquisition volume</p>
+                  <h2 className="text-3xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Top Products</h2>
+                  <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-2">Your most popular items by sales</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-[var(--color-sand)]/50 flex items-center justify-center text-[var(--color-stone)]">
                   <Award size={24} />
@@ -417,7 +417,7 @@ export default function SellerDashboard() {
 
               <div className="space-y-6">
                 {topProducts.length === 0 ? (
-                  <EmptyBlock icon={Star} title="Ranking Pending..." description="Exhibits will be ranked as they gain collector resonance." />
+                  <EmptyBlock icon={Star} title="No Data" description="Product rankings will appear once sales data is available." />
                 ) : (
                   topProducts.map((product, i) => (
                     <div key={product.productId} className="flex items-center justify-between p-8 rounded-[2.5rem] bg-white border border-[var(--color-stone)]/5 transition-all hover:shadow-2xl group">
@@ -430,7 +430,7 @@ export default function SellerDashboard() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-xl text-[var(--color-primary-dark)]">{formatCurrency(product.totalRevenue)}</p>
-                        <p className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-widest mt-1 font-black">{product.totalQuantity} Acquisitions</p>
+                        <p className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-widest mt-1 font-black">{product.totalQuantity} Sold</p>
                       </div>
                     </div>
                   ))
@@ -453,16 +453,16 @@ function OrbCard({ label, value, hint, icon: Icon, accent }) {
   };
 
   return (
-    <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl transition-all hover:-translate-y-2 p-10 rounded-[3.5rem] group relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[var(--color-sand)]/20 to-transparent rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700" />
-      <div className={`w-16 h-16 rounded-[1.8rem] flex items-center justify-center border shadow-inner transition-transform group-hover:scale-110 relative z-10 ${themes[accent]}`}>
-        <Icon size={28} />
+    <SurfaceCard className="bg-white border-[var(--color-stone)]/5 shadow-xl transition-all hover:-translate-y-1 p-5 sm:p-8 rounded-2xl sm:rounded-[2.5rem] group relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[var(--color-sand)]/20 to-transparent rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700" />
+      <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-[1.5rem] flex items-center justify-center border shadow-inner transition-transform group-hover:scale-110 relative z-10 ${themes[accent]}`}>
+        <Icon size={20} className="sm:w-6 sm:h-6" />
       </div>
-      <p className="mt-10 text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-text-muted)] italic relative z-10">{label}</p>
-      <p className="mt-3 text-5xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] tracking-tighter relative z-10">{value}</p>
-      <div className="mt-6 flex items-center gap-2 px-3 py-1 bg-[var(--color-sand)]/30 rounded-full w-fit relative z-10">
+      <p className="mt-4 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] italic relative z-10">{label}</p>
+      <p className="mt-1 text-2xl sm:text-4xl font-['Fraunces'] font-bold text-[var(--color-primary-dark)] tracking-tighter relative z-10">{value}</p>
+      <div className="mt-3 flex items-center gap-1.5 px-2 py-1 bg-[var(--color-sand)]/30 rounded-full w-fit relative z-10">
         <div className="w-1 h-1 rounded-full bg-[var(--color-accent)] animate-pulse" />
-        <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">{hint}</span>
+        <span className="text-[8px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">{hint}</span>
       </div>
     </SurfaceCard>
   );

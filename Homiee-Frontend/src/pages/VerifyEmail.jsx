@@ -28,14 +28,12 @@ export default function VerifyEmail() {
     return () => window.clearTimeout(timer);
   }, [cooldown]);
 
-  useEffect(() => {
-    if (otp.length === 6 && !isSubmitting) {
-      handleVerify(new Event('submit'));
-    }
-  }, [otp, isSubmitting]);
+  // Removed auto-submission useEffect to prevent race conditions and double-toast noise.
 
   const handleVerify = async (event) => {
     if (event) event.preventDefault();
+
+    if (isSubmitting) return;
 
     if (!email) {
       toast.error('Registration email is missing. Please return to signup.');
@@ -79,15 +77,15 @@ export default function VerifyEmail() {
       const response = await api.post('/auth/resend-otp', { email });
 
       if (response.data?.isSuccess) {
-        toast.success('A fresh OTP is on its way to your inbox.');
+        toast.success('OTP has been sent to your email.');
         setCooldown(RESEND_COOLDOWN);
         return;
       }
 
-      toast.error(response.data?.message || 'Unable to resend OTP right now.');
+      toast.error(response.data?.message || 'Failed to resend OTP.');
     } catch (error) {
       console.error('OTP resend failed:', error);
-      toast.error(error.response?.data?.message || 'Unable to resend OTP right now.');
+      toast.error(error.response?.data?.message || 'Failed to resend OTP.');
     } finally {
       setIsResending(false);
     }
@@ -145,7 +143,7 @@ export default function VerifyEmail() {
           </button>
 
           <Link to="/login" className="font-semibold text-stone-500 hover:text-stone-700">
-            Back to login
+            Back to Login
           </Link>
         </div>
       </div>
