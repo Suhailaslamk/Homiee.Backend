@@ -1,9 +1,10 @@
+using Homiee.Application.Interfaces.IData;
 using Homiee.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Infrastructure.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : DbContext, IApplicationDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)

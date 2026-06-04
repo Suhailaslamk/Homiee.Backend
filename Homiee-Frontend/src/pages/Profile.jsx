@@ -41,8 +41,8 @@ import SurfaceCard from '../components/SurfaceCard';
 import StatusPill from '../components/StatusPill';
 import StatePanel from '../components/StatePanel';
 
-export default function Profile() {
-  const [activeTab, setActiveTab] = useState('overview');
+export default function Profile({ initialTab = 'overview' }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [draftState, setDraftState] = useState({});
 
   const navigate = useNavigate();

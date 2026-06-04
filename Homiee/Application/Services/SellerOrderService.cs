@@ -5,7 +5,7 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Application.Services
@@ -14,7 +14,7 @@ namespace Homiee.Application.Services
     {
         private readonly IOrderRepository _orderRepo;
         private readonly ISellersRepository _sellerRepo;
-        private readonly AppDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
         private readonly INotificationService _notificationService;
         private readonly ISellerEarningService _earningService;
         private readonly ILogger<SellerOrderService> _logger;
@@ -34,7 +34,7 @@ new()
         public SellerOrderService(
             IOrderRepository orderRepo,
             ISellersRepository sellerRepo,
-            AppDbContext dbContext,
+            IApplicationDbContext dbContext,
             INotificationService notificationService,
             ISellerEarningService earningService,
             ILogger<SellerOrderService> logger)

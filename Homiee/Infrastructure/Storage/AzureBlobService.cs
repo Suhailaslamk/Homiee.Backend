@@ -1,57 +1,10 @@
-//using Azure.Storage.Blobs;
-//using Azure.Storage.Blobs.Models;
-//using Azure.Storage.Blobs.Specialized;
-//using Azure.Storage.Sas;
-//using Homiee.Application.Interfaces.IServices;
-//namespace Homiee.Application.Services
-//{
-
-//    public class AzureBlobService : IFileStorageService
-//    {
-//        private readonly BlobContainerClient _container;
-
-//        public AzureBlobService(IConfiguration config)
-//        {
-//            var connectionString = config["AzureBlob:ConnectionString"];
-
-//            if (string.IsNullOrWhiteSpace(connectionString))
-//                throw new Exception("Azure Blob connection string is missing");
-
-//            var containerName = config["AzureBlob:ContainerName"];
-
-//            var client = new BlobServiceClient(connectionString);
-//            _container = client.GetBlobContainerClient(containerName);
-//        }
-
-//        public async Task<string> UploadAsync(IFormFile file, string folder)
-//        {
-//            await _container.CreateIfNotExistsAsync();
-
-//            var cleanFileName = Path.GetFileName(file.FileName); // avoid weird paths
-//            var fileName = $"{folder}/{Guid.NewGuid()}_{cleanFileName}";
-
-//            var blobClient = _container.GetBlobClient(fileName);
-
-//            using var stream = file.OpenReadStream();
-//            await blobClient.UploadAsync(stream, new BlobHttpHeaders
-//            {
-//                ContentType = file.ContentType
-//            });
-
-//            return blobClient.Uri.ToString(); // ✅ simple public URL
-//        }
-
-
-//    }
-//}
-
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Homiee.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
-namespace Homiee.Application.Services
+namespace Homiee.Infrastructure.Storage
 {
     public class AzureBlobService : IFileStorageService
     {
@@ -82,26 +35,19 @@ namespace Homiee.Application.Services
                 if (string.IsNullOrWhiteSpace(folder))
                     throw new ArgumentException("Folder name is required");
 
-                // Ensure container exists before upload
                 await _container.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
-                // 1. Clean folder and filename
                 var safeFolder = folder.Trim().Trim('/');
                 var extension = Path.GetExtension(file.FileName).ToLower();
-
-                // 2. Generate a clean, unique name
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var blobPath = $"{safeFolder}/{fileName}";
 
                 var blobClient = _container.GetBlobClient(blobPath);
-
-                // 3. Set proper headers
                 var blobHttpHeader = new BlobHttpHeaders
                 {
                     ContentType = file.ContentType
                 };
 
-                // 4. Upload
                 using (var stream = file.OpenReadStream())
                 {
                     await blobClient.UploadAsync(stream, new BlobUploadOptions
@@ -110,7 +56,6 @@ namespace Homiee.Application.Services
                     });
                 }
 
-                // 5. Return the direct URL
                 return blobClient.Uri.GetLeftPart(UriPartial.Path);
             }
             catch (Exception ex)

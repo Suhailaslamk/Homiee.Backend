@@ -46,6 +46,7 @@ export default function Navbar() {
   const showWorkspace = isSellerRole(role) || isAdminRole(role);
   const showChat = token && (isCustomerRole(role) || isSellerRole(role));
   const showNotifications = Boolean(token);
+  const canUseCart = Boolean(token && currentUserId && isCustomerRole(role));
 
   // Scroll effect
   useEffect(() => {
@@ -100,13 +101,13 @@ export default function Navbar() {
   );
 
   const { data: cartResponse } = useQuery({
-    queryKey: ['cart'],
+    queryKey: ['cart', currentUserId],
     queryFn: getCart,
-    enabled: !!token, // Enabled for all authenticated users to show consistent count
+    enabled: canUseCart,
     staleTime: 30000,
   });
 
-  const cartItems = getResponseData(cartResponse) || [];
+  const cartItems = canUseCart ? getResponseData(cartResponse) || [] : [];
   const cartCount = useMemo(() => 
     cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0),
     [cartItems]
@@ -176,6 +177,8 @@ export default function Navbar() {
     }
     localStorage.removeItem('token');
     localStorage.removeItem('sellerOnboardingStatus');
+    queryClient.removeQueries({ queryKey: ['cart'] });
+    queryClient.removeQueries({ queryKey: ['cart-product'] });
     queryClient.removeQueries({ queryKey: ['chat'] });
     queryClient.removeQueries({ queryKey: ['notifications'] });
     toast.info('You have been signed out.');

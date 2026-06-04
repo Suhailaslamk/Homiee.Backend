@@ -1,9 +1,9 @@
-﻿//using Homiee.Application.DTOs;
+//using Homiee.Application.DTOs;
 //using Homiee.Application.Interfaces.IRepository;
 //using Homiee.Application.Interfaces.IServices;
 //using Homiee.Common;
 //using Homiee.Domain.Enums;
-//using Homiee.Infrastructure.Data;
+//using Homiee.Application.Interfaces.IData;
 //using Microsoft.EntityFrameworkCore;
 //using System.Text.RegularExpressions;
 
@@ -15,14 +15,14 @@
 //        private readonly ISellersRepository _sellerRepo;
 //        private readonly IDeliveryRepository _deliveryRepo;
 //        private readonly IFileStorageService _fileService;
-//        private readonly AppDbContext _context;
+//        private readonly IApplicationDbContext _context;
 
 //        public ProfileService(
 //            IUserRepository userRepo,
 //            ISellersRepository sellerRepo,
 //            IDeliveryRepository deliveryRepo,
 //            IFileStorageService fileService,
-//            AppDbContext context)
+//            IApplicationDbContext context)
 //        {
 //            _userRepo = userRepo;
 //            _sellerRepo = sellerRepo;
@@ -91,19 +91,19 @@
 //            if (dto == null)
 //                return new ApiResponse<string>(400, "Invalid request");
 
-//            // 🔒 Get user
+//            // ?? Get user
 //            var user = await _userRepo.GetByIdAsync(currentUserId);
 //            if (user == null)
 //                return new ApiResponse<string>(404, "User not found");
 
-//            // 🔒 Prevent admin misuse
+//            // ?? Prevent admin misuse
 //            if (!Enum.TryParse<UserRole>(roleClaim, out var requesterRole))
 //                return new ApiResponse<string>(401, "Invalid role");
 
 //            if (requesterRole == UserRole.Admin)
 //                return new ApiResponse<string>(403, "Admin cannot modify user profiles here");
 
-//            // 🔒 Basic field validations
+//            // ?? Basic field validations
 //            if (!string.IsNullOrWhiteSpace(dto.Name))
 //            {
 //                if (!Regex.IsMatch(dto.Name, @"^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$"))
@@ -112,7 +112,7 @@
 //                user.Name = dto.Name.Trim();
 //            }
 
-//            // 🔒 Profile picture validation (basic)
+//            // ?? Profile picture validation (basic)
 //            if (dto.ProfilePicture != null)
 //            {
 //                if (dto.ProfilePicture.Length > 2 * 1024 * 1024) // 2MB
@@ -205,7 +205,7 @@ using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
@@ -216,13 +216,13 @@ namespace Homiee.Application.Services
         private readonly IUserRepository _userRepo;
         private readonly ISellersRepository _sellerRepo;
         private readonly IFileStorageService _fileService;
-        private readonly AppDbContext _context;
+        private readonly IApplicationDbContext _context;
 
         public ProfileService(
             IUserRepository userRepo,
             ISellersRepository sellerRepo,
             IFileStorageService fileService,
-            AppDbContext context)
+            IApplicationDbContext context)
         {
             _userRepo = userRepo;
             _sellerRepo = sellerRepo;
@@ -230,7 +230,7 @@ namespace Homiee.Application.Services
             _context = context;
         }
 
-        // ✅ GET PROFILE
+        // ? GET PROFILE
         public async Task<ApiResponse<UserProfileDto>> GetProfile(int userId)
         {
             var user = await _userRepo.GetByIdAsync(userId);
@@ -268,7 +268,7 @@ namespace Homiee.Application.Services
             return new ApiResponse<UserProfileDto>(200, "Success", result);
         }
 
-        // ✅ UPDATE BASIC USER PROFILE (SAFE)
+        // ? UPDATE BASIC USER PROFILE (SAFE)
         public async Task<ApiResponse<string>> UpdateUserProfile(
             int userId,
             UpdateUserprofileDto dto)
@@ -309,7 +309,7 @@ namespace Homiee.Application.Services
             return new ApiResponse<string>(200, "Profile updated successfully");
         }
 
-        // ✅ UPDATE SELLER PROFILE (CONTROLLED)
+        // ? UPDATE SELLER PROFILE (CONTROLLED)
         public async Task<ApiResponse<string>> UpdateSellerProfile(
             int userId,
             UpdateSellerProfileDto dto)
@@ -351,7 +351,7 @@ namespace Homiee.Application.Services
                     seller.PhoneNumber = dto.PhoneNumber;
                 }
 
-                // 🔥 IMPORTANT: GST NOT editable after approval
+                // ?? IMPORTANT: GST NOT editable after approval
                 if (seller.Status == ApprovalStatus.Approved && requiresReapproval)
                 {
                     seller.Status = ApprovalStatus.Submitted;

@@ -41,6 +41,14 @@ namespace Homiee.Domain.Entities
             Stock = stock;
         }
 
+        public void UpdateCategory(int categoryId)
+        {
+            if (categoryId <= 0)
+                throw new ArgumentException("Category is required");
+
+            CategoryId = categoryId;
+        }
+
         // Keep for backward compat
         public void UpdateBasicDetails(string name, string description,int stock , decimal price)
             => Update(name, description, stock , price);

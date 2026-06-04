@@ -1,11 +1,8 @@
 using Homiee.Application.Interfaces.IServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace Homiee.Application.Services
+namespace Homiee.Infrastructure.Storage
 {
     public class LocalFileStorageService : IFileStorageService
     {
@@ -33,7 +30,6 @@ namespace Homiee.Application.Services
                 await file.CopyToAsync(stream);
             }
 
-            // Return relative path or local URL
             return $"/uploads/{folder}/{fileName}";
         }
 

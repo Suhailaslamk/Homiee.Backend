@@ -1,10 +1,5 @@
-﻿using Homiee.Application.DTOs;
-using Homiee.Application.Interfaces.IRepository;
-using Homiee.Application.Interfaces.IServices;
+using Homiee.Application.DTOs;
 using Homiee.Common;
-using Homiee.Domain.Entities;
-using Homiee.Presentation.Hubs;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Homiee.Application.Interfaces.IServices
 {
@@ -15,10 +10,3 @@ namespace Homiee.Application.Interfaces.IServices
         Task<ApiResponse<bool>> MarkAsRead(int id, int userId);
     }
 }
-
-
-
-
-
-
-

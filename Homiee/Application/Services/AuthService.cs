@@ -5,7 +5,7 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
@@ -29,7 +29,7 @@ namespace Homiee.Application.Services
         private readonly IRevokedAccessTokenRepository _revokeAccessRepo;
         private readonly ISellersRepository _sellerRepo;
         private readonly IDeliveryRepository _deliveryRepo;
-        private readonly AppDbContext _context;
+        private readonly IApplicationDbContext _context;
 
         public AuthService(IUserRepository userRepo, 
             IConfiguration config, 
@@ -40,7 +40,7 @@ namespace Homiee.Application.Services
             IRevokedAccessTokenRepository revokeAccessRepo,
             ISellersRepository sellerRepo,
             IDeliveryRepository deliveryRepo,
-            AppDbContext context
+            IApplicationDbContext context
 
             )
 

@@ -4,7 +4,7 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Enums;
 using Homiee.Domain.Entities;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +16,7 @@ namespace Homiee.Application.Services
             private readonly IOrderRepository _orderRepo;
             private readonly INotificationService _notificationService;
             private readonly ILogger<AdminOrderService> _logger;
-            private readonly AppDbContext _dbContext;
+            private readonly IApplicationDbContext _dbContext;
 
         private static readonly Dictionary<OrderStatus, List<OrderStatus>> AllowedTransitions =
     new()
@@ -31,7 +31,7 @@ namespace Homiee.Application.Services
         { OrderStatus.Cancelled, new() { } }
     };
 
-        public AdminOrderService(IOrderRepository orderRepo, INotificationService notificationService, ILogger<AdminOrderService> logger, AppDbContext dbContext)
+        public AdminOrderService(IOrderRepository orderRepo, INotificationService notificationService, ILogger<AdminOrderService> logger, IApplicationDbContext dbContext)
             {
                 _orderRepo = orderRepo;
             _notificationService = notificationService;

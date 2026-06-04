@@ -41,14 +41,14 @@ namespace Homiee.Infrastructure.Repositories
     .Include(s => s.Products)   // ADD THIS
     .AsQueryable();
 
-            // 🔍 FILTER BY STATUS
+            
             if (!string.IsNullOrEmpty(queryParams.Status) &&
                 Enum.TryParse<ApprovalStatus>(queryParams.Status, true, out var status))
             {
                 query = query.Where(s => s.Status == status);
             }
 
-            // 🔎 SEARCH (Name / Email / GST)
+            
             if (!string.IsNullOrEmpty(queryParams.Search))
             {
                 var search = queryParams.Search.ToLower();

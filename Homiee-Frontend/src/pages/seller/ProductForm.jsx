@@ -57,15 +57,21 @@ export default function ProductForm() {
   const [galleryImages, setGalleryImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [variants, setVariants] = useState([]);
+  const [imageToDelete, setImageToDelete] = useState(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: DEFAULT_VALUES,
   });
+
+  const watchedPrice = watch('price');
+  const watchedStock = watch('stock');
 
   const {
     data: categoriesResponse,
@@ -88,6 +94,17 @@ export default function ProductForm() {
 
   const categories = getResponseData(categoriesResponse) ?? [];
   const product = getResponseData(productResponse);
+  const variantSummary = useMemo(() => getVariantSummary(variants), [variants]);
+  const hasVariants = variants.length > 0;
+
+  useEffect(() => {
+    if (!hasVariants || variantSummary.totalStock <= 0 || variantSummary.minPrice <= 0) {
+      return;
+    }
+
+    setValue('price', variantSummary.minPrice, { shouldDirty: true });
+    setValue('stock', variantSummary.totalStock, { shouldDirty: true });
+  }, [hasVariants, setValue, variantSummary.minPrice, variantSummary.totalStock]);
 
   useEffect(() => {
     if (!isEdit || !product) {
@@ -143,6 +160,7 @@ export default function ProductForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-product', productId] });
       toast.success('Image removed.');
+      setImageToDelete(null);
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to remove image.');
@@ -192,6 +210,7 @@ export default function ProductForm() {
           description: values.description.trim(),
           price: Number(values.price),
           stock: Number(values.stock),
+          categoryId: Number(values.categoryId),
           variants: variants.map(v => ({
             id: v.id || 0,
             label: v.label.trim(),
@@ -255,21 +274,25 @@ export default function ProductForm() {
           </Link>
 
           {/* Product Header */}
-          <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[4rem] bg-[var(--color-primary-dark)] p-8 sm:p-12 text-white shadow-2xl">
+          <section className="relative overflow-hidden rounded-2xl bg-[var(--color-primary-dark)] p-8 sm:p-10 text-white shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]" />
-            <div className="relative flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-10">
               <div className="flex items-center gap-8">
-                <div className="w-24 h-24 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl">
+                <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl">
                   {isEdit ? <Layers size={40} className="text-[var(--color-accent)]" /> : <PlusCircle size={40} className="text-[var(--color-accent)]" />}
                 </div>
                 <div>
                   <h1 className="text-4xl sm:text-5xl font-['Fraunces'] font-semibold leading-tight">{isEdit ? 'Edit Product' : 'Add New Product'}</h1>
-                  <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">List a new product on the platform.</p>
+                  <p className="mt-2 text-white/60 font-medium tracking-wide uppercase text-sm">
+                    {isEdit ? 'Update catalog details, images, pricing, and variant stock.' : 'List a new product on the platform.'}
+                  </p>
                 </div>
               </div>
               
-              <div className="hidden lg:flex flex-col items-end opacity-20">
-                <Sparkles size={120} />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full lg:w-auto">
+                <HeaderMetric label="Listing Price" value={`₹${Number(watchedPrice || 0).toLocaleString('en-IN')}`} />
+                <HeaderMetric label="Total Stock" value={Number(watchedStock || 0)} />
+                <HeaderMetric label="Options" value={variants.length} />
               </div>
             </div>
           </section>
@@ -277,7 +300,7 @@ export default function ProductForm() {
           <form onSubmit={onSubmit} className="grid gap-12 xl:grid-cols-[1fr,400px]">
             <div className="space-y-12">
               {/* Essential Canvas */}
-              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 shadow-xl rounded-[4rem]">
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 shadow-xl rounded-2xl">
                 <div className="flex items-center gap-4 mb-12">
                   <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                     <Zap size={24} />
@@ -333,7 +356,7 @@ export default function ProductForm() {
                     <div className="relative">
                       <select
                         {...register('categoryId', { required: 'Please select a category.' })}
-                        disabled={categoriesLoading || isEdit}
+                        disabled={categoriesLoading}
                         className={`${inputClass(errors.categoryId)} appearance-none`}
                       >
                         <option value="">Select a Category</option>
@@ -350,9 +373,9 @@ export default function ProductForm() {
 
                 {/* VARIANTS SECTION */}
                 <div className="mt-16 pt-12 border-t border-[var(--color-stone)]/5 space-y-10">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-[1.2rem] bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
+                      <div className="w-12 h-12 rounded-xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                         <Layers size={24} />
                       </div>
                       <div>
@@ -360,14 +383,29 @@ export default function ProductForm() {
                         <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mt-1 italic">Add different sizes, colors, or weights (Optional)</p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setVariants([...variants, { label: '', price: '', stock: '', sku: '' }])}
-                      className="px-6 py-3 bg-[var(--color-accent)] text-[var(--color-primary-dark)] rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2"
-                    >
-                      <Plus size={16} /> Add Option
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {hasVariants && (
+                        <div className="rounded-xl bg-[var(--color-sand)]/20 px-4 py-3 text-xs font-bold text-[var(--color-primary-dark)]">
+                          Synced: ₹{variantSummary.minPrice || 0} min / {variantSummary.totalStock} units
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setVariants([...variants, { label: '', price: valuesOrBlank(watchedPrice), stock: '', sku: '' }])}
+                        className="px-6 py-3 bg-[var(--color-accent)] text-[var(--color-primary-dark)] rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2"
+                      >
+                        <Plus size={16} /> Add Option
+                      </button>
+                    </div>
                   </div>
+
+                  {hasVariants && (
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <VariantStat label="Lowest option price" value={`₹${variantSummary.minPrice || 0}`} />
+                      <VariantStat label="Total option stock" value={variantSummary.totalStock} />
+                      <VariantStat label="Listed options" value={variants.length} />
+                    </div>
+                  )}
 
                   {variants.length > 0 ? (
                     <div className="grid gap-6">
@@ -376,11 +414,11 @@ export default function ProductForm() {
                           key={index}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="p-8 bg-[var(--color-sand)]/5 rounded-[2.5rem] border border-[var(--color-stone)]/5 relative group"
+                          className="p-6 bg-[var(--color-sand)]/5 rounded-2xl border border-[var(--color-stone)]/5 relative group"
                         >
                           <div className="grid gap-6 md:grid-cols-4">
                             <div className="md:col-span-1">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 block ml-2 italic">Label</label>
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-2 block ml-2 italic">Option</label>
                               <input
                                 value={v.label}
                                 onChange={(e) => {
@@ -388,7 +426,7 @@ export default function ProductForm() {
                                   newVariants[index].label = e.target.value;
                                   setVariants(newVariants);
                                 }}
-                                placeholder="e.g. 1 KG"
+                                placeholder="e.g. 1 KG, Small, Blue"
                                 className="w-full rounded-xl border-2 border-transparent bg-white px-4 py-3 text-sm font-bold text-[var(--color-primary-dark)] outline-none focus:border-[var(--color-accent)]/30 transition-all"
                               />
                             </div>
@@ -446,7 +484,7 @@ export default function ProductForm() {
                     </div>
                   ) : (
                     <div className="p-12 border-2 border-dashed border-[var(--color-stone)]/10 rounded-[3rem] text-center">
-                      <p className="text-[var(--color-stone)] font-medium italic opacity-60">"No options added. This product will be listed as a single item."</p>
+                      <p className="text-[var(--color-stone)] font-medium italic opacity-60">"No options added. Price and stock above will be used as the listing inventory."</p>
                     </div>
                   )}
                 </div>
@@ -471,7 +509,7 @@ export default function ProductForm() {
 
             <div className="space-y-12">
               {/* Visual Studio */}
-              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-10 rounded-[3rem] shadow-xl">
+              <SurfaceCard className="bg-white border-[var(--color-stone)]/5 p-8 sm:p-10 rounded-2xl shadow-xl">
                 <div className="flex items-center gap-3 mb-10">
                   <div className="w-10 h-10 rounded-xl bg-[var(--color-sand)]/30 flex items-center justify-center text-[var(--color-primary-dark)]">
                     <Camera size={18} />
@@ -523,11 +561,7 @@ export default function ProductForm() {
                              </button>
                              <button 
                                type="button"
-                               onClick={() => {
-                                 if (window.confirm('Are you sure you want to remove this image?')) {
-                                   deleteImageMutation.mutate(img.id);
-                                 }
-                               }}
+                               onClick={() => setImageToDelete(img)}
                                className="w-8 h-8 rounded-lg bg-white/90 shadow-sm flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all"
                              >
                                <Trash2 size={14} />
@@ -567,7 +601,7 @@ export default function ProductForm() {
               </SurfaceCard>
 
               {/* Studio Insights */}
-              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+              <SurfaceCard className="bg-[var(--color-primary-dark)] text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-6">
@@ -583,9 +617,86 @@ export default function ProductForm() {
               </SurfaceCard>
             </div>
           </form>
+
+          <ConfirmImageDeleteModal
+            image={imageToDelete}
+            isDeleting={deleteImageMutation.isPending}
+            onCancel={() => setImageToDelete(null)}
+            onConfirm={() => imageToDelete?.id && deleteImageMutation.mutate(imageToDelete.id)}
+          />
         </motion.div>
       )}
     </div>
+  );
+}
+
+function HeaderMetric({ label, value }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-left lg:min-w-28">
+      <div className="text-[9px] font-black uppercase tracking-widest text-white/45">{label}</div>
+      <div className="mt-1 text-lg font-bold text-white">{value}</div>
+    </div>
+  );
+}
+
+function VariantStat({ label, value }) {
+  return (
+    <div className="rounded-xl border border-[var(--color-stone)]/10 bg-white px-5 py-4 shadow-sm">
+      <div className="text-[9px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">{label}</div>
+      <div className="mt-1 text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">{value}</div>
+    </div>
+  );
+}
+
+function ConfirmImageDeleteModal({ image, isDeleting, onCancel, onConfirm }) {
+  return (
+    <AnimatePresence>
+      {image && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+          >
+            <div className="flex gap-5">
+              <div className="h-24 w-24 overflow-hidden rounded-xl bg-[var(--color-sand)]/20 shrink-0">
+                <SafeImage src={image.url || image} className="h-full w-full object-cover" />
+              </div>
+              <div>
+                <h3 className="text-xl font-['Fraunces'] font-semibold text-[var(--color-primary-dark)]">Remove product image?</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
+                  This image will be removed from the product gallery. You can upload another image later.
+                </p>
+              </div>
+            </div>
+            <div className="mt-8 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={isDeleting}
+                className="rounded-xl border border-[var(--color-stone)]/10 px-5 py-3 text-sm font-bold text-[var(--color-text-muted)] hover:bg-[var(--color-sand)]/20 disabled:opacity-50"
+              >
+                Keep Image
+              </button>
+              <button
+                type="button"
+                onClick={onConfirm}
+                disabled={isDeleting}
+                className="rounded-xl bg-rose-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:bg-rose-700 disabled:opacity-50"
+              >
+                {isDeleting ? 'Removing...' : 'Remove Image'}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -635,6 +746,24 @@ function inputClass(error, hasPrefix = false) {
   return `w-full rounded-[1.5rem] border-2 bg-[var(--color-sand)]/20 ${hasPrefix ? 'pl-10' : 'px-6'} py-5 text-[var(--color-primary-dark)] font-bold placeholder:text-[var(--color-stone)]/40 transition-all focus:bg-white focus:ring-4 focus:ring-[var(--color-accent)]/5 outline-none ${
     error ? 'border-rose-200 focus:border-rose-400' : 'border-transparent focus:border-[var(--color-accent)]/20'
   }`;
+}
+
+function getVariantSummary(variants) {
+  const validVariants = variants
+    .map((variant) => ({
+      price: Number(variant.price),
+      stock: Number(variant.stock),
+    }))
+    .filter((variant) => Number.isFinite(variant.price) && Number.isFinite(variant.stock));
+
+  return {
+    minPrice: validVariants.length ? Math.min(...validVariants.map((variant) => variant.price)) : 0,
+    totalStock: validVariants.reduce((sum, variant) => sum + Math.max(0, variant.stock), 0),
+  };
+}
+
+function valuesOrBlank(value) {
+  return value === undefined || value === null ? '' : value;
 }
 
 function ProductFormLoading() {

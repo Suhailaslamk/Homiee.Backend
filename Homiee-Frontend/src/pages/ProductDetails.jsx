@@ -401,7 +401,7 @@ export default function ProductDetails() {
                 >
                   <Link to={`/product/${rec.id}`} className="group block">
                     <div className="aspect-square bg-white overflow-hidden border border-[var(--color-stone)]/10 relative">
-                      <SafeImage src={rec.images?.[0] || rec.imageUrl} alt={rec.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                      <SafeImage src={getRecommendationImage(rec)} alt={rec.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                     </div>
                     <h4 className="mt-4 font-['Fraunces'] font-semibold text-lg text-[var(--color-primary-dark)] group-hover:text-[var(--color-accent)] transition-colors truncate">{rec.name}</h4>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-accent)] mt-1">{formatCurrency(rec.price)}</p>
@@ -737,6 +737,21 @@ function getReviewBreakdown(reviews) {
     accumulator[rating] = (accumulator[rating] || 0) + 1;
     return accumulator;
   }, {});
+}
+
+function getRecommendationImage(product) {
+  const firstImage = Array.isArray(product?.images) ? product.images[0] : null;
+
+  if (typeof firstImage === 'string') {
+    return firstImage;
+  }
+
+  return firstImage?.url
+    || firstImage?.imageUrl
+    || product?.thumbnailUrl
+    || product?.ThumbnailUrl
+    || product?.imageUrl
+    || product?.image;
 }
 
 function formatCurrency(value) {

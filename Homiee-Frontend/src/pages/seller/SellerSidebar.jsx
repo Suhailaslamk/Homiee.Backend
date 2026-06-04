@@ -88,10 +88,18 @@ function NavContent({ pathname, onClose, onLogout, showClose }) {
 
       {/* Footer */}
       <div className="pt-4 border-t border-white/10 space-y-0.5 mt-4">
-        <button className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-semibold text-white/50 hover:text-white hover:bg-white/5 transition-all">
-          <Settings size={16} />
+        <Link
+          to="/seller/settings"
+          onClick={() => onClose()}
+          className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-semibold transition-all ${
+            pathname === '/seller/settings'
+              ? 'bg-white/10 text-white border border-white/10'
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Settings size={16} className={pathname === '/seller/settings' ? 'text-[var(--color-accent)]' : ''} />
           Settings
-        </button>
+        </Link>
         <button
           onClick={() => onLogout()}
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-semibold text-white/50 hover:text-rose-400 hover:bg-rose-500/10 transition-all"

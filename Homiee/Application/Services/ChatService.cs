@@ -2,7 +2,7 @@ using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Domain.Entities;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Application.Services
@@ -10,9 +10,9 @@ namespace Homiee.Application.Services
     public class ChatService : IChatService
     {
         private readonly IChatRepository _repo;
-        private readonly AppDbContext _context;
+        private readonly IApplicationDbContext _context;
 
-        public ChatService(IChatRepository repo, AppDbContext context)
+        public ChatService(IChatRepository repo, IApplicationDbContext context)
         {
             _repo = repo;
             _context = context;

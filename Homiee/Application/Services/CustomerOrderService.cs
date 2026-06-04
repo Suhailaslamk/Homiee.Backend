@@ -4,7 +4,7 @@ using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Application.Services
@@ -15,7 +15,7 @@ namespace Homiee.Application.Services
         private readonly IProductRepository _productRepo;
         private readonly ICartRepository _cartRepo;
         private readonly IAddressRepository _addressRepo;
-        private readonly AppDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
         private readonly INotificationService _notificationService;
         private readonly IWishlistService _wishlistService;
         private readonly IUserRepository _userRepo;
@@ -24,7 +24,7 @@ namespace Homiee.Application.Services
         public CustomerOrderService(
             IOrderRepository orderRepo,
             IProductRepository productRepo,
-            AppDbContext dbContext,
+            IApplicationDbContext dbContext,
             ICartRepository cartRepo,
             IAddressRepository addressRepo,
             INotificationService notificationService,

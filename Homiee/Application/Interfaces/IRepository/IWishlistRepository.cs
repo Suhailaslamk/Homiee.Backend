@@ -1,7 +1,4 @@
-﻿using Homiee.Application.Interfaces.IRepository;
 using Homiee.Domain.Entities;
-using Homiee.Infrastructure.Data;
-using Razorpay.Api;
 
 namespace Homiee.Application.Interfaces.IRepository
 {
@@ -16,12 +13,3 @@ namespace Homiee.Application.Interfaces.IRepository
         Task<int> SaveChangesAsync();
     }
 }
-
-
-
-        
-        
-        
-        
-        
-        

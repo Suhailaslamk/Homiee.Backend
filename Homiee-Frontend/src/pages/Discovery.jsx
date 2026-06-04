@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCategories, getProducts, getStores } from '../api/marketplace';
-import { addToCart } from '../api/customer';
+import { addToCart, getCart } from '../api/customer';
 import * as WishlistAPI from '../api/wishlist';
 const { addToWishlist, removeFromWishlist, getWishlist } = WishlistAPI;
 import SafeImage from '../components/SafeImage';
@@ -27,7 +27,7 @@ import StatePanel from '../components/StatePanel';
 import { getResponseData, getPagedItems, getPagedMeta } from '../utils/api';
 import { useToast } from '../hooks/useToast';
 import { formatCurrency } from '../utils/format';
-import { isAuthenticated } from '../utils/auth';
+import { getCurrentUserId, isAuthenticated, isCustomerRole } from '../utils/auth';
 import CartDrawer from '../components/CartDrawer';
 
 const PRICE_RANGES = [
@@ -44,6 +44,8 @@ export default function Discovery() {
   const location = useLocation();
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const currentUserId = getCurrentUserId();
+  const canUseCart = Boolean(isAuthenticated() && currentUserId && isCustomerRole());
 
   const [productFilters, setProductFilters] = useState({
     page: 1,
@@ -172,6 +174,13 @@ export default function Discovery() {
     placeholderData: keepPreviousData,
   });
 
+  const { data: cartResponse } = useQuery({
+    queryKey: ['cart', currentUserId],
+    queryFn: getCart,
+    enabled: canUseCart,
+    staleTime: 30000,
+  });
+
   const products = getPagedItems(productsData);
   const productsMeta = getPagedMeta(productsData);
   const stores = getPagedItems(storesData);
@@ -179,6 +188,8 @@ export default function Discovery() {
   
   const productPages = getPageNumbers(productsMeta.page, productsMeta.totalPages);
   const storePages = getPageNumbers(storesMeta.page, storesMeta.totalPages);
+  const cartItems = canUseCart ? getResponseData(cartResponse) ?? [] : [];
+  const cartCount = cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
 
   const handleUseLocation = () => {
     if (!navigator.geolocation) {
@@ -546,13 +557,20 @@ export default function Discovery() {
 
       {/* Floating Cart Trigger */}
       <button 
-        onClick={() => setIsCartOpen(true)}
+        onClick={() => {
+          if (!canUseCart) {
+            toast.info('Sign in to view your selection.');
+            navigate('/login');
+            return;
+          }
+          setIsCartOpen(true);
+        }}
         className="fixed bottom-32 right-8 z-[90] w-16 h-16 rounded-full bg-[var(--color-primary-dark)] text-white shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group"
       >
         <ShoppingBag size={24} className="group-hover:rotate-12 transition-transform" />
-        {productsMeta.totalCount > 0 && (
+        {cartCount > 0 && (
           <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[var(--color-accent)] text-white text-[10px] font-bold flex items-center justify-center ring-4 ring-[var(--color-background)]">
-            {productsMeta.totalCount}
+            {cartCount}
           </div>
         )}
       </button>

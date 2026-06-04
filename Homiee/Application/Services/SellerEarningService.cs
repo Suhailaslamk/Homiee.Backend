@@ -1,20 +1,20 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Application.Services
 {
     public class SellerEarningService : ISellerEarningService
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
         private readonly ISellersRepository _sellerRepo;
 
-        public SellerEarningService(AppDbContext dbContext, ISellersRepository sellerRepo)
+        public SellerEarningService(IApplicationDbContext dbContext, ISellersRepository sellerRepo)
         {
             _dbContext = dbContext;
             _sellerRepo = sellerRepo;
@@ -22,7 +22,7 @@ namespace Homiee.Application.Services
 
         public async Task CreateEarningForOrder(int sellerId, int orderId, decimal amount)
         {
-            // Idempotent — don't double-credit if called twice
+            // Idempotent � don't double-credit if called twice
             var exists = await _dbContext.Set<SellerEarning>()
                 .AnyAsync(e => e.OrderId == orderId && e.SellerId == sellerId);
 
@@ -107,7 +107,7 @@ namespace Homiee.Application.Services
             await _dbContext.SaveChangesAsync();
 
             var total = available.Sum(e => e.Amount);
-            return new ApiResponse<string>(200, $"Payout processed: ₹{total:F2} across {available.Count} order(s)");
+            return new ApiResponse<string>(200, $"Payout processed: ?{total:F2} across {available.Count} order(s)");
         }
         /// <inheritdoc/>
         public async Task<ApiResponse<string>> ReleaseEarnings(int userId, int holdDays = 7)
@@ -134,7 +134,7 @@ namespace Homiee.Application.Services
 
             var total = pending.Sum(e => e.Amount);
             return new ApiResponse<string>(200,
-                $"Released ₹{total:F2} across {pending.Count} order(s) to Available");
+                $"Released ?{total:F2} across {pending.Count} order(s) to Available");
         }
     }
 }

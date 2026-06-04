@@ -1,4 +1,4 @@
-﻿//using Homiee.Application.DTOs;
+//using Homiee.Application.DTOs;
 //using Homiee.Application.Interfaces.IRepository;
 //using Homiee.Application.Interfaces.IServices;
 //using Homiee.Common;
@@ -68,7 +68,7 @@ using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Application.Services
@@ -77,12 +77,12 @@ namespace Homiee.Application.Services
     {
         private readonly IReviewRepository _repo;
         private readonly IProductRepository _productRepo;
-        private readonly AppDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
         public ReviewService(
             IReviewRepository repo,
             IProductRepository productRepo,
-            AppDbContext dbContext)
+            IApplicationDbContext dbContext)
         {
             _repo = repo;
             _productRepo = productRepo;

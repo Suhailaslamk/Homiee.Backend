@@ -1,5 +1,4 @@
-﻿using Homiee.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using Homiee.Domain.Entities;
 
 namespace Homiee.Application.Interfaces.IRepository
 {

@@ -1,6 +1,5 @@
-﻿using Homiee.Domain.Entities;
-using Homiee.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Homiee.Domain.Entities;
+
 namespace Homiee.Application.Interfaces.IRepository
 {
     public interface IOrderRepository
@@ -11,12 +10,5 @@ namespace Homiee.Application.Interfaces.IRepository
         Task<Order?> GetByIdAsync(int id);
         IQueryable<Order> Query();
         Task<Order?> GetOrderWithDetailsAsync(int orderId);
-
-
-
-
-
-
-
     }
 }

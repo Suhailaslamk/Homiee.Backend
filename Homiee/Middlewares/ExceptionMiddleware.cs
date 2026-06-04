@@ -1,12 +1,21 @@
+using Microsoft.Data.SqlClient;
+
 namespace Homiee.Middlewares
 {
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionMiddleware> _logger;
+        private readonly IWebHostEnvironment _environment;
 
-        public ExceptionMiddleware(RequestDelegate next)
+        public ExceptionMiddleware(
+            RequestDelegate next,
+            ILogger<ExceptionMiddleware> logger,
+            IWebHostEnvironment environment)
         {
             _next = next;
+            _logger = logger;
+            _environment = environment;
         }
 
         public async Task Invoke(HttpContext context)
@@ -17,17 +26,35 @@ namespace Homiee.Middlewares
             }
             catch (Exception ex)
             {
-                // Error handled by middleware
-                context.Response.StatusCode = 500;
-                
-                var message = ex.Message;
-                if (message.Contains("ResourceNotFound")) 
-                    message = "Azure Storage Resource not found. Please verify container 'homieeimages' exists in the portal.";
+                _logger.LogError(ex,
+                    "Unhandled exception occurred.");
+
+                context.Response.ContentType =
+                    "application/json";
+
+                context.Response.StatusCode =
+                    StatusCodes.Status500InternalServerError;
+
+                string message =
+                    "Something went wrong. Please try again later.";
+
+                // Safe custom messages
+                if (ex.Message.Contains("ResourceNotFound"))
+                {
+                    message =
+                        "File storage is temporarily unavailable.";
+                }
+
+                // Development only → show real error
+                if (_environment.IsDevelopment())
+                {
+                    message = ex.Message;
+                }
 
                 await context.Response.WriteAsJsonAsync(new
                 {
                     success = false,
-                    message = message
+                    message
                 });
             }
         }

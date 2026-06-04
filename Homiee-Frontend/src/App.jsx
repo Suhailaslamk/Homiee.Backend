@@ -163,6 +163,7 @@ function App() {
               <Route path="earnings" element={<SellerEarnings />} />
               <Route path="products/new" element={<SellerProductForm />} />
               <Route path="products/:productId/edit" element={<SellerProductForm />} />
+              <Route path="settings" element={<Profile initialTab="settings" />} />
               <Route path="chat" element={<Chat />} />
               <Route path="chat/:userId" element={<Chat />} />
             </Route>

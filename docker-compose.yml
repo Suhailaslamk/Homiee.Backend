@@ -1,0 +1,131 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Homiee/Dockerfile
+
+    image: homiee-backend:local
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      ApplyMigrations: "true"
+
+      ConnectionStrings__DefaultConnection: >
+        Server=${DB_SERVER},${DB_PORT};
+        Database=${DB_NAME};
+        User Id=${DB_USER};
+        Password=${DB_PASSWORD};
+        TrustServerCertificate=True;
+        Encrypt=False
+
+      ConnectionStrings__Redis: ${REDIS_CONNECTION}
+
+      JWT__Key: ${JWT_KEY}
+
+      Smtp__Username: ${SMTP_USERNAME}
+      Smtp__Password: ${SMTP_PASSWORD}
+
+      AzureBlob__ConnectionString: ${AZURE_BLOB_CONNECTION}
+
+      Razorpay__Key: ${RAZORPAY_KEY}
+      Razorpay__Secret: ${RAZORPAY_SECRET}
+
+      AllowedOrigins__0: http://localhost:5173
+      AllowedOrigins__1: http://127.0.0.1:5173
+
+    depends_on:
+      sqlserver-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+
+    ports:
+      - "1435:1433"
+
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -C -Q 'SELECT 1'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+    entrypoint: /bin/bash
+
+    command: >
+      -c "
+      echo 'Creating database...' &&
+
+      /opt/mssql-tools18/bin/sqlcmd
+      -S ${DB_SERVER},${DB_PORT}
+      -U sa
+      -P '${SA_PASSWORD}'
+      -C
+      -Q \"IF DB_ID('${DB_NAME}') IS NULL CREATE DATABASE [${DB_NAME}]\" &&
+
+      echo 'Creating login and user...' &&
+
+      /opt/mssql-tools18/bin/sqlcmd
+      -S ${DB_SERVER},${DB_PORT}
+      -U sa
+      -P '${SA_PASSWORD}'
+      -d ${DB_NAME}
+      -C
+      -Q \"
+      IF NOT EXISTS (
+        SELECT * FROM sys.sql_logins
+        WHERE name = '${DB_USER}'
+      )
+      BEGIN
+        CREATE LOGIN ${DB_USER}
+        WITH PASSWORD='${DB_PASSWORD}';
+      END
+
+      IF NOT EXISTS (
+        SELECT * FROM sys.database_principals
+        WHERE name = '${DB_USER}'
+      )
+      BEGIN
+        CREATE USER ${DB_USER}
+        FOR LOGIN ${DB_USER};
+      END
+
+      ALTER ROLE db_owner
+      ADD MEMBER ${DB_USER};
+      \"
+      "
+
+    restart: "no"
+
+  redis:
+    image: redis:7-alpine
+
+    ports:
+      - "6379:6379"
+
+volumes:
+  sqlserver-data:

@@ -22,19 +22,22 @@ import SafeImage from './SafeImage';
 import { getResponseData } from '../utils/api';
 import { formatCurrency } from '../utils/format';
 import { useToast } from '../hooks/useToast';
+import { getCurrentUserId, isCustomerRole } from '../utils/auth';
 
 export default function CartDrawer({ isOpen, onClose }) {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const currentUserId = getCurrentUserId();
+  const canUseCart = Boolean(localStorage.getItem('token') && currentUserId && isCustomerRole());
 
   const { data, isLoading } = useQuery({
-    queryKey: ['cart'],
+    queryKey: ['cart', currentUserId],
     queryFn: getCart,
-    enabled: isOpen,
+    enabled: isOpen && canUseCart,
   });
 
-  const cartItems = getResponseData(data) ?? [];
+  const cartItems = canUseCart ? getResponseData(data) ?? [] : [];
 
   const productQueries = useQueries({
     queries: cartItems.map((item) => ({
@@ -61,7 +64,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const removeMutation = useMutation({
     mutationFn: ({ productId, variantId }) => removeFromCart(productId, variantId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['cart', currentUserId] });
       toast.success('Removed from selection.');
     },
   });
@@ -69,7 +72,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const updateQuantityMutation = useMutation({
     mutationFn: ({ productId, quantity, variantId }) => addToCart({ productId, quantity, productVariantId: variantId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['cart', currentUserId] });
     },
   });
 
@@ -111,8 +114,12 @@ export default function CartDrawer({ isOpen, onClose }) {
             {enrichedItems.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
                 <ShoppingBag size={48} className="mb-6 text-[var(--color-stone)]" />
-                <p className="font-['Fraunces'] text-xl font-semibold text-[var(--color-primary-dark)]">Selection is empty</p>
-                <p className="text-xs italic mt-2">"Discover artisanal provisions to fill your pantry."</p>
+                <p className="font-['Fraunces'] text-xl font-semibold text-[var(--color-primary-dark)]">
+                  {canUseCart ? 'Selection is empty' : 'Sign in to view selection'}
+                </p>
+                <p className="text-xs italic mt-2">
+                  {canUseCart ? '"Discover artisanal provisions to fill your pantry."' : '"Your cart is saved with your account."'}
+                </p>
               </div>
             ) : (
               enrichedItems.map((item) => (

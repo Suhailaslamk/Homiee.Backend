@@ -1,22 +1,22 @@
 using Dapper;
 using Homiee.Application.DTOs;
+using Homiee.Application.Interfaces.IData;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Options;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
 using Microsoft.Extensions.Options;
 
 namespace Homiee.Application.Services
 {
     public class AdminAnalyticsService : IAdminAnalyticsService
     {
-        private readonly DapperContext _context;
+        private readonly IDbConnectionFactory _context;
         private readonly ICacheService _cache;
         private readonly CacheSettings _cfg;
 
-        public AdminAnalyticsService(DapperContext context, ICacheService cache, IOptions<CacheSettings> cfg)
+        public AdminAnalyticsService(IDbConnectionFactory context, ICacheService cache, IOptions<CacheSettings> cfg)
         {
             _context = context;
             _cache = cache;

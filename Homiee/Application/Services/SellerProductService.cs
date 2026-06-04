@@ -5,7 +5,7 @@ using Homiee.Application.Options;
 using Homiee.Common;
 using Homiee.Domain.Entities;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -20,7 +20,7 @@ namespace Homiee.Application.Services
         private readonly ICategoryRepository _categoryRepo;
         private readonly ICacheService _cache;
         private readonly CacheSettings _cfg;
-        private readonly AppDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
         public SellerProductService(IProductRepository productRepo,
                                    ISellersRepository sellerRepo,
@@ -29,7 +29,7 @@ namespace Homiee.Application.Services
                                    ICategoryRepository categoryRepo,
                                    ICacheService cache,
                                    IOptions<CacheSettings> cfg,
-                                   AppDbContext dbContext)
+                                   IApplicationDbContext dbContext)
         {
             _productRepo = productRepo;
             _sellerRepo = sellerRepo;
@@ -147,6 +147,8 @@ namespace Homiee.Application.Services
 
             if (dto.Stock <= 0)
                 return new ApiResponse<string>(400, "Stock must be greater than zero");
+            if (dto.CategoryId <= 0)
+                return new ApiResponse<string>(400, "Category is required");
 
             var product = await _productRepo.GetByIdAsync(productId);
             if (product == null || product.IsDeleted)
@@ -166,6 +168,12 @@ namespace Homiee.Application.Services
             // 🔍 Product validation
             if (product.SellerId != seller.Id)
                 return new ApiResponse<string>(403, "Unauthorized");
+
+            var category = await _categoryRepo.GetByIdAsync(dto.CategoryId);
+            if (category == null)
+                return new ApiResponse<string>(400, "Category does not exist");
+            if (!category.IsActive)
+                return new ApiResponse<string>(400, "Category is inactive");
 
             try
             {
@@ -204,6 +212,7 @@ namespace Homiee.Application.Services
 
                 // 🧠 Domain handles internal consistency
                 product.Update(dto.Name.Trim(), dto.Description?.Trim(),dto.Stock, dto.Price);
+                product.UpdateCategory(dto.CategoryId);
 
                 await _productRepo.SaveChangesAsync();
 

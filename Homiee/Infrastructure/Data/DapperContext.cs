@@ -1,10 +1,11 @@
-﻿using Microsoft.Data.SqlClient;
+using Homiee.Application.Interfaces.IData;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace Homiee.Infrastructure.Data
 {
-    public class DapperContext
+    public class DapperContext : IDbConnectionFactory
     {
         private readonly IConfiguration _config;
 

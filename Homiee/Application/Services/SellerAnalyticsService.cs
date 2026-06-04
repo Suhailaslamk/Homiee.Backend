@@ -1,22 +1,22 @@
 using Dapper;
 using Homiee.Application.DTOs;
+using Homiee.Application.Interfaces.IData;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Options;
 using Homiee.Common;
 using Homiee.Domain.Enums;
-using Homiee.Infrastructure.Data;
 using Microsoft.Extensions.Options;
 
 namespace Homiee.Application.Services
 {
     public class SellerAnalyticsService : ISellerAnalyticsService
     {
-        private readonly DapperContext _context;
+        private readonly IDbConnectionFactory _context;
         private readonly ICacheService _cache;
         private readonly CacheSettings _cfg;
         private readonly ILogger<SellerAnalyticsService> _logger;
 
-        public SellerAnalyticsService(DapperContext context, ICacheService cache, IOptions<CacheSettings> cfg, ILogger<SellerAnalyticsService> logger)
+        public SellerAnalyticsService(IDbConnectionFactory context, ICacheService cache, IOptions<CacheSettings> cfg, ILogger<SellerAnalyticsService> logger)
         {
             _context = context;
             _cache = cache;

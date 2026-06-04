@@ -1,3 +1,4 @@
+using Homiee.Application.Interfaces.IData;
 using Homiee.Application.Interfaces.IRepository;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Application.Options;
@@ -6,6 +7,7 @@ using Homiee.Infrastructure.Cache;
 using Homiee.Infrastructure.Data;
 using Homiee.Infrastructure.Repositories;
 using Homiee.Infrastructure.SignalR;
+using Homiee.Infrastructure.Storage;
 using Homiee.Middlewares;
 using Homiee.Presentation.Hubs;
 using Homiee.Providers;
@@ -37,34 +39,49 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.Configure<CacheSettings>(
     builder.Configuration.GetSection("CacheSettings"));
 
-// Redis & Cache Configuration (Stability Patch)
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+// Redis & Cache Configuration
+var redisConnectionString =
+    builder.Configuration.GetConnectionString("Redis");
+
 bool isRedisAvailable = false;
 
-/*
-try 
+try
 {
-    // Attempt a quick connection to see if Redis is actually running
-    var muxer = ConnectionMultiplexer.Connect(redisConnectionString + ",connectTimeout=2000,abortConnect=true");
+    var muxer = await ConnectionMultiplexer.ConnectAsync(
+        $"{redisConnectionString},connectTimeout=2000,abortConnect=true"
+    );
+
+    await muxer.GetDatabase().PingAsync();
+
     builder.Services.AddSingleton<IConnectionMultiplexer>(muxer);
+
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnectionString;
+    });
+
     builder.Services.AddSingleton<ICacheService, RedisCacheService>();
-    builder.Services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConnectionString);
+
     isRedisAvailable = true;
+
+    logger.Info("Redis connected successfully.");
 }
-catch 
+catch (Exception ex)
 {
+    logger.Warn(ex,
+        "Redis unavailable. Falling back to memory cache.");
+
+    builder.Services.AddMemoryCache();
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddSingleton<ICacheService,
+        InMemoryCacheService>();
+
+    isRedisAvailable = false;
 }
-*/
-
-// Fallback to local memory if Redis is down (Forced for debugging)
-builder.Services.AddMemoryCache();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
-isRedisAvailable = false;
-
 var signalRBuilder = builder.Services.AddSignalR()
     .AddJsonProtocol(options =>
     {
@@ -194,14 +211,23 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var allowedOrigins =
+    builder.Configuration
+           .GetSection("AllowedOrigins")
+           .Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        if (allowedOrigins is not null &&
+            allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 builder.Services.AddSwaggerGen(options =>
@@ -242,7 +268,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ISellersRepository, SellersRepository>();
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IFileStorageService, AzureBlobService>();
 builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ISellerOnboardingService, SellerOnboardingService>();
@@ -265,7 +291,7 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddSingleton<IDbConnectionFactory, DapperContext>();
 builder.Services.AddScoped<IAdminCustomerService, AdminCustomerService>();
 builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
 builder.Services.AddScoped<ISellerReviewService, SellerReviewService>();
@@ -291,6 +317,7 @@ builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
 builder.Services.AddHostedService<Homiee.Infrastructure.BackgroundServices.DeliveryReminderService>();
 
 
@@ -306,16 +333,37 @@ builder.Services.AddSingleton<UserConnectionManager>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+var applyMigrations =
+    builder.Configuration.GetValue<bool>(
+        "ApplyMigrations");
+
+if (applyMigrations)
+{
+    using var scope = app.Services.CreateScope();
+
+    var dbContext =
+        scope.ServiceProvider
+             .GetRequiredService<AppDbContext>();
+
+    logger.Info("Applying database migrations...");
+
+    await dbContext.Database.MigrateAsync();
+
+    logger.Info("Database migrations completed.");
+}
+
+   if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();
+   app.UseHttpsRedirection();
 }
+
 app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 

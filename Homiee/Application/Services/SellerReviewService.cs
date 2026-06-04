@@ -1,17 +1,17 @@
-﻿using Homiee.Application.DTOs;
+using Homiee.Application.DTOs;
 using Homiee.Application.Interfaces.IServices;
 using Homiee.Common;
 using Homiee.Domain.Entities;
-using Homiee.Infrastructure.Data;
+using Homiee.Application.Interfaces.IData;
 using Microsoft.EntityFrameworkCore;
 
 namespace Homiee.Application.Services
 {
     public class SellerReviewService : ISellerReviewService
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
-        public SellerReviewService(AppDbContext dbContext)
+        public SellerReviewService(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
