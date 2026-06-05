@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -35,6 +35,9 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Modules\Analytics\Domain\" />
+    <Folder Include="Modules\Analytics\Infrastructure\" />
+    <Folder Include="Modules\Reviews\Api\Controllers\" />
   </ItemGroup>
 
   <ItemGroup>

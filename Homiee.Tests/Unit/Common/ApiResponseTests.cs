@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Homiee.Common;
+using Homiee.Shared.Common;
 
 namespace Homiee.Tests.Unit.Common;
 

@@ -1,0 +1,96 @@
+using Homiee.Modules.Notifications.Application.Dtos;
+using Homiee.Modules.Notifications.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Homiee.Modules.Notifications.Application.IServices;
+using Homiee.Modules.Notifications.Application.IRepositories;
+using Homiee.Shared.Applications.IData;
+
+namespace Homiee.Modules.Notifications.Application.Services
+{
+    public class ChatService : IChatService
+    {
+        private readonly IChatRepository _repo;
+        private readonly IApplicationDbContext _context;
+
+        public ChatService(IChatRepository repo, IApplicationDbContext context)
+        {
+            _repo = repo;
+            _context = context;
+        }
+
+        public async Task<ChatMessageDto> SendMessageAsync(int senderId, int receiverId, string message)
+        {
+            var msg = new ChatMessage
+            {
+                SenderId = senderId,
+                ReceiverId = receiverId,
+                Message = message
+            };
+
+            await _repo.AddAsync(msg);
+            await _repo.SaveChangesAsync();
+
+            // Resolve sender name (checking BusinessName if they are a seller)
+            var senderUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == senderId);
+            var senderSeller = await _context.Sellers.FirstOrDefaultAsync(s => s.UserId == senderId);
+            var senderName = senderSeller?.BusinessName ?? senderUser?.Name ?? senderId.ToString();
+
+            return new ChatMessageDto
+            {
+                Id = msg.Id,
+                SenderId = msg.SenderId,
+                SenderName = senderName,
+                ReceiverId = msg.ReceiverId,
+                Message = msg.Message,
+                SentAt = msg.SentAt,
+                IsRead = msg.IsRead
+            };
+        }
+
+        public async Task<List<ChatMessageDto>> GetConversationAsync(int userId, int otherUserId)
+        {
+            var messages = await _repo.GetConversation(userId, otherUserId);
+            var ids = new HashSet<int> { userId, otherUserId };
+            
+            var userList = await _context.Users
+                .Where(u => ids.Contains(u.Id))
+                .Select(u => new { u.Id, u.Name })
+                .ToListAsync();
+
+            var sellerList = await _context.Sellers
+                .Where(s => ids.Contains(s.UserId))
+                .Select(s => new { s.UserId, s.BusinessName })
+                .ToListAsync();
+
+            var names = ids.ToDictionary(
+                id => id,
+                id => {
+                    var sName = sellerList.FirstOrDefault(s => s.UserId == id)?.BusinessName;
+                    if (!string.IsNullOrEmpty(sName)) return sName;
+                    return userList.FirstOrDefault(u => u.Id == id)?.Name ?? $"User {id}";
+                }
+            );
+
+            return messages.Select(m => new ChatMessageDto
+            {
+                Id = m.Id,
+                SenderId = m.SenderId,
+                SenderName = names.GetValueOrDefault(m.SenderId, $"User {m.SenderId}"),
+                ReceiverId = m.ReceiverId,
+                Message = m.Message,
+                SentAt = m.SentAt,
+                IsRead = m.IsRead
+            }).ToList();
+        }
+
+        public async Task<List<ConversationSummaryDto>> GetInboxAsync(int userId)
+        {
+            return await _repo.GetInboxAsync(userId);
+        }
+
+        public async Task MarkAsReadAsync(int senderId, int receiverId)
+        {
+            await _repo.MarkAsReadAsync(senderId, receiverId);
+        }
+    }
+}

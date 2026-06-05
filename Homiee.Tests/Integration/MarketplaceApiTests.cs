@@ -1,9 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Homiee.Application.DTOs;
-using Homiee.Application.Interfaces.IServices;
-using Homiee.Common;
+using Homiee.Modules.Catalog.Application.Dtos;
+using Homiee.Modules.Catalog.Application.IServices;
+using Homiee.Modules.Reviews.Application.IServices;
+using Homiee.Shared.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;

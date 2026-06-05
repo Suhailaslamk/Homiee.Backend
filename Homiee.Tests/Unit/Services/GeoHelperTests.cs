@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Homiee.Application.Services;
+using Homiee.Modules.Catalog.Application.Helpers;
 
 namespace Homiee.Tests.Unit.Services;
 

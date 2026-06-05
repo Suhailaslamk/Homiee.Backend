@@ -1,5 +1,5 @@
-using Homiee.Infrastructure.Data;
-using Homiee.Presentation.Controllers;
+using Homiee.Modules.Identity.Api.Controllers;
+using Homiee.Shared.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;

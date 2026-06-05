@@ -18643,3 +18643,30 @@
 2026-05-21 18:12:23.5054 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
 2026-05-21 18:12:23.5265 Info Configuration initialized.
 2026-05-21 18:12:24.0758 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
+2026-06-05 19:24:10.0226 Info Loading assembly name: NLog.Web.AspNetCore
+2026-06-05 19:24:10.0592 Info NLog.Web.AspNetCore, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.11.1082. Product version: 5.3.11+6a33919b2cf5fd3206f473d2230556ffa0b67d67. GlobalAssemblyCache: False
+2026-06-05 19:24:10.2142 Info Registered target NLog.Targets.FileTarget(Name=allfile)
+2026-06-05 19:24:10.2142 Info Registered target NLog.Targets.FileTarget(Name=ownFile-web)
+2026-06-05 19:24:10.2240 Info Registered target NLog.Targets.ConsoleTarget(Name=lifetimeConsole)
+2026-06-05 19:24:10.2240 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2026-06-05 19:24:10.2861 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
+2026-06-05 19:24:10.3154 Info Configuration initialized.
+2026-06-05 19:24:12.2153 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
+2026-06-05 20:50:59.4425 Info Loading assembly name: NLog.Web.AspNetCore
+2026-06-05 20:50:59.4624 Info NLog.Web.AspNetCore, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.11.1082. Product version: 5.3.11+6a33919b2cf5fd3206f473d2230556ffa0b67d67. GlobalAssemblyCache: False
+2026-06-05 20:50:59.8162 Info Registered target NLog.Targets.FileTarget(Name=allfile)
+2026-06-05 20:50:59.8162 Info Registered target NLog.Targets.FileTarget(Name=ownFile-web)
+2026-06-05 20:50:59.8162 Info Registered target NLog.Targets.ConsoleTarget(Name=lifetimeConsole)
+2026-06-05 20:50:59.8321 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2026-06-05 20:50:59.8518 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
+2026-06-05 20:50:59.8705 Info Configuration initialized.
+2026-06-05 20:51:00.6525 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
+2026-06-05 20:51:18.0111 Info Loading assembly name: NLog.Web.AspNetCore
+2026-06-05 20:51:18.0376 Info NLog.Web.AspNetCore, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.11.1082. Product version: 5.3.11+6a33919b2cf5fd3206f473d2230556ffa0b67d67. GlobalAssemblyCache: False
+2026-06-05 20:51:18.1335 Info Registered target NLog.Targets.FileTarget(Name=allfile)
+2026-06-05 20:51:18.1335 Info Registered target NLog.Targets.FileTarget(Name=ownFile-web)
+2026-06-05 20:51:18.1415 Info Registered target NLog.Targets.ConsoleTarget(Name=lifetimeConsole)
+2026-06-05 20:51:18.1415 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2026-06-05 20:51:18.1857 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
+2026-06-05 20:51:18.2111 Info Configuration initialized.
+2026-06-05 20:51:19.6475 Info Validating config: TargetNames=allfile, lifetimeConsole, ownFile-web, ConfigItems=65, FilePath=C:\Homiee Marketplace\Homiee.Backend\Homiee\bin\Debug\net8.0\nlog.config
