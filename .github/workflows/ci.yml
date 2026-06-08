@@ -32,4 +32,4 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test Homiee.Tests/Homiee.Tests.csproj --configuration Release
