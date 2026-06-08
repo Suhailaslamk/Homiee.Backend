@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="cbef7040-a81e-4010-a3d6-cdd41516ff35" name="ACER@DESKTOP-HNT4AV8 2026-06-08 13:55:13" runUser="DESKTOP-HNT4AV8\ACER" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-06-08T13:55:13.2203503+05:30" queuing="2026-06-08T13:55:13.2203525+05:30" start="2026-06-08T13:55:11.7699744+05:30" finish="2026-06-08T13:55:15.0544045+05:30" />
+  <TestSettings name="default" id="176ed49d-a89a-4055-9391-23790533e0e7">
+    <Deployment runDeploymentRoot="ACER_DESKTOP-HNT4AV8_2026-06-08_13_55_13" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="013eb523-ccbe-4b1f-b68b-8daf1649835a" testId="4bdaca80-cb9e-541c-2b75-52ea5b45b549" testName="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldCalculateKnownDistance" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0386497" startTime="2026-06-08T13:55:13.0420407+05:30" endTime="2026-06-08T13:55:13.1572014+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="013eb523-ccbe-4b1f-b68b-8daf1649835a" />
+    <UnitTestResult executionId="0a951c45-1487-4bd7-a932-8198a7094e62" testId="9b59cb99-c9c2-bfd7-3976-1f55f1c6dc58" testName="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody" computerName="DESKTOP-HNT4AV8" duration="00:00:00.1547123" startTime="2026-06-08T13:55:14.6201386+05:30" endTime="2026-06-08T13:55:14.7444351+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0a951c45-1487-4bd7-a932-8198a7094e62" />
+    <UnitTestResult executionId="e953305f-9a46-4d02-b6ac-7f78b6824eb4" testId="72a85e66-0665-0c00-c7dc-3634bf868fa6" testName="Homiee.Tests.E2E.PublicNavigationE2ETests.Login_ShouldShowValidationErrors_WhenSubmittedEmpty" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0020309" startTime="2026-06-08T13:55:13.1544623+05:30" endTime="2026-06-08T13:55:13.1558649+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e953305f-9a46-4d02-b6ac-7f78b6824eb4">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4af01430-5590-4d55-9c5d-bd7ce04fea39" testId="a1b3a52f-9a68-b853-45fe-f21e250db3e8" testName="Homiee.Tests.Unit.Services.GeoHelperTests.BoundingBox_ShouldContainCenterPoint" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0111295" startTime="2026-06-08T13:55:13.1575234+05:30" endTime="2026-06-08T13:55:13.1636788+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4af01430-5590-4d55-9c5d-bd7ce04fea39" />
+    <UnitTestResult executionId="ee73ac4b-4d16-45d8-8ab7-63aea3276f9d" testId="6a85bd33-df20-a9b4-4ecf-ea42f243ddda" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 200, expectedSuccess: True)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0428186" startTime="2026-06-08T13:55:13.0422393+05:30" endTime="2026-06-08T13:55:13.1576230+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ee73ac4b-4d16-45d8-8ab7-63aea3276f9d" />
+    <UnitTestResult executionId="08b00d78-8ba0-4e72-a750-bf05331f7285" testId="a346dcfd-a4ba-d00f-a44b-61221b80a5f4" testName="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveByPrefixAsync_ShouldDeleteOnlyMatchingKeys" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0435367" startTime="2026-06-08T13:55:13.0424965+05:30" endTime="2026-06-08T13:55:13.1578903+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08b00d78-8ba0-4e72-a750-bf05331f7285" />
+    <UnitTestResult executionId="ac01e9df-04e5-42cc-8c74-6b26d2a5f613" testId="c89129fd-1d08-df26-4eb6-84c65c961787" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 299, expectedSuccess: True)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000393" startTime="2026-06-08T13:55:13.1583887+05:30" endTime="2026-06-08T13:55:13.1585035+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ac01e9df-04e5-42cc-8c74-6b26d2a5f613" />
+    <UnitTestResult executionId="503b84fd-7f19-470f-a705-8eae86e30ccc" testId="8e4696a9-d5af-e4e0-77b9-14b82f053750" testName="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldReturnZero_ForSamePoint" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0001858" startTime="2026-06-08T13:55:13.1638873+05:30" endTime="2026-06-08T13:55:13.1639650+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="503b84fd-7f19-470f-a705-8eae86e30ccc" />
+    <UnitTestResult executionId="0f049ef1-f1e3-4875-b9d6-1199129f930b" testId="e0279a32-bd0c-2779-4ba9-e5e44330de2a" testName="Homiee.Tests.E2E.ProductDetailsE2ETests.ProductDetails_ShouldRenderRecommendationImages_WhenRecommendationsExist" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0139957" startTime="2026-06-08T13:55:13.0381634+05:30" endTime="2026-06-08T13:55:13.0699530+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0f049ef1-f1e3-4875-b9d6-1199129f930b">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="403237ba-e28d-4fbe-a8b4-f3c7d3da627e" testId="7a327a39-7056-9e55-d9ff-ddb7f69d8ff5" testName="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.SetAsync_AndGetAsync_ShouldRoundTripValue" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0021336" startTime="2026-06-08T13:55:13.1581181+05:30" endTime="2026-06-08T13:55:13.1633730+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="403237ba-e28d-4fbe-a8b4-f3c7d3da627e" />
+    <UnitTestResult executionId="0e66e5ac-f002-4658-bcc6-c6ec5448aa6a" testId="0506caeb-33bb-a01d-d725-c2108814aa44" testName="Homiee.Tests.Unit.Common.PagedResultTests.Constructor_ShouldAssignValues" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0758589" startTime="2026-06-08T13:55:13.0427061+05:30" endTime="2026-06-08T13:55:13.1643074+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0e66e5ac-f002-4658-bcc6-c6ec5448aa6a" />
+    <UnitTestResult executionId="ddbf370d-6361-44a8-b5b7-94b1c9ae4262" testId="f9521d75-84c9-503d-a5ed-d3334b155faf" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldKeepPaginationMetadata" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0009499" startTime="2026-06-08T13:55:13.1630792+05:30" endTime="2026-06-08T13:55:13.1631681+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ddbf370d-6361-44a8-b5b7-94b1c9ae4262" />
+    <UnitTestResult executionId="91e705a3-9d43-495d-911b-204b20a28069" testId="c139b079-cd36-d9ed-806d-c5488b6d7442" testName="Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService" computerName="DESKTOP-HNT4AV8" duration="00:00:00.1606108" startTime="2026-06-08T13:55:14.7447916+05:30" endTime="2026-06-08T13:55:14.9061252+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="91e705a3-9d43-495d-911b-204b20a28069" />
+    <UnitTestResult executionId="3a5629f0-6ee1-464d-abe1-b5018a55f7cd" testId="82879556-3488-9459-5dcf-0e5566b1ba35" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 400, expectedSuccess: False)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000261" startTime="2026-06-08T13:55:13.1586750+05:30" endTime="2026-06-08T13:55:13.1587597+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a5629f0-6ee1-464d-abe1-b5018a55f7cd" />
+    <UnitTestResult executionId="fe20c287-79a1-4908-85ec-9290ba6b1334" testId="6328f2c2-946b-7682-dbfd-240ad81c4872" testName="Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts" computerName="DESKTOP-HNT4AV8" duration="00:00:00.1417472" startTime="2026-06-08T13:55:14.6295928+05:30" endTime="2026-06-08T13:55:14.7722144+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fe20c287-79a1-4908-85ec-9290ba6b1334" />
+    <UnitTestResult executionId="fa0dafce-259d-450c-b2aa-9f94c67fcedd" testId="ca6b90c2-34b2-2a88-4b7a-d74d28586544" testName="Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService" computerName="DESKTOP-HNT4AV8" duration="00:00:01.5778998" startTime="2026-06-08T13:55:13.0429493+05:30" endTime="2026-06-08T13:55:14.6293019+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fa0dafce-259d-450c-b2aa-9f94c67fcedd" />
+    <UnitTestResult executionId="9386f5ac-6d8a-41f4-9418-8a1ce3a6b9d8" testId="1e155223-667c-1b08-c851-64244233d0ca" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 300, expectedSuccess: False)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0010006" startTime="2026-06-08T13:55:13.1577954+05:30" endTime="2026-06-08T13:55:13.1582123+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9386f5ac-6d8a-41f4-9418-8a1ce3a6b9d8" />
+    <UnitTestResult executionId="37f7a80d-5d7b-4592-bc4d-76a7991e52fe" testId="af6560ab-f157-8c2f-b96b-daa50c9d428d" testName="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveAsync_ShouldDeleteValue" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0066993" startTime="2026-06-08T13:55:13.1635776+05:30" endTime="2026-06-08T13:55:13.1641290+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="37f7a80d-5d7b-4592-bc4d-76a7991e52fe" />
+    <UnitTestResult executionId="8380cc82-4226-447b-9aab-acf1ecc77583" testId="a8729f91-a9d4-3ec6-2aa1-7a1e75ac1003" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 201, expectedSuccess: True)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000138" startTime="2026-06-08T13:55:13.1624968+05:30" endTime="2026-06-08T13:55:13.1625885+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8380cc82-4226-447b-9aab-acf1ecc77583" />
+    <UnitTestResult executionId="fe6d2e08-7e5b-43eb-aed0-b455e0864e28" testId="92daf19b-4044-6cf5-b552-b5494396f4a6" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 500, expectedSuccess: False)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000229" startTime="2026-06-08T13:55:13.1627830+05:30" endTime="2026-06-08T13:55:13.1628705+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fe6d2e08-7e5b-43eb-aed0-b455e0864e28" />
+    <UnitTestResult executionId="b299c847-5020-4b1d-a3be-8c2480bf009b" testId="f6bc8818-caae-3b09-8a62-5c8d6b510523" testName="Homiee.Tests.E2E.PublicNavigationE2ETests.Home_ShouldNavigateToDiscovery" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0135157" startTime="2026-06-08T13:55:13.0428228+05:30" endTime="2026-06-08T13:55:13.0796253+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b299c847-5020-4b1d-a3be-8c2480bf009b">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="0f703515-9cb3-4b2c-bb3d-c68cf43ee0e8" testId="eff5d8e2-546c-2f74-09a8-1ff69d38c603" testName="Homiee.Tests.E2E.PublicNavigationE2ETests.CustomerSignup_ShouldShowValidationErrors_WhenSubmittedEmpty" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0025860" startTime="2026-06-08T13:55:13.1019163+05:30" endTime="2026-06-08T13:55:13.1021929+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0f703515-9cb3-4b2c-bb3d-c68cf43ee0e8">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8029db2d-5b84-4118-8869-5edc025a7472" testId="6884e07a-d303-09a3-ca7b-790e85c1df95" testName="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid" computerName="DESKTOP-HNT4AV8" duration="00:00:01.5318503" startTime="2026-06-08T13:55:13.0426121+05:30" endTime="2026-06-08T13:55:14.5869193+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8029db2d-5b84-4118-8869-5edc025a7472" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 500, expectedSuccess: False)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="92daf19b-4044-6cf5-b552-b5494396f4a6">
+      <Execution id="fe6d2e08-7e5b-43eb-aed0-b455e0864e28" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="c139b079-cd36-d9ed-806d-c5488b6d7442">
+      <Execution id="91e705a3-9d43-495d-911b-204b20a28069" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.AuthApiTests" name="RegisterCustomer_ShouldReturnCreatedResponse_FromService" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="6328f2c2-946b-7682-dbfd-240ad81c4872">
+      <Execution id="fe20c287-79a1-4908-85ec-9290ba6b1334" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.MarketplaceApiTests" name="GetProducts_ShouldBindQueryString_AndReturnPagedProducts" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 299, expectedSuccess: True)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="c89129fd-1d08-df26-4eb6-84c65c961787">
+      <Execution id="ac01e9df-04e5-42cc-8c74-6b26d2a5f613" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.PublicNavigationE2ETests.Home_ShouldNavigateToDiscovery" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="f6bc8818-caae-3b09-8a62-5c8d6b510523">
+      <Execution id="b299c847-5020-4b1d-a3be-8c2480bf009b" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.PublicNavigationE2ETests" name="Home_ShouldNavigateToDiscovery" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldReturnZero_ForSamePoint" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="8e4696a9-d5af-e4e0-77b9-14b82f053750">
+      <Execution id="503b84fd-7f19-470f-a705-8eae86e30ccc" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Services.GeoHelperTests" name="DistanceKm_ShouldReturnZero_ForSamePoint" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveByPrefixAsync_ShouldDeleteOnlyMatchingKeys" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="a346dcfd-a4ba-d00f-a44b-61221b80a5f4">
+      <Execution id="08b00d78-8ba0-4e72-a750-bf05331f7285" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests" name="RemoveByPrefixAsync_ShouldDeleteOnlyMatchingKeys" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 300, expectedSuccess: False)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="1e155223-667c-1b08-c851-64244233d0ca">
+      <Execution id="9386f5ac-6d8a-41f4-9418-8a1ce3a6b9d8" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.PublicNavigationE2ETests.Login_ShouldShowValidationErrors_WhenSubmittedEmpty" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="72a85e66-0665-0c00-c7dc-3634bf868fa6">
+      <Execution id="e953305f-9a46-4d02-b6ac-7f78b6824eb4" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.PublicNavigationE2ETests" name="Login_ShouldShowValidationErrors_WhenSubmittedEmpty" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.SetAsync_AndGetAsync_ShouldRoundTripValue" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="7a327a39-7056-9e55-d9ff-ddb7f69d8ff5">
+      <Execution id="403237ba-e28d-4fbe-a8b4-f3c7d3da627e" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests" name="SetAsync_AndGetAsync_ShouldRoundTripValue" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.PagedResultTests.Constructor_ShouldAssignValues" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="0506caeb-33bb-a01d-d725-c2108814aa44">
+      <Execution id="0e66e5ac-f002-4658-bcc6-c6ec5448aa6a" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.PagedResultTests" name="Constructor_ShouldAssignValues" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="9b59cb99-c9c2-bfd7-3976-1f55f1c6dc58">
+      <Execution id="0a951c45-1487-4bd7-a932-8198a7094e62" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.AuthApiTests" name="Login_ShouldReturnServiceStatusCode_AndBody" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldCalculateKnownDistance" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="4bdaca80-cb9e-541c-2b75-52ea5b45b549">
+      <Execution id="013eb523-ccbe-4b1f-b68b-8daf1649835a" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Services.GeoHelperTests" name="DistanceKm_ShouldCalculateKnownDistance" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Services.GeoHelperTests.BoundingBox_ShouldContainCenterPoint" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="a1b3a52f-9a68-b853-45fe-f21e250db3e8">
+      <Execution id="4af01430-5590-4d55-9c5d-bd7ce04fea39" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Services.GeoHelperTests" name="BoundingBox_ShouldContainCenterPoint" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 201, expectedSuccess: True)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="a8729f91-a9d4-3ec6-2aa1-7a1e75ac1003">
+      <Execution id="8380cc82-4226-447b-9aab-acf1ecc77583" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.ProductDetailsE2ETests.ProductDetails_ShouldRenderRecommendationImages_WhenRecommendationsExist" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="e0279a32-bd0c-2779-4ba9-e5e44330de2a">
+      <Execution id="0f049ef1-f1e3-4875-b9d6-1199129f930b" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.ProductDetailsE2ETests" name="ProductDetails_ShouldRenderRecommendationImages_WhenRecommendationsExist" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 200, expectedSuccess: True)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="6a85bd33-df20-a9b4-4ecf-ea42f243ddda">
+      <Execution id="ee73ac4b-4d16-45d8-8ab7-63aea3276f9d" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="ca6b90c2-34b2-2a88-4b7a-d74d28586544">
+      <Execution id="fa0dafce-259d-450c-b2aa-9f94c67fcedd" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.MarketplaceApiTests" name="GetCategories_ShouldReturnCategories_FromService" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.PublicNavigationE2ETests.CustomerSignup_ShouldShowValidationErrors_WhenSubmittedEmpty" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="eff5d8e2-546c-2f74-09a8-1ff69d38c603">
+      <Execution id="0f703515-9cb3-4b2c-bb3d-c68cf43ee0e8" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.PublicNavigationE2ETests" name="CustomerSignup_ShouldShowValidationErrors_WhenSubmittedEmpty" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveAsync_ShouldDeleteValue" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="af6560ab-f157-8c2f-b96b-daa50c9d428d">
+      <Execution id="37f7a80d-5d7b-4592-bc4d-76a7991e52fe" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests" name="RemoveAsync_ShouldDeleteValue" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldKeepPaginationMetadata" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="f9521d75-84c9-503d-a5ed-d3334b155faf">
+      <Execution id="ddbf370d-6361-44a8-b5b7-94b1c9ae4262" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldKeepPaginationMetadata" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 400, expectedSuccess: False)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="82879556-3488-9459-5dcf-0e5566b1ba35">
+      <Execution id="3a5629f0-6ee1-464d-abe1-b5018a55f7cd" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="6884e07a-d303-09a3-ca7b-790e85c1df95">
+      <Execution id="8029db2d-5b84-4118-8869-5edc025a7472" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.AuthApiTests" name="Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="4bdaca80-cb9e-541c-2b75-52ea5b45b549" executionId="013eb523-ccbe-4b1f-b68b-8daf1649835a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9b59cb99-c9c2-bfd7-3976-1f55f1c6dc58" executionId="0a951c45-1487-4bd7-a932-8198a7094e62" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72a85e66-0665-0c00-c7dc-3634bf868fa6" executionId="e953305f-9a46-4d02-b6ac-7f78b6824eb4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a1b3a52f-9a68-b853-45fe-f21e250db3e8" executionId="4af01430-5590-4d55-9c5d-bd7ce04fea39" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6a85bd33-df20-a9b4-4ecf-ea42f243ddda" executionId="ee73ac4b-4d16-45d8-8ab7-63aea3276f9d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a346dcfd-a4ba-d00f-a44b-61221b80a5f4" executionId="08b00d78-8ba0-4e72-a750-bf05331f7285" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c89129fd-1d08-df26-4eb6-84c65c961787" executionId="ac01e9df-04e5-42cc-8c74-6b26d2a5f613" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8e4696a9-d5af-e4e0-77b9-14b82f053750" executionId="503b84fd-7f19-470f-a705-8eae86e30ccc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e0279a32-bd0c-2779-4ba9-e5e44330de2a" executionId="0f049ef1-f1e3-4875-b9d6-1199129f930b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7a327a39-7056-9e55-d9ff-ddb7f69d8ff5" executionId="403237ba-e28d-4fbe-a8b4-f3c7d3da627e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0506caeb-33bb-a01d-d725-c2108814aa44" executionId="0e66e5ac-f002-4658-bcc6-c6ec5448aa6a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f9521d75-84c9-503d-a5ed-d3334b155faf" executionId="ddbf370d-6361-44a8-b5b7-94b1c9ae4262" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c139b079-cd36-d9ed-806d-c5488b6d7442" executionId="91e705a3-9d43-495d-911b-204b20a28069" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="82879556-3488-9459-5dcf-0e5566b1ba35" executionId="3a5629f0-6ee1-464d-abe1-b5018a55f7cd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6328f2c2-946b-7682-dbfd-240ad81c4872" executionId="fe20c287-79a1-4908-85ec-9290ba6b1334" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ca6b90c2-34b2-2a88-4b7a-d74d28586544" executionId="fa0dafce-259d-450c-b2aa-9f94c67fcedd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1e155223-667c-1b08-c851-64244233d0ca" executionId="9386f5ac-6d8a-41f4-9418-8a1ce3a6b9d8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="af6560ab-f157-8c2f-b96b-daa50c9d428d" executionId="37f7a80d-5d7b-4592-bc4d-76a7991e52fe" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a8729f91-a9d4-3ec6-2aa1-7a1e75ac1003" executionId="8380cc82-4226-447b-9aab-acf1ecc77583" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92daf19b-4044-6cf5-b552-b5494396f4a6" executionId="fe6d2e08-7e5b-43eb-aed0-b455e0864e28" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f6bc8818-caae-3b09-8a62-5c8d6b510523" executionId="b299c847-5020-4b1d-a3be-8c2480bf009b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eff5d8e2-546c-2f74-09a8-1ff69d38c603" executionId="0f703515-9cb3-4b2c-bb3d-c68cf43ee0e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6884e07a-d303-09a3-ca7b-790e85c1df95" executionId="8029db2d-5b84-4118-8869-5edc025a7472" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="23" executed="23" passed="23" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 8.0.25)&#xD;
+[xUnit.net 00:00:00.17]   Discovering: Homiee.Tests&#xD;
+[xUnit.net 00:00:00.26]   Discovered:  Homiee.Tests&#xD;
+[xUnit.net 00:00:00.31]   Starting:    Homiee.Tests&#xD;
+     Warning:&#xD;
+     The component "Fluent Assertions" is governed by the rules defined in the Xceed License Agreement and&#xD;
+     the Xceed Fluent Assertions Community License. You may use Fluent Assertions free of charge for&#xD;
+     non-commercial use only. An active subscription is required to use Fluent Assertions for commercial use.&#xD;
+     Please contact Xceed Sales mailto:sales@xceed.com to acquire a subscription at a very low cost.&#xD;
+     A paid commercial license supports the development and continued increasing support of&#xD;
+     Fluent Assertions users under both commercial and community licenses. Help us&#xD;
+     keep Fluent Assertions at the forefront of unit testing.&#xD;
+     For more information, visit https://xceed.com/products/unit-testing/fluent-assertions/&#xD;
+[xUnit.net 00:00:02.24]   Finished:    Homiee.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

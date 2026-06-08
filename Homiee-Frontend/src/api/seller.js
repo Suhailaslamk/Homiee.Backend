@@ -52,6 +52,25 @@ export const createSellerProduct = async (formData) => {
   return response.data;
 };
 
+export const startSellerAiImageGeneration = async (prompt) => {
+  const response = await api.post('/seller/ai-images/generate', { prompt });
+  return response.data;
+};
+
+export const getSellerAiImageGenerationStatus = async (requestId) => {
+  const response = await api.get(`/seller/ai-images/${requestId}/status`);
+  return response.data;
+};
+
+export const selectSellerAiImage = async ({ requestId, selectedImageUrl, productId = null }) => {
+  const response = await api.post('/seller/ai-images/select', {
+    requestId,
+    selectedImageUrl,
+    productId,
+  });
+  return response.data;
+};
+
 export const addSellerProductImages = async (id, files) => {
   const formData = new FormData();
 

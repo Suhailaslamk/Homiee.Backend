@@ -15,7 +15,7 @@ services:
       ApplyMigrations: "true"
 
       ConnectionStrings__DefaultConnection: >
-        Server=${DB_SERVER},${DB_PORT};
+        Server=sqlserver,1433;
         Database=${DB_NAME};
         User Id=${DB_USER};
         Password=${DB_PASSWORD};
@@ -36,6 +36,21 @@ services:
 
       AllowedOrigins__0: http://localhost:5173
       AllowedOrigins__1: http://127.0.0.1:5173
+
+      Gemini__ApiKey: ${GEMINI__APIKEY}
+      Gemini__ModelName: ${GEMINI__MODELNAME}
+      Gemini__BaseUrl: ${GEMINI__BASEURL}
+      Gemini__TimeoutSeconds: ${GEMINI__TIMEOUTSECONDS}
+      Gemini__SampleCount: ${GEMINI__SAMPLECOUNT}
+
+      AiImage__GenerationCacheTtlMinutes: ${AIIMAGE__GENERATIONCACHETTLMINUTES}
+      AiImage__RateLimitMaxRequests: ${AIIMAGE__RATELIMITMAXREQUESTS}
+      AiImage__RateLimitWindowMinutes: ${AIIMAGE__RATELIMITWINDOWMINUTES}
+      AiImage__CooldownSeconds: ${AIIMAGE__COOLDOWNSECONDS}
+      AiImage__MaxPromptLength: ${AIIMAGE__MAXPROMPTLENGTH}
+      AiImage__MinPromptLength: ${AIIMAGE__MINPROMPTLENGTH}
+      AiImage__MaxJobRetries: ${AIIMAGE__MAXJOBRETRIES}
+      AiImage__ResultRetentionHours: ${AIIMAGE__RESULTRETENTIONHOURS}
 
     depends_on:
       sqlserver-init:
@@ -60,12 +75,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -C -Q 'SELECT 1'"
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SA_PASSWORD}' -C -Q 'SELECT 1' || exit 1"
         ]
       interval: 10s
       timeout: 5s
-      retries: 12
-      start_period: 20s
+      retries: 20
+      start_period: 60s
 
   sqlserver-init:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -74,50 +89,35 @@ services:
       sqlserver:
         condition: service_healthy
 
-    entrypoint: /bin/bash
+    entrypoint: ["/bin/bash", "-c"]
 
-    command: >
-      -c "
-      echo 'Creating database...' &&
+    command:
+      - |
+        set -e
 
-      /opt/mssql-tools18/bin/sqlcmd
-      -S ${DB_SERVER},${DB_PORT}
-      -U sa
-      -P '${SA_PASSWORD}'
-      -C
-      -Q \"IF DB_ID('${DB_NAME}') IS NULL CREATE DATABASE [${DB_NAME}]\" &&
+        echo "Waiting for SQL Server..."
 
-      echo 'Creating login and user...' &&
+        until /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -d master -Q "SELECT 1" >/dev/null 2>&1
+        do
+          echo "SQL Server not ready yet..."
+          sleep 5
+        done
 
-      /opt/mssql-tools18/bin/sqlcmd
-      -S ${DB_SERVER},${DB_PORT}
-      -U sa
-      -P '${SA_PASSWORD}'
-      -d ${DB_NAME}
-      -C
-      -Q \"
-      IF NOT EXISTS (
-        SELECT * FROM sys.sql_logins
-        WHERE name = '${DB_USER}'
-      )
-      BEGIN
-        CREATE LOGIN ${DB_USER}
-        WITH PASSWORD='${DB_PASSWORD}';
-      END
+        echo "SQL Server ready"
+        echo "Creating database..."
 
-      IF NOT EXISTS (
-        SELECT * FROM sys.database_principals
-        WHERE name = '${DB_USER}'
-      )
-      BEGIN
-        CREATE USER ${DB_USER}
-        FOR LOGIN ${DB_USER};
-      END
+        /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -b -d master -Q "IF DB_ID(N'${DB_NAME}') IS NULL BEGIN CREATE DATABASE [${DB_NAME}]; END"
 
-      ALTER ROLE db_owner
-      ADD MEMBER ${DB_USER};
-      \"
-      "
+        echo "Creating login..."
+
+        /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -b -d master -Q "IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = N'${DB_USER}') BEGIN CREATE LOGIN [${DB_USER}] WITH PASSWORD = N'${DB_PASSWORD}'; END"
+
+        echo "Creating database user..."
+
+        /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -b -d "${DB_NAME}" -Q "IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'${DB_USER}') BEGIN CREATE USER [${DB_USER}] FOR LOGIN [${DB_USER}]; END; ALTER ROLE db_owner ADD MEMBER [${DB_USER}];"
+
+        echo "Done!"
+        exit 0
 
     restart: "no"
 

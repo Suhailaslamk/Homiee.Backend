@@ -31,7 +31,10 @@ import {
   addSellerProductImages,
   createSellerProduct,
   getSellerCategories,
+  getSellerAiImageGenerationStatus,
   getSellerProduct,
+  selectSellerAiImage,
+  startSellerAiImageGeneration,
   updateSellerProduct,
   deleteSellerProductImage,
   setSellerProductPrimaryImage,
@@ -58,6 +61,10 @@ export default function ProductForm() {
   const [existingImages, setExistingImages] = useState([]);
   const [variants, setVariants] = useState([]);
   const [imageToDelete, setImageToDelete] = useState(null);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiRequestId, setAiRequestId] = useState(null);
+  const [generatedImages, setGeneratedImages] = useState([]);
+  const [selectedAiImage, setSelectedAiImage] = useState(null);
 
   const {
     register,
@@ -94,8 +101,25 @@ export default function ProductForm() {
 
   const categories = getResponseData(categoriesResponse) ?? [];
   const product = getResponseData(productResponse);
+  const selectedPrimaryImageUrl = selectedAiImage?.blobUrl ?? selectedAiImage?.url ?? null;
   const variantSummary = useMemo(() => getVariantSummary(variants), [variants]);
   const hasVariants = variants.length > 0;
+
+  const {
+    data: aiStatusResponse,
+    isFetching: aiStatusFetching,
+  } = useQuery({
+    queryKey: ['seller-ai-image-status', aiRequestId],
+    queryFn: () => getSellerAiImageGenerationStatus(aiRequestId),
+    enabled: Boolean(aiRequestId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.data?.status;
+      return status === 'Completed' || status === 'Failed' ? false : 2000;
+    },
+  });
+
+  const aiStatus = getResponseData(aiStatusResponse);
+  const aiGenerationStatus = aiStatus?.status;
 
   useEffect(() => {
     if (!hasVariants || variantSummary.totalStock <= 0 || variantSummary.minPrice <= 0) {
@@ -131,6 +155,36 @@ export default function ProductForm() {
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to add product.');
+    },
+  });
+
+  const aiGenerateMutation = useMutation({
+    mutationFn: startSellerAiImageGeneration,
+    onSuccess: (response) => {
+      const data = getResponseData(response);
+      setAiRequestId(data?.requestId ?? null);
+      setGeneratedImages([]);
+      setSelectedAiImage(null);
+      toast.success(data?.cacheHit ? 'Loaded generated photos from cache.' : 'Image generation started.');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to start image generation.');
+    },
+  });
+
+  const aiSelectMutation = useMutation({
+    mutationFn: selectSellerAiImage,
+    onSuccess: (response, variables) => {
+      const data = getResponseData(response);
+      setSelectedAiImage({
+        url: variables.selectedImageUrl,
+        blobUrl: data?.blobUrl || variables.selectedImageUrl,
+      });
+      setPrimaryImage(null);
+      toast.success(response?.message || 'Generated image selected.');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to select generated image.');
     },
   });
 
@@ -197,8 +251,45 @@ export default function ProductForm() {
     };
   }, [galleryPreviews, primaryPreview]);
 
+  useEffect(() => {
+    if (aiGenerationStatus === 'Completed') {
+      setGeneratedImages(aiStatus?.imageUrls ?? []);
+    }
+
+    if (aiGenerationStatus === 'Failed' && aiStatus?.failureReason) {
+      toast.error(aiStatus.failureReason);
+    }
+  }, [aiGenerationStatus, aiStatus?.failureReason, aiStatus?.imageUrls, toast]);
+
+  const handleGenerateImages = () => {
+    const prompt = aiPrompt.trim();
+    if (!prompt) {
+      toast.error('Enter an image generation prompt first.');
+      return;
+    }
+
+    aiGenerateMutation.mutate(prompt);
+  };
+
+  const handleSelectGeneratedImage = (imageUrl) => {
+    if (!aiRequestId) {
+      toast.error('Generation request is missing.');
+      return;
+    }
+
+    aiSelectMutation.mutate({
+      requestId: aiRequestId,
+      selectedImageUrl: imageUrl,
+    });
+  };
+
+  const handlePrimaryFilesSelected = (files) => {
+    setPrimaryImage(files[0]);
+    setSelectedAiImage(null);
+  };
+
   const onSubmit = handleSubmit((values) => {
-    if (!isEdit && !primaryImage) {
+    if (!isEdit && !primaryImage && !selectedPrimaryImageUrl) {
       toast.error('Please select a main product image.');
       return;
     }
@@ -230,7 +321,11 @@ export default function ProductForm() {
     formData.append('price', String(values.price));
     formData.append('stock', String(values.stock));
     formData.append('categoryId', String(values.categoryId));
-    formData.append('image', primaryImage);
+    if (primaryImage) {
+      formData.append('image', primaryImage);
+    } else {
+      formData.append('generatedImageUrl', selectedPrimaryImageUrl);
+    }
 
     variants.forEach((v, index) => {
       formData.append(`variants[${index}].label`, v.label.trim());
@@ -519,24 +614,55 @@ export default function ProductForm() {
 
                 <div className="space-y-8">
                   {!isEdit && (
-                    <ImagePicker
-                      title="Main Product Image"
-                      description="This will be the main image shown to customers."
-                      onFilesSelected={(files) => setPrimaryImage(files[0])}
-                    />
+                    <>
+                      <AiImageStudio
+                        prompt={aiPrompt}
+                        onPromptChange={setAiPrompt}
+                        onGenerate={handleGenerateImages}
+                        isGenerating={aiGenerateMutation.isPending}
+                        isPolling={aiStatusFetching && aiGenerationStatus !== 'Completed'}
+                        status={aiGenerationStatus}
+                        generatedImages={generatedImages}
+                        selectedUrl={selectedPrimaryImageUrl}
+                        onSelect={handleSelectGeneratedImage}
+                        isSelecting={aiSelectMutation.isPending}
+                        failureReason={aiStatus?.failureReason}
+                      />
+
+                      <div className="relative flex items-center py-1">
+                        <div className="h-px flex-1 bg-[var(--color-stone)]/10" />
+                        <span className="px-4 text-[9px] font-black uppercase tracking-[0.25em] text-[var(--color-text-muted)]">or upload</span>
+                        <div className="h-px flex-1 bg-[var(--color-stone)]/10" />
+                      </div>
+
+                      <ImagePicker
+                        title="Main Product Image"
+                        description="This will be the main image shown to customers."
+                        onFilesSelected={handlePrimaryFilesSelected}
+                      />
+                    </>
                   )}
 
                   <AnimatePresence>
-                    {primaryPreview && (
+                    {(primaryPreview || selectedPrimaryImageUrl) && (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
                         className="relative aspect-square rounded-[2rem] overflow-hidden border-4 border-[var(--color-accent)]/20 shadow-2xl group"
                       >
-                        <SafeImage src={primaryPreview} className="w-full h-full object-cover" />
+                        <SafeImage src={primaryPreview || selectedPrimaryImageUrl} className="w-full h-full object-cover" />
+                        {selectedPrimaryImageUrl && (
+                          <div className="absolute left-4 top-4 rounded-xl bg-white/90 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[var(--color-primary-dark)] shadow-md">
+                            AI Selected
+                          </div>
+                        )}
                         <button 
-                          onClick={() => setPrimaryImage(null)} 
+                          type="button"
+                          onClick={() => {
+                            setPrimaryImage(null);
+                            setSelectedAiImage(null);
+                          }} 
                           className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-white/90 backdrop-blur shadow-md flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
                         >
                           <X size={20} />
@@ -727,10 +853,108 @@ function InsightTip({ text }) {
   );
 }
 
+function AiImageStudio({
+  prompt,
+  onPromptChange,
+  onGenerate,
+  isGenerating,
+  isPolling,
+  status,
+  generatedImages,
+  selectedUrl,
+  onSelect,
+  isSelecting,
+  failureReason,
+}) {
+  const isWorking = isGenerating || isPolling || status === 'Pending' || status === 'Processing';
+
+  return (
+    <div className="rounded-2xl border border-[var(--color-stone)]/10 bg-[var(--color-sand)]/10 p-5">
+      <div className="mb-5 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[var(--color-primary-dark)] shadow-sm">
+          <Sparkles size={18} />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-[var(--color-primary-dark)]">Generate Product Photos</p>
+          <p className="text-[9px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">
+            Pick one generated image for the main product photo
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <textarea
+          value={prompt}
+          onChange={(event) => onPromptChange(event.target.value)}
+          rows={4}
+          placeholder="Describe the product photo: background, lighting, angle, materials, and style."
+          className="w-full resize-none rounded-2xl border-2 border-transparent bg-white px-5 py-4 text-sm font-semibold text-[var(--color-primary-dark)] outline-none transition-all placeholder:text-[var(--color-stone)]/40 focus:border-[var(--color-accent)]/25 focus:ring-4 focus:ring-[var(--color-accent)]/5"
+        />
+
+        <button
+          type="button"
+          onClick={onGenerate}
+          disabled={isWorking}
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] px-5 text-xs font-black uppercase tracking-widest text-[var(--color-primary-dark)] shadow-lg transition-all hover:scale-[1.01] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isWorking ? (
+            <>
+              <Zap size={16} className="animate-pulse" /> Generating
+            </>
+          ) : (
+            <>
+              <ImagePlus size={16} /> Generate Photos <ArrowRight size={15} />
+            </>
+          )}
+        </button>
+      </div>
+
+      {status && (
+        <div className="mt-4 rounded-xl bg-white/70 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">
+          Status: <span className="text-[var(--color-primary-dark)]">{status}</span>
+        </div>
+      )}
+
+      {failureReason && (
+        <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-xs font-bold text-rose-600">
+          {failureReason}
+        </p>
+      )}
+
+      {generatedImages.length > 0 && (
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {generatedImages.map((imageUrl) => {
+            const selected = selectedUrl === imageUrl;
+
+            return (
+              <button
+                key={imageUrl}
+                type="button"
+                onClick={() => onSelect(imageUrl)}
+                disabled={isSelecting}
+                className={`group relative aspect-square overflow-hidden rounded-2xl border-2 bg-white transition-all ${
+                  selected
+                    ? 'border-[var(--color-accent)] shadow-xl'
+                    : 'border-transparent hover:border-[var(--color-accent)]/40'
+                } disabled:cursor-not-allowed disabled:opacity-70`}
+              >
+                <SafeImage src={imageUrl} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                <div className="absolute inset-x-2 bottom-2 rounded-xl bg-white/90 px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[var(--color-primary-dark)] shadow-sm">
+                  {selected ? 'Selected' : 'Use Photo'}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ImagePicker({ title, description, onFilesSelected, disabled, acceptMultiple }) {
   return (
     <label className={`group block p-10 rounded-[2.5rem] border-2 border-dashed border-[var(--color-stone)]/10 bg-[var(--color-sand)]/5 text-center cursor-pointer transition-all hover:bg-white hover:border-[var(--color-accent)]/30 hover:shadow-xl ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>
-      <input type="file" className="hidden" disabled={disabled} multiple={acceptMultiple} onChange={e => onFilesSelected(Array.from(e.target.files))} />
+      <input type="file" accept="image/*" className="hidden" disabled={disabled} multiple={acceptMultiple} onChange={e => onFilesSelected(Array.from(e.target.files))} />
       <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-[var(--color-primary-dark)] mx-auto mb-6 shadow-sm group-hover:scale-110 group-hover:rotate-12 transition-transform">
         <Plus size={24} />
       </div>

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Homiee.Infrastructure.Cache;
+using Homiee.Shared.Infrastructure.Cache;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Homiee.Tests.Unit.Infrastructure;
