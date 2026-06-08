@@ -7,7 +7,8 @@ namespace Homiee.Modules.Catalog.Application.Dtos
         public decimal Price { get; set; }
         public int Stock { get; set; }
         public int CategoryId { get; set; }
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
+        public string? GeneratedImageUrl { get; set; }
         public List<ProductVariantDto>? Variants { get; set; }
 
     }

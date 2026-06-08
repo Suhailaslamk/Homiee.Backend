@@ -48,17 +48,17 @@ namespace Homiee.Modules.Catalog.Application.Services
             var seller = await _sellerRepo.GetByUserIdAsync(userId);
             if (dto == null)
                 return new ApiResponse<string>(400, "Invalid request");
-            
 
-           
+            var hasUploadedImage = dto.Image != null && dto.Image.Length > 0;
+            var hasGeneratedImage = !string.IsNullOrWhiteSpace(dto.GeneratedImageUrl);
 
-            if (dto.Image.Length > 5 * 1024 * 1024)
-                return new ApiResponse<string>(400, "File too large");
-            if (dto.Image == null || dto.Image.Length == 0)
+            if (!hasUploadedImage && !hasGeneratedImage)
                 return new ApiResponse<string>(400, "Image is required");
+            if (hasUploadedImage && dto.Image!.Length > 5 * 1024 * 1024)
+                return new ApiResponse<string>(400, "File too large");
             if (dto.CategoryId <= 0)
                 return new ApiResponse<string>(400, "Category is required");
-            if (!dto.Image.ContentType.StartsWith("image/"))
+            if (hasUploadedImage && !dto.Image!.ContentType.StartsWith("image/"))
                 return new ApiResponse<string>(400, "Invalid file type");
             if (seller == null)
                 return new ApiResponse<string>(404, "Seller not found");
@@ -85,7 +85,9 @@ namespace Homiee.Modules.Catalog.Application.Services
                 return new ApiResponse<string>(400, "Stock cannot be negative");
             try
             {
-                var imageUrl = await _fileService.UploadAsync(dto.Image, "products");
+                var imageUrl = hasGeneratedImage
+                    ? dto.GeneratedImageUrl!.Trim()
+                    : await _fileService.UploadAsync(dto.Image!, "products");
                 //var product = new Product(seller.Id, dto.Name, dto.Description, dto.Price, dto.Stock);
 
                        var product = new Product(

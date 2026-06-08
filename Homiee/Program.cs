@@ -9,6 +9,14 @@ using StackExchange.Redis;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using NLog;
+using Homiee.Modules.AiImage.Application.IServices;
+using Homiee.Modules.AiImage.Application.IRepository;
+using Homiee.Modules.AiImage.Application.Options;
+using Homiee.Modules.AiImage.Infrastructure.Repositories;
+using Homiee.Modules.AiImage.Infrastructure.Jobs;
+using Homiee.Modules.AiImage.Application.Services;
+using Hangfire;
+using Hangfire.SqlServer;
 using NLog.Web;
 using System.Text;
 using Homiee.Modules.Identity.Application.Services;
@@ -149,7 +157,16 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
-builder.Services.AddAuthorization();
+
+
+    builder.Services.AddHangfire(config =>
+    config.UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    builder.Services.AddHangfireServer();
+
+
+    builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -284,6 +301,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.Configure<RecommendationWeightsOptions>(
     builder.Configuration.GetSection(RecommendationWeightsOptions.SectionName));
+builder.Services.Configure<GeminiOptions>(
+    builder.Configuration.GetSection("Gemini"));
 
 
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
@@ -326,18 +345,27 @@ builder.Services.AddScoped<IAdminAnalyticsService, AdminAnalyticsService>();
 builder.Services.AddScoped<ISellerAnalyticsService, SellerAnalyticsService>();
 builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
+builder.Services.AddScoped<IAiImageGenerationService, AiImageGenerationService>();
+builder.Services.AddScoped<IAiGenerationRepository, AiGenerationRepository>();
+builder.Services.AddScoped<IAiImageRateLimitService, AiImageRateLimitService>();
+builder.Services.AddScoped<AiImageGenerationJob>();
+    builder.Services.AddScoped<AzureBlobByteUploader>();
+    builder.Services.AddHttpClient<IGeminiService, GeminiService>(client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(2);
+    });
 
 
-//builder.Services.Scan(scan => scan
-//.FromAssemblyOf<SellerOrderService>() 
-//.AddClasses()
-//.AsMatchingInterface()
-//.WithScopedLifetime());
+    //builder.Services.Scan(scan => scan
+    //.FromAssemblyOf<SellerOrderService>() 
+    //.AddClasses()
+    //.AsMatchingInterface()
+    //.WithScopedLifetime());
 
 
-// SignalR already initialized in stability patch above
+    // SignalR already initialized in stability patch above
 
-builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+    builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -383,8 +411,12 @@ if (applyMigrations)
     app.UseSwaggerUI();
 }
 
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseHangfireDashboard("/hangfire");
+    }
 
-if (!app.Environment.IsDevelopment())
+    if (!app.Environment.IsDevelopment())
 {
    app.UseHttpsRedirection();
 }

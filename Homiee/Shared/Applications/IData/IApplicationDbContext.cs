@@ -1,4 +1,5 @@
 using Homiee.Modules.Cart.Domain.Entities;
+using Homiee.Modules.AiImage.Domain.Entities;
 using Homiee.Modules.Catalog.Domain.Entities;
 using Homiee.Modules.Identity.Domain.Entities;
 using Homiee.Modules.Notifications.Domain.Entities;
@@ -33,6 +34,7 @@ public interface IApplicationDbContext
     DbSet<Wishlist> Wishlists { get; }
     DbSet<ProductVariant> ProductVariants { get; }
     DbSet<SellerEarning> SellerEarnings { get; }
+    DbSet<AiGenerationRequest> AiGenerationRequests { get; }
     DatabaseFacade Database { get; }
 
     DbSet<TEntity> Set<TEntity>() where TEntity : class;

@@ -1,4 +1,5 @@
 using Homiee.Modules.Cart.Domain.Entities;
+using Homiee.Modules.AiImage.Domain.Entities;
 using Homiee.Modules.Catalog.Domain.Entities;
 using Homiee.Modules.Identity.Domain.Entities;
 using Homiee.Modules.Notifications.Domain.Entities;
@@ -46,6 +47,7 @@ namespace Homiee.Shared.Infrastructure.Data
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<SellerEarning> SellerEarnings { get; set; }
+        public DbSet<AiGenerationRequest> AiGenerationRequests { get; set; }
          
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -148,6 +150,15 @@ namespace Homiee.Shared.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProductVariant>().HasQueryFilter(x => !x.IsDeleted);
+
+            modelBuilder.Entity<AiGenerationRequest>()
+                .Property(x => x.Status)
+                .HasConversion<int>();
+
+            modelBuilder.Entity<AiGenerationRequest>()
+                .HasIndex(x => new { x.UserId, x.PromptHash, x.Status, x.CreatedOn });
+
+            modelBuilder.Entity<AiGenerationRequest>().HasQueryFilter(x => !x.IsDeleted);
         }
     }
 }
