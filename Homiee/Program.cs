@@ -454,9 +454,9 @@ app.MapHub<NotificationHub>("/hubs/notification");
 
 app.Run();
 }
-catch (Exception exception)
+catch (Exception ex)
 {
-    Log.Fatal(exception, "Stopped program because of exception");
+    Log.Fatal(ex, "Stopped program because of exception");
     throw;
 }
 finally
