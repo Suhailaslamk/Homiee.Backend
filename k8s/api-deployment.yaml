@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homiee-api
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: homiee-api
+
+  template:
+    metadata:
+      labels:
+        app: homiee-api
+
+    spec:
+      containers:
+      - name: homiee-api
+        image: homieeacr123.azurecr.io/homiee-api:v1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8080
+
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+
+        - name: ApplyMigrations
+          value: "true"
+
+        - name: ConnectionStrings__DefaultConnection
+          value: "Server=sqlserver,1433;Database=HomieeDb;User Id=sa;Password=Homiee_Strong_Passw0rd!;TrustServerCertificate=True;Encrypt=False"
+
+        - name: ConnectionStrings__Redis
+          value: "redis:6379"
+
+        - name: JWT__Key
+          value: "Miqqanbebaristheownerofthiskeyandthiskeyisverylong"
+
+        - name: Smtp__Username
+          value: "suhailaslam81@gmail.com"
+
+        - name: Smtp__Password
+          value: "shuepadxoeqkvytc"
+
+        - name: AzureBlob__ConnectionString
+          value: "DefaultEndpointsProtocol=https;AccountName=homieestorage;AccountKey=0HGv0s7fLQdt4UyIoYs0sODP+KmUI/2lAt3mIG5s9XGmL5cTDZmn2obdQ0ocoxOWyxWWRBNE1jT1+AStkN3V0A==;EndpointSuffix=core.windows.net"
+
+        - name: Razorpay__Key
+          value: "rzp_test_SAVta8iQQq3Qqv"
+
+        - name: Razorpay__Secret
+          value: "dlyieTEhTBBgVlS6jmaNV1N2"
+
+        - name: AllowedOrigins__0
+          value: "http://localhost:5173"
+
+        - name: AllowedOrigins__1
+          value: "http://127.0.0.1:5173"
+
+        - name: Gemini__ApiKey
+          value: "AQ.Ab8RN6Le3DSYBl63pByCHk8_TsodY--D2RpQ3KANgCeg_bXevA"
+
+        - name: Gemini__ModelName
+          value: "gemini-2.5-flash-image"
+
+        - name: Gemini__BaseUrl
+          value: "https://generativelanguage.googleapis.com/v1beta"
+
+        - name: Gemini__TimeoutSeconds
+          value: "30"
+
+        - name: Gemini__SampleCount
+          value: "1"
+
+        - name: AiImage__GenerationCacheTtlMinutes
+          value: "60"
+
+        - name: AiImage__RateLimitMaxRequests
+          value: "5"
+
+        - name: AiImage__RateLimitWindowMinutes
+          value: "10"
+
+        - name: AiImage__CooldownSeconds
+          value: "30"
+
+        - name: AiImage__MaxPromptLength
+          value: "500"
+
+        - name: AiImage__MinPromptLength
+          value: "5"
+
+        - name: AiImage__MaxJobRetries
+          value: "3"
+
+        - name: AiImage__ResultRetentionHours
+          value: "24"

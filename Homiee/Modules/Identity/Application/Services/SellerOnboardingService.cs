@@ -14,14 +14,18 @@ namespace Homiee.Modules.Identity.Application.Services
         private readonly ISellersRepository _sellerRepo;
         private readonly IFileStorageService _fileStorageService;
         private readonly IUserRepository _userRepo;
+        private readonly ILogger<SellerOnboardingService> _logger;
+
 
         public SellerOnboardingService(
             ISellersRepository sellerRepo,
-            IFileStorageService fileStorageService, IUserRepository userRepo)
+            IFileStorageService fileStorageService, IUserRepository userRepo,ILogger<SellerOnboardingService> logger
+            )
         {
             _sellerRepo = sellerRepo;
             _fileStorageService = fileStorageService;
             _userRepo = userRepo;
+            _logger = logger;
         }
 
         // ========================
@@ -109,8 +113,9 @@ namespace Homiee.Modules.Identity.Application.Services
                 if (dto.IdentityProof != null)
                     identityProofUrl = await _fileStorageService.UploadAsync(dto.IdentityProof, "identity-proofs");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "File upload failed");
                 return new ApiResponse<string>(500, "File upload failed");
             }
 
@@ -162,8 +167,9 @@ namespace Homiee.Modules.Identity.Application.Services
                 if (dto.IdentityProof != null)
                     identityProofUrl = await _fileStorageService.UploadAsync(dto.IdentityProof, "identity-proofs");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "File upload failed");
                 return new ApiResponse<string>(500, "File upload failed");
             }
 

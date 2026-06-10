@@ -95,25 +95,40 @@ services:
       - |
         set -e
 
-        echo "Waiting for SQL Server..."
-
-        until /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -d master -Q "SELECT 1" >/dev/null 2>&1
+                echo "Creating database..."
+        
+        /opt/mssql-tools18/bin/sqlcmd \
+          -S sqlserver \
+          -U sa \
+          -P "${SA_PASSWORD}" \
+          -C \
+          -b \
+          -d master \
+          -Q "
+        IF DB_ID(N'${DB_NAME}') IS NULL
+        BEGIN
+            CREATE DATABASE [${DB_NAME}];
+        END
+        "
+        
+        echo "Waiting for database to become available..."
+        
+        until /opt/mssql-tools18/bin/sqlcmd \
+          -S sqlserver \
+          -U sa \
+          -P "${SA_PASSWORD}" \
+          -C \
+          -d "${DB_NAME}" \
+          -Q "SELECT 1" >/dev/null 2>&1
         do
-          echo "SQL Server not ready yet..."
+          echo "Database not ready yet..."
           sleep 5
         done
-
-        echo "SQL Server ready"
-        echo "Creating database..."
-
-        /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -b -d master -Q "IF DB_ID(N'${DB_NAME}') IS NULL BEGIN CREATE DATABASE [${DB_NAME}]; END"
-
+        
+        echo "Database ready"
+        
         echo "Creating login..."
-
-        /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -b -d master -Q "IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = N'${DB_USER}') BEGIN CREATE LOGIN [${DB_USER}] WITH PASSWORD = N'${DB_PASSWORD}'; END"
-
-        echo "Creating database user..."
-
+        
         /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "${SA_PASSWORD}" -C -b -d "${DB_NAME}" -Q "IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'${DB_USER}') BEGIN CREATE USER [${DB_USER}] FOR LOGIN [${DB_USER}]; END; ALTER ROLE db_owner ADD MEMBER [${DB_USER}];"
 
         echo "Done!"

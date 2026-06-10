@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
-using NLog;
 using Homiee.Modules.AiImage.Application.IServices;
 using Homiee.Modules.AiImage.Application.IRepository;
 using Homiee.Modules.AiImage.Application.Options;
@@ -17,7 +16,7 @@ using Homiee.Modules.AiImage.Infrastructure.Jobs;
 using Homiee.Modules.AiImage.Application.Services;
 using Hangfire;
 using Hangfire.SqlServer;
-using NLog.Web;
+using Serilog;
 using System.Text;
 using Homiee.Modules.Identity.Application.Services;
 using Homiee.Modules.Identity.Infrastructure.Repositories;
@@ -56,22 +55,33 @@ using Homiee.Shared.Applications.IData;
 using Homiee.Shared.Applications.Options;
 using Homiee.Shared.Providers;
 using Homiee.Shared.Middlewares;
+using Homiee.Shared.Infrastructure.Configuration;
 
-var logger = NLog.LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
-logger.Debug("init main");
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+Log.Debug("init main");
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddSignalR();
+    builder.Host.UseSerilog((context, services, configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext();
+    });
 
-    // NLog: Setup NLog for Dependency injection
-    builder.Logging.ClearProviders();
-    builder.Host.UseNLog();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
+static string? GetConn(IConfiguration config, string key)
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+    var value = config.GetConnectionString(key);
+    return string.IsNullOrWhiteSpace(value) ? null : value;
+}
+
+
 builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.Configure<CacheSettings>(
     builder.Configuration.GetSection("CacheSettings"));
@@ -82,48 +92,40 @@ var redisConnectionString =
 
 bool isRedisAvailable = false;
 
-try
+if (!string.IsNullOrWhiteSpace(redisConnectionString))
 {
-    var muxer = await ConnectionMultiplexer.ConnectAsync(
-        $"{redisConnectionString},connectTimeout=2000,abortConnect=true"
-    );
-
-    await muxer.GetDatabase().PingAsync();
-
-    builder.Services.AddSingleton<IConnectionMultiplexer>(muxer);
-
-    builder.Services.AddStackExchangeRedisCache(options =>
+    try
     {
-        options.Configuration = redisConnectionString;
-    });
+        var muxer = await ConnectionMultiplexer.ConnectAsync(redisConnectionString);
 
-    builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+        await muxer.GetDatabase().PingAsync();
 
-    isRedisAvailable = true;
+        builder.Services.AddSingleton<IConnectionMultiplexer>(muxer);
+        builder.Services.AddStackExchangeRedisCache(o =>
+        {
+            o.Configuration = redisConnectionString;
+        });
 
-    logger.Info("Redis connected successfully.");
+        builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+
+        isRedisAvailable = true;
+
+        Log.Information("Redis connected");
+    }
+    catch
+    {
+        Log.Warning("Redis failed → memory cache fallback");
+
+        builder.Services.AddMemoryCache();
+        builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
+    }
 }
-catch (Exception ex)
+else
 {
-    logger.Warn(ex,
-        "Redis unavailable. Falling back to memory cache.");
+    Log.Warning("Redis not provided → memory cache");
 
     builder.Services.AddMemoryCache();
-    builder.Services.AddDistributedMemoryCache();
-    builder.Services.AddSingleton<ICacheService,
-        InMemoryCacheService>();
-
-    isRedisAvailable = false;
-}
-var signalRBuilder = builder.Services.AddSignalR()
-    .AddJsonProtocol(options =>
-    {
-        options.PayloadSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-        options.PayloadSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-    });
-if (isRedisAvailable)
-{
-    signalRBuilder.AddStackExchangeRedis(redisConnectionString!);
+    builder.Services.AddSingleton<ICacheService, InMemoryCacheService>();
 }
 
 // Health check
@@ -159,11 +161,27 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 
+   var sqlConnection =
+    builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (!string.IsNullOrWhiteSpace(sqlConnection))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(sqlConnection));
+
     builder.Services.AddHangfire(config =>
-    config.UseSqlServerStorage(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        config.UseSqlServerStorage(sqlConnection));
 
     builder.Services.AddHangfireServer();
+
+    Log.Information("Database + Hangfire enabled.");
+}
+else
+{
+    Log.Fatal("❌ DATABASE CONNECTION STRING MISSING — STOPPING APP");
+    throw new Exception("Database connection required");
+}
+  
 
 
     builder.Services.AddAuthorization();
@@ -398,11 +416,11 @@ if (applyMigrations)
         scope.ServiceProvider
              .GetRequiredService<AppDbContext>();
 
-    logger.Info("Applying database migrations...");
+    Log.Information("Applying database migrations...");
 
     await dbContext.Database.MigrateAsync();
 
-    logger.Info("Database migrations completed.");
+    Log.Information("Database migrations completed.");
 }
 
    if (app.Environment.IsDevelopment())
@@ -438,14 +456,12 @@ app.Run();
 }
 catch (Exception exception)
 {
-    // NLog: catch setup errors
-    logger.Error(exception, "Stopped program because of exception");
+    Log.Fatal(exception, "Stopped program because of exception");
     throw;
 }
 finally
 {
-    // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-    NLog.LogManager.Shutdown();
+    await Log.CloseAndFlushAsync();
 }
 
 
