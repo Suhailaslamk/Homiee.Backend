@@ -1,3 +1,4 @@
+
 name: Homiee CI
 
 on:
@@ -12,11 +13,14 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    steps:
+    env:
+      ASPNETCORE_ENVIRONMENT: Testing
+      ConnectionStrings__DefaultConnection: "Server=localhost;Database=FakeDb;User Id=sa;Password=FakePassword123!;TrustServerCertificate=True;Encrypt=False"
+      JWT__Key: "test-jwt-key-for-ci-testing-only"
 
+    steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -33,3 +37,4 @@ jobs:
 
       - name: Run Tests
         run: dotnet test Homiee.Tests/Homiee.Tests.csproj --configuration Release
+

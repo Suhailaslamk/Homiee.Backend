@@ -1,0 +1,473 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="e64fadf9-4604-4976-9fb8-26d90d9eda44" name="ACER@DESKTOP-HNT4AV8 2026-06-10 23:15:53" runUser="DESKTOP-HNT4AV8\ACER" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-06-10T23:15:53.0425473+05:30" queuing="2026-06-10T23:15:53.0425480+05:30" start="2026-06-10T23:15:49.0144010+05:30" finish="2026-06-10T23:15:56.2589897+05:30" />
+  <TestSettings name="default" id="c0b6ee54-5ce1-46da-a6c5-bad92d6816d5">
+    <Deployment runDeploymentRoot="ACER_DESKTOP-HNT4AV8_2026-06-10_23_15_53" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="7cf70631-dba3-4d3e-9961-ede2a0b7ad59" testId="0506caeb-33bb-a01d-d725-c2108814aa44" testName="Homiee.Tests.Unit.Common.PagedResultTests.Constructor_ShouldAssignValues" computerName="DESKTOP-HNT4AV8" duration="00:00:00.5718086" startTime="2026-06-10T23:15:52.4822270+05:30" endTime="2026-06-10T23:15:53.0220729+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7cf70631-dba3-4d3e-9961-ede2a0b7ad59" />
+    <UnitTestResult executionId="cf715dfe-2524-403e-9ce3-f390d50eb8ce" testId="82879556-3488-9459-5dcf-0e5566b1ba35" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 400, expectedSuccess: False)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000487" startTime="2026-06-10T23:15:53.0104484+05:30" endTime="2026-06-10T23:15:53.0105878+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cf715dfe-2524-403e-9ce3-f390d50eb8ce" />
+    <UnitTestResult executionId="7bc6f994-16d7-4ee4-8cde-aa1eee2d4227" testId="9b59cb99-c9c2-bfd7-3976-1f55f1c6dc58" testName="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0282888" startTime="2026-06-10T23:15:56.0834411+05:30" endTime="2026-06-10T23:15:56.0972871+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7bc6f994-16d7-4ee4-8cde-aa1eee2d4227">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Exception : Database connection required</Message>
+          <StackTrace>   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 465&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at Homiee.Tests.Integration.AuthApiTests.CreateClientWithAuthService(Mock`1 authService) in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs:line 91&#xD;
+   at Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody() in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs:line 46&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="fe10f8d7-37c5-4c31-bb7a-6072be5102eb" testId="f6bc8818-caae-3b09-8a62-5c8d6b510523" testName="Homiee.Tests.E2E.PublicNavigationE2ETests.Home_ShouldNavigateToDiscovery" computerName="DESKTOP-HNT4AV8" duration="00:00:00.1757741" startTime="2026-06-10T23:15:52.4821817+05:30" endTime="2026-06-10T23:15:52.6363846+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fe10f8d7-37c5-4c31-bb7a-6072be5102eb">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="694f110d-0611-49ea-afa9-827b468120b6" testId="ca6b90c2-34b2-2a88-4b7a-d74d28586544" testName="Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService" computerName="DESKTOP-HNT4AV8" duration="00:00:03.5947287" startTime="2026-06-10T23:15:52.4797765+05:30" endTime="2026-06-10T23:15:56.0656622+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="694f110d-0611-49ea-afa9-827b468120b6">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Exception : Database connection required</Message>
+          <StackTrace>   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 465&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at Homiee.Tests.Integration.MarketplaceApiTests.CreateClientWithMarketplaceService(Mock`1 marketplaceService) in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs:line 85&#xD;
+   at Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService() in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs:line 38&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b3cd23f6-3e33-40b9-a36c-914a7ffe6056" testId="4bdaca80-cb9e-541c-2b75-52ea5b45b549" testName="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldCalculateKnownDistance" computerName="DESKTOP-HNT4AV8" duration="00:00:00.5420690" startTime="2026-06-10T23:15:52.4821341+05:30" endTime="2026-06-10T23:15:52.9922806+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b3cd23f6-3e33-40b9-a36c-914a7ffe6056" />
+    <UnitTestResult executionId="ffbc2fcd-c86c-461b-86ed-02a54b40a7bb" testId="6884e07a-d303-09a3-ca7b-790e85c1df95" testName="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid" computerName="DESKTOP-HNT4AV8" duration="00:00:03.5946910" startTime="2026-06-10T23:15:52.4822701+05:30" endTime="2026-06-10T23:15:56.0791330+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ffbc2fcd-c86c-461b-86ed-02a54b40a7bb">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Exception : Database connection required</Message>
+          <StackTrace>   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 465&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at Homiee.Tests.Integration.AuthApiTests.CreateClientWithAuthService(Mock`1 authService) in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs:line 91&#xD;
+   at Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid() in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs:line 25&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e14e8624-120d-4c17-b018-a1578e7bcbff" testId="1e155223-667c-1b08-c851-64244233d0ca" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 300, expectedSuccess: False)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0003435" startTime="2026-06-10T23:15:53.0097533+05:30" endTime="2026-06-10T23:15:53.0098656+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e14e8624-120d-4c17-b018-a1578e7bcbff" />
+    <UnitTestResult executionId="cae3ca88-1dd3-4284-a6a6-bd4b4995dfaa" testId="a8729f91-a9d4-3ec6-2aa1-7a1e75ac1003" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 201, expectedSuccess: True)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000273" startTime="2026-06-10T23:15:53.0108579+05:30" endTime="2026-06-10T23:15:53.0109864+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cae3ca88-1dd3-4284-a6a6-bd4b4995dfaa" />
+    <UnitTestResult executionId="9b4cf901-4559-4b9b-83d4-6f42ecc6596f" testId="72a85e66-0665-0c00-c7dc-3634bf868fa6" testName="Homiee.Tests.E2E.PublicNavigationE2ETests.Login_ShouldShowValidationErrors_WhenSubmittedEmpty" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0010183" startTime="2026-06-10T23:15:52.6489600+05:30" endTime="2026-06-10T23:15:52.6501318+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9b4cf901-4559-4b9b-83d4-6f42ecc6596f">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="91c15cc4-9be1-4c64-93c8-7ef0c300e884" testId="c139b079-cd36-d9ed-806d-c5488b6d7442" testName="Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0101718" startTime="2026-06-10T23:15:56.1010506+05:30" endTime="2026-06-10T23:15:56.1050748+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="91c15cc4-9be1-4c64-93c8-7ef0c300e884">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Exception : Database connection required</Message>
+          <StackTrace>   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 465&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at Homiee.Tests.Integration.AuthApiTests.CreateClientWithAuthService(Mock`1 authService) in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs:line 91&#xD;
+   at Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService() in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs:line 73&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a56d3f99-97f1-4ad9-bc5b-1aacb8006965" testId="6328f2c2-946b-7682-dbfd-240ad81c4872" testName="Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0282219" startTime="2026-06-10T23:15:56.0833871+05:30" endTime="2026-06-10T23:15:56.0941295+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a56d3f99-97f1-4ad9-bc5b-1aacb8006965">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Exception : Database connection required</Message>
+          <StackTrace>   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 465&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at Homiee.Tests.Integration.MarketplaceApiTests.CreateClientWithMarketplaceService(Mock`1 marketplaceService) in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs:line 85&#xD;
+   at Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts() in C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs:line 71&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="27564808-275f-48bc-a53b-02e3d4b71e4c" testId="c89129fd-1d08-df26-4eb6-84c65c961787" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 299, expectedSuccess: True)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000290" startTime="2026-06-10T23:15:53.0100990+05:30" endTime="2026-06-10T23:15:53.0102182+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="27564808-275f-48bc-a53b-02e3d4b71e4c" />
+    <UnitTestResult executionId="7b3d62ec-6efb-438a-bd9b-a4978f42b627" testId="6a85bd33-df20-a9b4-4ecf-ea42f243ddda" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 200, expectedSuccess: True)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.5441648" startTime="2026-06-10T23:15:52.4819538+05:30" endTime="2026-06-10T23:15:53.0094563+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b3d62ec-6efb-438a-bd9b-a4978f42b627" />
+    <UnitTestResult executionId="0a08e406-97b5-4063-8d08-3c6100ce003e" testId="92daf19b-4044-6cf5-b552-b5494396f4a6" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 500, expectedSuccess: False)" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0000245" startTime="2026-06-10T23:15:53.0114872+05:30" endTime="2026-06-10T23:15:53.0116523+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0a08e406-97b5-4063-8d08-3c6100ce003e" />
+    <UnitTestResult executionId="8b585828-7b13-41b0-ba2b-3eefa8f653cb" testId="f9521d75-84c9-503d-a5ed-d3334b155faf" testName="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldKeepPaginationMetadata" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0011053" startTime="2026-06-10T23:15:53.0120200+05:30" endTime="2026-06-10T23:15:53.0121517+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8b585828-7b13-41b0-ba2b-3eefa8f653cb" />
+    <UnitTestResult executionId="f90d607d-6d3e-430f-adc3-5c9f937985ac" testId="e0279a32-bd0c-2779-4ba9-e5e44330de2a" testName="Homiee.Tests.E2E.ProductDetailsE2ETests.ProductDetails_ShouldRenderRecommendationImages_WhenRecommendationsExist" computerName="DESKTOP-HNT4AV8" duration="00:00:00.1776375" startTime="2026-06-10T23:15:52.4820921+05:30" endTime="2026-06-10T23:15:52.6307941+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f90d607d-6d3e-430f-adc3-5c9f937985ac">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="65cf93e9-35ea-4123-afa6-41fa46929f26" testId="7a327a39-7056-9e55-d9ff-ddb7f69d8ff5" testName="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.SetAsync_AndGetAsync_ShouldRoundTripValue" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0009706" startTime="2026-06-10T23:15:53.2673189+05:30" endTime="2026-06-10T23:15:53.2679630+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="65cf93e9-35ea-4123-afa6-41fa46929f26" />
+    <UnitTestResult executionId="28345f07-2142-4680-8054-ebc96f6cf632" testId="8e4696a9-d5af-e4e0-77b9-14b82f053750" testName="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldReturnZero_ForSamePoint" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0001875" startTime="2026-06-10T23:15:53.0127325+05:30" endTime="2026-06-10T23:15:53.0128609+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="28345f07-2142-4680-8054-ebc96f6cf632" />
+    <UnitTestResult executionId="08f12002-9e6a-4273-9c34-3faed6c85d56" testId="a346dcfd-a4ba-d00f-a44b-61221b80a5f4" testName="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveByPrefixAsync_ShouldDeleteOnlyMatchingKeys" computerName="DESKTOP-HNT4AV8" duration="00:00:00.8166331" startTime="2026-06-10T23:15:52.4820443+05:30" endTime="2026-06-10T23:15:53.2668698+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08f12002-9e6a-4273-9c34-3faed6c85d56" />
+    <UnitTestResult executionId="75adce74-8614-42e3-8582-9bc47d77c882" testId="eff5d8e2-546c-2f74-09a8-1ff69d38c603" testName="Homiee.Tests.E2E.PublicNavigationE2ETests.CustomerSignup_ShouldShowValidationErrors_WhenSubmittedEmpty" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0015353" startTime="2026-06-10T23:15:52.6485214+05:30" endTime="2026-06-10T23:15:52.6486848+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="75adce74-8614-42e3-8582-9bc47d77c882">
+      <Output>
+        <StdOut>E2E tests were not run because HOMIEE_E2E_BASE_URL is not set.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b7688400-31d6-442b-bc49-d4cb7dd880fc" testId="a1b3a52f-9a68-b853-45fe-f21e250db3e8" testName="Homiee.Tests.Unit.Services.GeoHelperTests.BoundingBox_ShouldContainCenterPoint" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0069730" startTime="2026-06-10T23:15:53.0093279+05:30" endTime="2026-06-10T23:15:53.0124258+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b7688400-31d6-442b-bc49-d4cb7dd880fc" />
+    <UnitTestResult executionId="e4cd6796-55b7-4fb6-9bfd-97d738437e9a" testId="af6560ab-f157-8c2f-b96b-daa50c9d428d" testName="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveAsync_ShouldDeleteValue" computerName="DESKTOP-HNT4AV8" duration="00:00:00.0048718" startTime="2026-06-10T23:15:53.2683345+05:30" endTime="2026-06-10T23:15:53.2730961+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e4cd6796-55b7-4fb6-9bfd-97d738437e9a" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 500, expectedSuccess: False)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="92daf19b-4044-6cf5-b552-b5494396f4a6">
+      <Execution id="0a08e406-97b5-4063-8d08-3c6100ce003e" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="c139b079-cd36-d9ed-806d-c5488b6d7442">
+      <Execution id="91c15cc4-9be1-4c64-93c8-7ef0c300e884" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.AuthApiTests" name="RegisterCustomer_ShouldReturnCreatedResponse_FromService" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="6328f2c2-946b-7682-dbfd-240ad81c4872">
+      <Execution id="a56d3f99-97f1-4ad9-bc5b-1aacb8006965" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.MarketplaceApiTests" name="GetProducts_ShouldBindQueryString_AndReturnPagedProducts" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 299, expectedSuccess: True)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="c89129fd-1d08-df26-4eb6-84c65c961787">
+      <Execution id="27564808-275f-48bc-a53b-02e3d4b71e4c" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.PublicNavigationE2ETests.Home_ShouldNavigateToDiscovery" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="f6bc8818-caae-3b09-8a62-5c8d6b510523">
+      <Execution id="fe10f8d7-37c5-4c31-bb7a-6072be5102eb" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.PublicNavigationE2ETests" name="Home_ShouldNavigateToDiscovery" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldReturnZero_ForSamePoint" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="8e4696a9-d5af-e4e0-77b9-14b82f053750">
+      <Execution id="28345f07-2142-4680-8054-ebc96f6cf632" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Services.GeoHelperTests" name="DistanceKm_ShouldReturnZero_ForSamePoint" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveByPrefixAsync_ShouldDeleteOnlyMatchingKeys" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="a346dcfd-a4ba-d00f-a44b-61221b80a5f4">
+      <Execution id="08f12002-9e6a-4273-9c34-3faed6c85d56" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests" name="RemoveByPrefixAsync_ShouldDeleteOnlyMatchingKeys" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 300, expectedSuccess: False)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="1e155223-667c-1b08-c851-64244233d0ca">
+      <Execution id="e14e8624-120d-4c17-b018-a1578e7bcbff" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.PublicNavigationE2ETests.Login_ShouldShowValidationErrors_WhenSubmittedEmpty" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="72a85e66-0665-0c00-c7dc-3634bf868fa6">
+      <Execution id="9b4cf901-4559-4b9b-83d4-6f42ecc6596f" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.PublicNavigationE2ETests" name="Login_ShouldShowValidationErrors_WhenSubmittedEmpty" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.SetAsync_AndGetAsync_ShouldRoundTripValue" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="7a327a39-7056-9e55-d9ff-ddb7f69d8ff5">
+      <Execution id="65cf93e9-35ea-4123-afa6-41fa46929f26" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests" name="SetAsync_AndGetAsync_ShouldRoundTripValue" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.PagedResultTests.Constructor_ShouldAssignValues" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="0506caeb-33bb-a01d-d725-c2108814aa44">
+      <Execution id="7cf70631-dba3-4d3e-9961-ede2a0b7ad59" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.PagedResultTests" name="Constructor_ShouldAssignValues" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="9b59cb99-c9c2-bfd7-3976-1f55f1c6dc58">
+      <Execution id="7bc6f994-16d7-4ee4-8cde-aa1eee2d4227" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.AuthApiTests" name="Login_ShouldReturnServiceStatusCode_AndBody" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Services.GeoHelperTests.DistanceKm_ShouldCalculateKnownDistance" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="4bdaca80-cb9e-541c-2b75-52ea5b45b549">
+      <Execution id="b3cd23f6-3e33-40b9-a36c-914a7ffe6056" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Services.GeoHelperTests" name="DistanceKm_ShouldCalculateKnownDistance" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Services.GeoHelperTests.BoundingBox_ShouldContainCenterPoint" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="a1b3a52f-9a68-b853-45fe-f21e250db3e8">
+      <Execution id="b7688400-31d6-442b-bc49-d4cb7dd880fc" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Services.GeoHelperTests" name="BoundingBox_ShouldContainCenterPoint" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 201, expectedSuccess: True)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="a8729f91-a9d4-3ec6-2aa1-7a1e75ac1003">
+      <Execution id="cae3ca88-1dd3-4284-a6a6-bd4b4995dfaa" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.ProductDetailsE2ETests.ProductDetails_ShouldRenderRecommendationImages_WhenRecommendationsExist" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="e0279a32-bd0c-2779-4ba9-e5e44330de2a">
+      <Execution id="f90d607d-6d3e-430f-adc3-5c9f937985ac" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.ProductDetailsE2ETests" name="ProductDetails_ShouldRenderRecommendationImages_WhenRecommendationsExist" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 200, expectedSuccess: True)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="6a85bd33-df20-a9b4-4ecf-ea42f243ddda">
+      <Execution id="7b3d62ec-6efb-438a-bd9b-a4978f42b627" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="ca6b90c2-34b2-2a88-4b7a-d74d28586544">
+      <Execution id="694f110d-0611-49ea-afa9-827b468120b6" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.MarketplaceApiTests" name="GetCategories_ShouldReturnCategories_FromService" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.E2E.PublicNavigationE2ETests.CustomerSignup_ShouldShowValidationErrors_WhenSubmittedEmpty" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="eff5d8e2-546c-2f74-09a8-1ff69d38c603">
+      <Execution id="75adce74-8614-42e3-8582-9bc47d77c882" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.E2E.PublicNavigationE2ETests" name="CustomerSignup_ShouldShowValidationErrors_WhenSubmittedEmpty" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests.RemoveAsync_ShouldDeleteValue" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="af6560ab-f157-8c2f-b96b-daa50c9d428d">
+      <Execution id="e4cd6796-55b7-4fb6-9bfd-97d738437e9a" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Infrastructure.InMemoryCacheServiceTests" name="RemoveAsync_ShouldDeleteValue" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldKeepPaginationMetadata" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="f9521d75-84c9-503d-a5ed-d3334b155faf">
+      <Execution id="8b585828-7b13-41b0-ba2b-3eefa8f653cb" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldKeepPaginationMetadata" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Unit.Common.ApiResponseTests.Constructor_ShouldSetSuccess_FromStatusCode(statusCode: 400, expectedSuccess: False)" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="82879556-3488-9459-5dcf-0e5566b1ba35">
+      <Execution id="cf715dfe-2524-403e-9ce3-f390d50eb8ce" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Unit.Common.ApiResponseTests" name="Constructor_ShouldSetSuccess_FromStatusCode" />
+    </UnitTest>
+    <UnitTest name="Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid" storage="c:\homiee marketplace\homiee.backend\homiee.tests\bin\debug\net8.0\homiee.tests.dll" id="6884e07a-d303-09a3-ca7b-790e85c1df95">
+      <Execution id="ffbc2fcd-c86c-461b-86ed-02a54b40a7bb" />
+      <TestMethod codeBase="C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\bin\Debug\net8.0\Homiee.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Homiee.Tests.Integration.AuthApiTests" name="Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="0506caeb-33bb-a01d-d725-c2108814aa44" executionId="7cf70631-dba3-4d3e-9961-ede2a0b7ad59" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="82879556-3488-9459-5dcf-0e5566b1ba35" executionId="cf715dfe-2524-403e-9ce3-f390d50eb8ce" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9b59cb99-c9c2-bfd7-3976-1f55f1c6dc58" executionId="7bc6f994-16d7-4ee4-8cde-aa1eee2d4227" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f6bc8818-caae-3b09-8a62-5c8d6b510523" executionId="fe10f8d7-37c5-4c31-bb7a-6072be5102eb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ca6b90c2-34b2-2a88-4b7a-d74d28586544" executionId="694f110d-0611-49ea-afa9-827b468120b6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4bdaca80-cb9e-541c-2b75-52ea5b45b549" executionId="b3cd23f6-3e33-40b9-a36c-914a7ffe6056" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6884e07a-d303-09a3-ca7b-790e85c1df95" executionId="ffbc2fcd-c86c-461b-86ed-02a54b40a7bb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1e155223-667c-1b08-c851-64244233d0ca" executionId="e14e8624-120d-4c17-b018-a1578e7bcbff" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a8729f91-a9d4-3ec6-2aa1-7a1e75ac1003" executionId="cae3ca88-1dd3-4284-a6a6-bd4b4995dfaa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72a85e66-0665-0c00-c7dc-3634bf868fa6" executionId="9b4cf901-4559-4b9b-83d4-6f42ecc6596f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c139b079-cd36-d9ed-806d-c5488b6d7442" executionId="91c15cc4-9be1-4c64-93c8-7ef0c300e884" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6328f2c2-946b-7682-dbfd-240ad81c4872" executionId="a56d3f99-97f1-4ad9-bc5b-1aacb8006965" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c89129fd-1d08-df26-4eb6-84c65c961787" executionId="27564808-275f-48bc-a53b-02e3d4b71e4c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6a85bd33-df20-a9b4-4ecf-ea42f243ddda" executionId="7b3d62ec-6efb-438a-bd9b-a4978f42b627" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92daf19b-4044-6cf5-b552-b5494396f4a6" executionId="0a08e406-97b5-4063-8d08-3c6100ce003e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f9521d75-84c9-503d-a5ed-d3334b155faf" executionId="8b585828-7b13-41b0-ba2b-3eefa8f653cb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e0279a32-bd0c-2779-4ba9-e5e44330de2a" executionId="f90d607d-6d3e-430f-adc3-5c9f937985ac" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7a327a39-7056-9e55-d9ff-ddb7f69d8ff5" executionId="65cf93e9-35ea-4123-afa6-41fa46929f26" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8e4696a9-d5af-e4e0-77b9-14b82f053750" executionId="28345f07-2142-4680-8054-ebc96f6cf632" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a346dcfd-a4ba-d00f-a44b-61221b80a5f4" executionId="08f12002-9e6a-4273-9c34-3faed6c85d56" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eff5d8e2-546c-2f74-09a8-1ff69d38c603" executionId="75adce74-8614-42e3-8582-9bc47d77c882" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a1b3a52f-9a68-b853-45fe-f21e250db3e8" executionId="b7688400-31d6-442b-bc49-d4cb7dd880fc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="af6560ab-f157-8c2f-b96b-daa50c9d428d" executionId="e4cd6796-55b7-4fb6-9bfd-97d738437e9a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="23" executed="23" passed="18" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 8.0.25)&#xD;
+[xUnit.net 00:00:01.27]   Discovering: Homiee.Tests&#xD;
+[xUnit.net 00:00:01.37]   Discovered:  Homiee.Tests&#xD;
+[xUnit.net 00:00:01.43]   Starting:    Homiee.Tests&#xD;
+     Warning:&#xD;
+     The component "Fluent Assertions" is governed by the rules defined in the Xceed License Agreement and&#xD;
+     the Xceed Fluent Assertions Community License. You may use Fluent Assertions free of charge for&#xD;
+     non-commercial use only. An active subscription is required to use Fluent Assertions for commercial use.&#xD;
+     Please contact Xceed Sales mailto:sales@xceed.com to acquire a subscription at a very low cost.&#xD;
+     A paid commercial license supports the development and continued increasing support of&#xD;
+     Fluent Assertions users under both commercial and community licenses. Help us&#xD;
+     keep Fluent Assertions at the forefront of unit testing.&#xD;
+     For more information, visit https://xceed.com/products/unit-testing/fluent-assertions/&#xD;
+[23:15:55 WRN] Redis not provided \u001a memory cache&#xD;
+[23:15:55 WRN] Redis not provided \u001a memory cache&#xD;
+[23:15:56 FTL] ? DATABASE CONNECTION STRING MISSING - STOPPING APP&#xD;
+[23:15:56 FTL] ? DATABASE CONNECTION STRING MISSING - STOPPING APP&#xD;
+[23:15:56 FTL] Stopped program because of exception&#xD;
+System.Exception: Database connection required&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+[23:15:56 FTL] Stopped program because of exception&#xD;
+System.Exception: Database connection required&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+[xUnit.net 00:00:05.10]       System.Exception : Database connection required&#xD;
+[xUnit.net 00:00:05.10]       Stack Trace:&#xD;
+[xUnit.net 00:00:05.10]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(182,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.10]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(465,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.10]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:05.10]            at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+[xUnit.net 00:00:05.10]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+[xUnit.net 00:00:05.10]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:05.10]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:05.10]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs(85,0): at Homiee.Tests.Integration.MarketplaceApiTests.CreateClientWithMarketplaceService(Mock`1 marketplaceService)&#xD;
+[xUnit.net 00:00:05.10]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs(38,0): at Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService()&#xD;
+[xUnit.net 00:00:05.10]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.11]       System.Exception : Database connection required&#xD;
+[xUnit.net 00:00:05.11]       Stack Trace:&#xD;
+[xUnit.net 00:00:05.11]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(182,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.11]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(465,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.11]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:05.11]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+[xUnit.net 00:00:05.11]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:05.11]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:05.11]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:05.11]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs(91,0): at Homiee.Tests.Integration.AuthApiTests.CreateClientWithAuthService(Mock`1 authService)&#xD;
+[xUnit.net 00:00:05.11]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs(25,0): at Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid()&#xD;
+[xUnit.net 00:00:05.11]         --- End of stack trace from previous location ---&#xD;
+[23:15:56 WRN] Redis not provided \u001a memory cache&#xD;
+[23:15:56 WRN] Redis not provided \u001a memory cache&#xD;
+[23:15:56 FTL] ? DATABASE CONNECTION STRING MISSING - STOPPING APP&#xD;
+[23:15:56 FTL] ? DATABASE CONNECTION STRING MISSING - STOPPING APP&#xD;
+[23:15:56 FTL] Stopped program because of exception&#xD;
+System.Exception: Database connection required&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+[23:15:56 FTL] Stopped program because of exception&#xD;
+System.Exception: Database connection required&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+[xUnit.net 00:00:05.12]       System.Exception : Database connection required&#xD;
+[xUnit.net 00:00:05.12]       Stack Trace:&#xD;
+[xUnit.net 00:00:05.12]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(182,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.12]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(465,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.12]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:05.12]            at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+[xUnit.net 00:00:05.12]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+[xUnit.net 00:00:05.12]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:05.12]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:05.12]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs(85,0): at Homiee.Tests.Integration.MarketplaceApiTests.CreateClientWithMarketplaceService(Mock`1 marketplaceService)&#xD;
+[xUnit.net 00:00:05.12]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\MarketplaceApiTests.cs(71,0): at Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts()&#xD;
+[xUnit.net 00:00:05.12]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.12]       System.Exception : Database connection required&#xD;
+[xUnit.net 00:00:05.12]       Stack Trace:&#xD;
+[xUnit.net 00:00:05.12]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(182,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.12]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(465,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.13]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:05.13]            at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+[xUnit.net 00:00:05.13]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+[xUnit.net 00:00:05.13]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:05.13]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs(91,0): at Homiee.Tests.Integration.AuthApiTests.CreateClientWithAuthService(Mock`1 authService)&#xD;
+[xUnit.net 00:00:05.13]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs(46,0): at Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody()&#xD;
+[xUnit.net 00:00:05.13]         --- End of stack trace from previous location ---&#xD;
+[23:15:56 WRN] Redis not provided \u001a memory cache&#xD;
+[23:15:56 FTL] ? DATABASE CONNECTION STRING MISSING - STOPPING APP&#xD;
+[23:15:56 FTL] Stopped program because of exception&#xD;
+System.Exception: Database connection required&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs:line 182&#xD;
+[xUnit.net 00:00:05.13]       System.Exception : Database connection required&#xD;
+[xUnit.net 00:00:05.13]       Stack Trace:&#xD;
+[xUnit.net 00:00:05.13]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(182,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.13]         C:\Homiee Marketplace\Homiee.Backend\Homiee\Program.cs(465,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:05.13]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:05.13]            at InvokeStub_Program.&lt;Main&gt;(Object, Span`1)&#xD;
+[xUnit.net 00:00:05.13]            at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)&#xD;
+[xUnit.net 00:00:05.13]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.EnsureServer()&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:05.13]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:05.13]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs(91,0): at Homiee.Tests.Integration.AuthApiTests.CreateClientWithAuthService(Mock`1 authService)&#xD;
+[xUnit.net 00:00:05.13]         C:\Homiee Marketplace\Homiee.Backend\Homiee.Tests\Integration\AuthApiTests.cs(73,0): at Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService()&#xD;
+[xUnit.net 00:00:05.13]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:05.14]   Finished:    Homiee.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-HNT4AV8" outcome="Error" timestamp="2026-06-10T23:15:56.0724187+05:30">
+        <Text>[xUnit.net 00:00:05.10]     Homiee.Tests.Integration.MarketplaceApiTests.GetCategories_ShouldReturnCategories_FromService [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-HNT4AV8" outcome="Error" timestamp="2026-06-10T23:15:56.0796347+05:30">
+        <Text>[xUnit.net 00:00:05.11]     Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnValidationProblem_WhenPayloadIsInvalid [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-HNT4AV8" outcome="Error" timestamp="2026-06-10T23:15:56.0948320+05:30">
+        <Text>[xUnit.net 00:00:05.12]     Homiee.Tests.Integration.MarketplaceApiTests.GetProducts_ShouldBindQueryString_AndReturnPagedProducts [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-HNT4AV8" outcome="Error" timestamp="2026-06-10T23:15:56.0976893+05:30">
+        <Text>[xUnit.net 00:00:05.12]     Homiee.Tests.Integration.AuthApiTests.Login_ShouldReturnServiceStatusCode_AndBody [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-HNT4AV8" outcome="Error" timestamp="2026-06-10T23:15:56.1057193+05:30">
+        <Text>[xUnit.net 00:00:05.13]     Homiee.Tests.Integration.AuthApiTests.RegisterCustomer_ShouldReturnCreatedResponse_FromService [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>
