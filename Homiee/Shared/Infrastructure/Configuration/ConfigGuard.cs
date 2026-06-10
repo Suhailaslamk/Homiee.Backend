@@ -12,6 +12,10 @@ public static class ConfigGuard
         return value;
     }
 
+
+
+
+
     public static string? GetOptional(IConfiguration config, string key)
     {
         var value = config[key];
