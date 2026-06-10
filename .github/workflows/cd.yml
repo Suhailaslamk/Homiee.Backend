@@ -30,6 +30,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+             -f Homiee/Dockerfile \
             -t ${{ secrets.ACR_LOGIN_SERVER }}/homiee-api:${{ github.sha }} \
             .
 
