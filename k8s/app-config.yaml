@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homiee-config
+
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+  ApplyMigrations: "true"
+
+  ConnectionStrings__Redis: "redis:6379"
+
+  AllowedOrigins__0: "http://localhost:5173"
+  AllowedOrigins__1: "http://127.0.0.1:5173"
+
+  Gemini__ModelName: "gemini-2.5-flash-image"
+  Gemini__BaseUrl: "https://generativelanguage.googleapis.com/v1beta"
+  Gemini__TimeoutSeconds: "30"
+  Gemini__SampleCount: "1"
+
+  AiImage__GenerationCacheTtlMinutes: "60"
+  AiImage__RateLimitMaxRequests: "5"
+  AiImage__RateLimitWindowMinutes: "10"
+  AiImage__CooldownSeconds: "30"
+  AiImage__MaxPromptLength: "500"
+  AiImage__MinPromptLength: "5"
+  AiImage__MaxJobRetries: "3"
+  AiImage__ResultRetentionHours: "24"

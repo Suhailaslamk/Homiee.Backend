@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sqlserver
+
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: sqlserver
@@ -29,7 +31,10 @@ spec:
           value: "Y"
 
         - name: MSSQL_SA_PASSWORD
-          value: "Homiee_Strong_Passw0rd!"
+          valueFrom:
+            secretKeyRef:
+              name: homiee-secret
+              key: MSSQL_SA_PASSWORD
 
         volumeMounts:
         - mountPath: /var/opt/mssql

@@ -1,3 +1,4 @@
+
 name: Deploy to AKS (CD)
 
 on:
@@ -25,21 +26,46 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/homiee-api:${{ github.sha }} .
+          docker build \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/homiee-api:${{ github.sha }} \
+            .
 
-      - name: Push image
+      - name: Push Docker image
         run: |
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/homiee-api:${{ github.sha }}
+          docker push \
+            ${{ secrets.ACR_LOGIN_SERVER }}/homiee-api:${{ github.sha }}
 
       - name: Get AKS credentials
         run: |
           az aks get-credentials \
             --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
-            --name ${{ secrets.AKS_CLUSTER_NAME }}
+            --name ${{ secrets.AKS_CLUSTER_NAME }} \
+            --overwrite-existing
 
-      - name: Deploy to Kubernetes
+      - name: Create or Update Kubernetes Secret
+        run: |
+          kubectl create secret generic homiee-secret \
+            --from-literal=ConnectionStrings__DefaultConnection="${{ secrets.DB_CONNECTION_STRING }}" \
+            --from-literal=JWT__Key="${{ secrets.JWT_KEY }}" \
+            --from-literal=Smtp__Username="${{ secrets.SMTP_USERNAME }}" \
+            --from-literal=Smtp__Password="${{ secrets.SMTP_PASSWORD }}" \
+            --from-literal=AzureBlob__ConnectionString="${{ secrets.AZURE_BLOB_CONNECTION_STRING }}" \
+            --from-literal=Razorpay__Key="${{ secrets.RAZORPAY_KEY }}" \
+            --from-literal=Razorpay__Secret="${{ secrets.RAZORPAY_SECRET }}" \
+            --from-literal=Gemini__ApiKey="${{ secrets.GEMINI_API_KEY }}" \
+            --from-literal=MSSQL_SA_PASSWORD="${{ secrets.SQL_PASSWORD }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/
+
+      - name: Update API image
         run: |
           kubectl set image deployment/homiee-api \
             homiee-api=${{ secrets.ACR_LOGIN_SERVER }}/homiee-api:${{ github.sha }}
 
-          kubectl rollout status deployment/homiee-api
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/homiee-api --timeout=300s
+
