@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import SellerSidebar from '../pages/Seller/SellerSidebar';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
+import SellerSidebar from '../pages/seller/SellerSidebar';
 import { useQuery } from '@tanstack/react-query';
 import { getProfile } from '../api/profile';
 import { Loader2, Menu, X } from 'lucide-react';

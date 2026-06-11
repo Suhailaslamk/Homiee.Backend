@@ -51,17 +51,17 @@ function resolveImageUrl(src) {
   if (/^[A-Z]:\\/i.test(src)) {
     // This is a local path that the browser can't use directly.
     // We should ideally not have this, but if we do, we might try to extract the relative part.
-    const parts = src.split(/[\\\/]wwwroot[\\\/]|[\\\/]public[\\\/]/i);
+    const parts = src.split(/[\\/]wwwroot[\\/]|[\\/]public[\\/]/i);
     if (parts.length > 1) {
       src = parts[1];
     } else {
       // Fallback: just use the filename
-      src = src.split(/[\\\/]/).pop();
+      src = src.split(/[\\/]/).pop();
     }
   }
 
   // 3. Get the base URL from env
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5276/api';
+  const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
   const baseOrigin = apiBase.replace(/\/api\/?$/, '');
   
   // 4. Normalize the source path

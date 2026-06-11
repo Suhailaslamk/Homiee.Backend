@@ -74,7 +74,9 @@ export default function SellerDetails() {
     
     // If it's a local filesystem URL from the fallback service
     if (url.startsWith('/uploads')) {
-      return `http://127.0.0.1:5276${url}`;
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
+      const baseOrigin = apiBase.replace(/\/api\/?$/, '');
+      return `${baseOrigin}${url}`;
     }
 
     try {

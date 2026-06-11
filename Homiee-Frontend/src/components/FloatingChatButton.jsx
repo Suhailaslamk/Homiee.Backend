@@ -1,26 +1,28 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getConversations } from '../api/chat';
-import { getCurrentUserId, isAuthenticated, isCustomerRole, getCurrentRole } from '../utils/auth';
+import { isAuthenticated, getCurrentRole } from '../utils/auth';
+
+const MotionDiv = motion.div;
+const MotionSpan = motion.span;
 
 export default function FloatingChatButton() {
   const location = useLocation();
-  const userId = getCurrentUserId();
   const role = getCurrentRole();
   const isAuth = isAuthenticated();
-  
-  // Don't show on the chat page itself
-  if (location.pathname.includes('/chat') || !isAuth) return null;
+  const shouldShow = isAuth && !location.pathname.includes('/chat');
 
   const { data: conversationsResponse } = useQuery({
     queryKey: ['chat', 'conversations'],
     queryFn: getConversations,
-    enabled: isAuth,
+    enabled: shouldShow,
     refetchInterval: 15000, // Refresh every 15s to keep unread count updated
   });
+
+  // Don't show on the chat page itself
+  if (!shouldShow) return null;
 
   const conversations = Array.isArray(conversationsResponse) 
     ? conversationsResponse 
@@ -35,7 +37,7 @@ export default function FloatingChatButton() {
 
   return (
     <div className="fixed bottom-8 right-8 z-[100]">
-      <motion.div
+      <MotionDiv
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.05 }}
@@ -49,14 +51,14 @@ export default function FloatingChatButton() {
           
           <AnimatePresence>
             {unreadCount > 0 && (
-              <motion.span
+              <MotionSpan
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
                 className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-rose-500 text-[12px] font-black text-white shadow-lg ring-4 ring-white"
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
-              </motion.span>
+              </MotionSpan>
             )}
           </AnimatePresence>
 
@@ -65,7 +67,7 @@ export default function FloatingChatButton() {
             Transmit Signal
           </div>
         </Link>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

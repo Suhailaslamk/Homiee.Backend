@@ -17,10 +17,7 @@ import Profile from './pages/Profile';
 import { ToastProvider } from './components/ToastProvider';
 import { 
   getCurrentRole, 
-  getWorkspacePath, 
-  isAdminRole, 
-  isCustomerRole, 
-  isSellerRole 
+  getWorkspacePath
 } from './utils/auth';
 import { Navigate } from 'react-router-dom';
 
@@ -106,15 +103,7 @@ function LayoutWrapper({ children }) {
 }
 
 function App() {
-  const [showSplash, setShowSplash] = React.useState(true);
-
-  // Optional: Only show splash on first load of the session
-  React.useEffect(() => {
-    const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
-    if (hasSeenSplash) {
-      setShowSplash(false);
-    }
-  }, []);
+  const [showSplash, setShowSplash] = React.useState(() => !sessionStorage.getItem('hasSeenSplash'));
 
   const handleSplashComplete = () => {
     setShowSplash(false);
