@@ -10,7 +10,7 @@ data:
 
   ConnectionStrings__Redis: "redis:6379"
 
-  AllowedOrigins__0: "http://localhost:5173"
+  AllowedOrigins__0: "https://homiee.suhailaslam.in"
   AllowedOrigins__1: "http://127.0.0.1:5173"
 
   Gemini__ModelName: "gemini-2.5-flash-image"

@@ -34,7 +34,7 @@ services:
       Razorpay__Key: ${RAZORPAY_KEY}
       Razorpay__Secret: ${RAZORPAY_SECRET}
 
-      AllowedOrigins__0: http://localhost:5173
+      AllowedOrigins__0: "https://homiee.suhailaslam.in"
       AllowedOrigins__1: http://127.0.0.1:5173
 
       Gemini__ApiKey: ${GEMINI__APIKEY}
