@@ -439,6 +439,8 @@ if (applyMigrations)
 //     app.UseSwaggerUI();
 // }
 
+
+
 app.UseSwagger();
     app.UseSwaggerUI();
 
