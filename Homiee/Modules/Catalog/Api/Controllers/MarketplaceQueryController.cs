@@ -107,12 +107,11 @@ namespace Homiee.Modules.Catalog.Api.Controllers
             => Ok(await _service.GetStoreDetails(sellerId, productQuery));
 
 [HttpGet("sentry-test")]
-
 public IActionResult TestSentry()
 {
-    SentrySdk.CaptureMessage("Homiee backend test");
+    SentrySdk.CaptureMessage("Homiee backend connected to sentry");
 
-    throw new Exception("Sentry test exception");
+    return Ok("sent");
 }
         [HttpGet("nearby/stores")]
         public async Task<IActionResult> GetNearbyStores([FromQuery] NearbyQueryDto query)
