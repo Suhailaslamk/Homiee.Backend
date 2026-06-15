@@ -1,5 +1,5 @@
 using Microsoft.Data.SqlClient;
-
+using Sentry;
 namespace Homiee.Shared.Middlewares
 {
     public class ExceptionMiddleware
@@ -26,6 +26,7 @@ namespace Homiee.Shared.Middlewares
             }
             catch (Exception ex)
             {
+                SentrySdk.CaptureException(ex);
                 _logger.LogError(ex,
                     "Unhandled exception occurred.");
 
