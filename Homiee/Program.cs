@@ -16,6 +16,7 @@ using Homiee.Modules.AiImage.Infrastructure.Jobs;
 using Homiee.Modules.AiImage.Application.Services;
 using Hangfire;
 using Hangfire.SqlServer;
+using Sentry;
 using Serilog;
 using System.Text;
 using Homiee.Modules.Identity.Application.Services;
@@ -67,6 +68,15 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddSignalR();
+
+    builder.WebHost.UseSentry(o =>
+{
+    o.Dsn = builder.Configuration["Sentry:Dsn"];
+    o.Debug = true; // TEMPORARY
+    o.DiagnosticLevel = SentryLevel.Debug;
+    o.TracesSampleRate = 1.0;
+});
+
     builder.Host.UseSerilog((context, services, configuration) =>
     {
         configuration
@@ -76,14 +86,7 @@ try
     });
     
 
-    builder.WebHost.UseSentry(options =>
-{
-    options.Dsn = builder.Configuration["Sentry:Dsn"];
     
-    options.Debug = false;
-
-    options.TracesSampleRate = 1.0;
-});
 
 static string? GetConn(IConfiguration config, string key)
 {
