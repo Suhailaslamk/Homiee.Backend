@@ -107,9 +107,11 @@ namespace Homiee.Modules.Catalog.Api.Controllers
             => Ok(await _service.GetStoreDetails(sellerId, productQuery));
 
 [HttpGet("sentry-test")]
-public IActionResult TestSentry()
+public async Task<IActionResult> TestSentry()
 {
     SentrySdk.CaptureMessage("Homiee backend connected to sentry");
+
+    await SentrySdk.FlushAsync(TimeSpan.FromSeconds(5));
 
     return Ok("sent");
 }
