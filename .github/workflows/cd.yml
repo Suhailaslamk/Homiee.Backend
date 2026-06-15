@@ -58,6 +58,7 @@ jobs:
             --from-literal=Razorpay__Secret="${{ secrets.RAZORPAY_SECRET }}" \
             --from-literal=Gemini__ApiKey="${{ secrets.GEMINI_API_KEY }}" \
             --from-literal=MSSQL_SA_PASSWORD="${{ secrets.SQL_PASSWORD }}" \
+            --from-literal=Sentry__Dsn="${{ secrets.SENTRY_DSN }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply Kubernetes manifests
