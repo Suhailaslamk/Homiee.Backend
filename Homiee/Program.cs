@@ -74,6 +74,16 @@ try
             .ReadFrom.Services(services)
             .Enrich.FromLogContext();
     });
+    
+
+    builder.WebHost.UseSentry(options =>
+{
+    options.Dsn = builder.Configuration["Sentry:Dsn"];
+    
+    options.Debug = false;
+
+    options.TracesSampleRate = 1.0;
+});
 
 static string? GetConn(IConfiguration config, string key)
 {
@@ -423,11 +433,14 @@ if (applyMigrations)
     Log.Information("Database migrations completed.");
 }
 
-   if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
+//    if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
+
+app.UseSwagger();
     app.UseSwaggerUI();
-}
 
     if (app.Environment.IsDevelopment())
     {
