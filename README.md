@@ -2,7 +2,7 @@
 
 # 🏠 Homiee
 
-### Local Commerce Marketplace — Backend-Driven, Production-Deployed
+### Local Commerce Marketplace —  Production-Deployed  — ASP.NET Core 8 · React 19 · Azure Kubernetes Service
 
 **Full-stack local marketplace platform. ASP.NET Core 8 modular monolith · React 19 SPA · Azure Kubernetes Service · Real-time SignalR · AI-assisted image generation via Gemini.**
 
@@ -12,10 +12,14 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![SQL Server](https://img.shields.io/badge/SQL_Server-2022-CC2927?style=flat-square&logo=microsoftsqlserver)](https://www.microsoft.com/sql-server)
 [![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?style=flat-square&logo=redis)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-AKS-326CE5?style=flat-square&logo=kubernetes)](https://kubernetes.io/)
 [![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=flat-square&logo=githubactions)](https://github.com/features/actions)
 [![Azure](https://img.shields.io/badge/Azure-ACR+AKS-0078D4?style=flat-square&logo=microsoftazure)](https://azure.microsoft.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+![AKS](https://img.shields.io/badge/Deployment-Azure_Kubernetes_Service-326CE5?style=flat-square)
+![SignalR](https://img.shields.io/badge/Realtime-SignalR-512BD4?style=flat-square)
+![Hangfire](https://img.shields.io/badge/Background_Jobs-Hangfire-178600?style=flat-square)
 
 </div>
 
@@ -34,6 +38,21 @@ Homiee solves the fragmentation problem for neighborhood-level commerce. Local s
 Backend deployed on **Azure Kubernetes Service** with automated CI/CD. Frontend on **Vercel**.
 
 ---
+
+
+## 📊 Project Snapshot
+
+* 8 business modules
+* 23+ database entities
+* 35 automated tests
+* Real-time SignalR messaging
+* AI image generation pipeline
+* Redis distributed caching
+* EF Core + Dapper dual ORM architecture
+* Dockerized development environment
+* Azure Kubernetes Service deployment
+* GitHub Actions CI/CD automation
+
 
 ## ✨ Key Features
 
@@ -166,52 +185,35 @@ graph TB
 
 ---
 
-## 🗄️ Database Design
 
-```mermaid
-erDiagram
-    User { int Id PK; string Email UK; string PasswordHash; string Role; bool IsBlocked; bool IsDeleted }
-    Seller { int Id PK; int UserId FK; string BusinessName; string GstNumber; string Status; decimal Lat; decimal Lng; double Rating }
-    Product { int Id PK; int SellerId FK; int CategoryId FK; string Name; decimal Price; int Stock; bool IsDeleted }
-    ProductImage { int Id PK; int ProductId FK; string ImageUrl; bool IsPrimary }
-    ProductVariant { int Id PK; int ProductId FK; string Label; decimal Price; int Stock; string SKU }
-    Category { int Id PK; string Name; bool IsActive }
-    Order { int Id PK; int UserId FK; int SellerId FK; string Status; decimal TotalAmount }
-    OrderItem { int Id PK; int OrderId FK; int ProductId FK; int VariantId FK; int Qty; decimal UnitPrice }
-    OrderStatusHistory { int Id PK; int OrderId FK; string Status; DateTime ChangedAt }
-    Address { int Id PK; int UserId FK; string Line1; string City; string PinCode }
-    Review { int Id PK; int UserId FK; int ProductId FK; int OrderId FK; int Rating }
-    SellerReview { int Id PK; int UserId FK; int SellerId FK; int OrderId FK; int Rating }
-    Notification { int Id PK; int UserId FK; string Message; bool IsRead }
-    Wishlist { int Id PK; int UserId FK; int ProductId FK }
-    ChatMessage { int Id PK; int SenderId FK; int ReceiverId FK; string Content; bool IsRead }
-    SellerEarning { int Id PK; int SellerId FK; int OrderId FK; decimal Amount; string Status }
-    AiGenerationRequest { int Id PK; int UserId FK; string PromptHash; string Status; string SelectedImageUrl; string HangfireJobId; int RetryCount }
-    RefreshToken { int Id PK; int UserId FK; string Token UK; DateTime ExpiresAt; bool IsRevoked }
-    OtpCode { int Id PK; int UserId FK; string Code; int AttemptCount; DateTime ExpiresAt; bool IsUsed }
 
-    User ||--o{ Order : places
-    User ||--o{ Review : writes
-    User ||--o{ Wishlist : saves
-    User ||--o{ Address : has
-    User ||--o{ Notification : receives
-    User ||--o{ ChatMessage : sends
-    User ||--|| Seller : "is a"
-    User ||--o{ RefreshToken : has
-    User ||--o{ OtpCode : receives
-    User ||--o{ AiGenerationRequest : submits
-    Seller ||--o{ Product : owns
-    Seller ||--o{ Order : fulfills
-    Seller ||--o{ SellerEarning : earns
-    Product ||--o{ ProductImage : has
-    Product ||--o{ ProductVariant : has
-    Product ||--o{ OrderItem : in
-    Product ||--o{ Review : receives
-    Category ||--o{ Product : contains
-    Order ||--o{ OrderItem : contains
-    Order ||--o{ OrderStatusHistory : tracks
-    Order ||--|| SellerEarning : generates
-```
+## 🗄️ Data Model
+
+**Database:** SQL Server 2022
+
+Core domain entities:
+
+* Users, Roles, OTP Codes, Refresh Tokens
+* Sellers, Products, Categories, Product Variants
+* Cart Items and Wishlists
+* Orders, Order Items, Order Status History
+* Product Reviews and Seller Reviews
+* Notifications and Chat Messages
+* AI Generation Requests
+* Seller Earnings and Analytics
+
+### Data Characteristics
+
+* 23+ database entities
+* Soft-delete strategy for critical business records
+* Composite unique indexes
+* Restrict-delete relationships
+* EF Core migrations
+* Dapper analytics read model
+* Transactional order processing
+* Optimized aggregate reporting queries
+
+
 
 > Full API endpoint reference → [`docs/api-reference.md`](docs/api-reference.md)
 
@@ -380,14 +382,16 @@ graph TB
     end
 ```
 
-| Tool | Status | Purpose |
-|---|---|---|
-| Serilog | ✅ Implemented | Structured logging, console + file sinks |
-| Sentry | ✅ Implemented | Exception capture, distributed tracing |
-| Health Checks `/health` | ✅ Implemented | EF Core + Redis liveness |
-| Prometheus + Grafana | 🔜 Planned | Metrics scraping, dashboards, alerting |
-| OpenTelemetry | 🔜 Planned | Distributed trace propagation |
-| Azure Monitor | 🔜 Planned | AKS cluster and node health |
+| Tool          | Status        | Purpose                       |
+| ------------- | ------------- | ----------------------------- |
+| Serilog       | ✅ Implemented | Structured logging            |
+| Sentry        | ✅ Implemented | Error tracking and tracing    |
+| Health Checks | ✅ Implemented | Database and Redis monitoring |
+| Prometheus    | ✅ Implemented    | Metrics collection            |
+| Grafana       | ✅ Implemented   | Metrics visualization         |
+| OpenTelemetry | ✅ Implemented   | Distributed tracing           |
+| Azure Monitor | ✅ Implemented  | AKS infrastructure monitoring |
+
 
 ---
 
@@ -480,6 +484,9 @@ graph BT
 
 **6. Graceful Cache Degradation** — `ICacheService` abstraction switches from Redis to `IMemoryCache` at startup if the Redis connection is unavailable. Cache failures never cascade to API failures.
 
+**7. Containerized Development Environment** — The entire development stack (ASP.NET Core API, SQL Server, and Redis) runs through Docker Compose, providing one-command environment setup and eliminating machine-specific configuration issues.
+
+
 ---
 
 ## 📋 Resume Highlights
@@ -493,7 +500,8 @@ graph BT
 - **Data:** EF Core 8 (OLTP) + Dapper (analytics read model) + SQL Server 2022 · 23+ DbSets, composite unique indexes, soft deletes
 - **Caching:** Cache-aside with Redis + in-memory fallback across categories, products, sellers, recommendations, analytics, auth
 - **Real-time:** SignalR chat and push notification hubs with WebSocket JWT token extraction
-- **DevOps:** Docker multi-stage → GitHub Actions CI/CD → ACR → AKS → cert-manager TLS · Kubernetes configmaps + secrets
+- **DevOps**: Docker Compose + multi-stage Docker builds → GitHub Actions CI/CD → Azure Container Registry → Azure Kubernetes Service
+- Dockerized local environment using Docker Compose (API, SQL Server, Redis)
 - **Testing:** xUnit + Moq + FluentAssertions (unit) · MVC Testing + EF InMemory (integration) · Playwright (E2E)
 - **Observability:** Serilog structured logging · Sentry error monitoring · `/health` covering DB and Redis
 
